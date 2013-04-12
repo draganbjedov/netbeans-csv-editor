@@ -111,6 +111,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public void componentShowing() {
+        updateTable();
     }
 
     @Override
@@ -121,7 +122,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     public void componentActivated() {
         if (callback != null)
             callback.updateTitle(obj.getPrimaryFile().getNameExt());
-        updateTable();
     }
 
     @Override
