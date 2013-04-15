@@ -2,8 +2,8 @@ package draganbjedov.csv.view;
 
 import draganbjedov.csv.dataobject.CSVDataObject;
 import java.awt.FontMetrics;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -11,11 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -37,11 +39,13 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private CSVDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
+    private transient CSVTableModel tableModel;
 
     public CSVVisualElement(Lookup lkp) {
         obj = lkp.lookup(CSVDataObject.class);
         assert obj != null;
         initComponents();
+        init();
         createToolBar();
     }
 
@@ -58,7 +62,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         setLayout(new java.awt.BorderLayout());
 
-        table.setAutoCreateRowSorter(true);
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -69,6 +72,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         ));
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         table.setCellSelectionEnabled(true);
+        table.getTableHeader().setReorderingAllowed(false);
         tableScrollPane.setViewportView(table);
         table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
@@ -78,6 +82,14 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private javax.swing.JTable table;
     private javax.swing.JScrollPane tableScrollPane;
     // End of variables declaration//GEN-END:variables
+    private JButton addRowButton;
+    private JButton removeRowButton;
+    private JButton addColumnButton;
+    private JButton removeColumnButton;
+    private JButton moveTop;
+    private JButton moveUp;
+    private JButton moveDown;
+    private JButton moveBottom;
 
     @Override
     public JComponent getVisualRepresentation() {
@@ -144,58 +156,142 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     private void createToolBar() {
-        JButton addRowButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-row.gif"))) {
+        addRowButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-row.gif"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((DefaultTableModel) table.getModel()).addRow(new String[table.getColumnCount()]);
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+                    tableModel.addRow();
+                    selectRow(table.getRowCount() - 1);
+                } else {
+                    tableModel.insertRow(selectedRow + 1);
+                    selectRow(selectedRow + 1);
+                }
             }
         });
         addRowButton.setToolTipText("Add row");
         toolbar.add(addRowButton);
 
-        JButton removeRowButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-row.png"))) {
+        removeRowButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-row.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (table.getSelectedRow() != -1) {
-                    ((DefaultTableModel) table.getModel()).removeRow(table.getSelectedRow());
+                int[] rows = table.getSelectedRows();
+                for (int i = 0; i < rows.length; i++) {
+                    tableModel.removeRow(table.convertRowIndexToModel(rows[i] - i));
+                }
+                if (rows.length > 0) {
+                    int row = rows[0] - 1;
+                    if (row < 0) {
+                        if (table.getRowCount() > 0)
+                            selectRow(0);
+                    } else {
+                        selectRow(row);
+                    }
                 }
             }
         });
         removeRowButton.setToolTipText("Remove row");
         toolbar.add(removeRowButton);
 
-        JButton addColumnButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-column.png"))) {
+        addColumnButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-column.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String columnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", "New column");
-                ((DefaultTableModel) table.getModel()).addColumn(columnName);
+                tableModel.addColumn(columnName);
+                table.clearSelection();
+                int column = table.getColumnCount() - 1;
+                selectColumn(column);
             }
         });
         addColumnButton.setToolTipText("Add column");
         toolbar.add(addColumnButton);
 
 
-        JButton removeColumnButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-column.png"))) {
+        removeColumnButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-column.png"))) {
             @Override
-            @SuppressWarnings("UseOfObsoleteCollectionType")
             public void actionPerformed(ActionEvent e) {
                 if (table.getSelectedColumn() != -1) {
-                    DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
-                    DefaultTableModel newTableModel = new DefaultTableModel();
-                    Vector v = tableModel.getDataVector();
-                    Vector newData = newDataVector(v, table.getSelectedColumn());
-                    Vector newColumns = getColumnIdentifiers(tableModel, table.getSelectedColumn());
-                    tableModel.setDataVector(newData, newColumns);
+                    tableModel.removeColumn(table.getSelectedColumn());
                 }
             }
         });
         removeColumnButton.setToolTipText("Remove row");
         toolbar.add(removeColumnButton);
+
+        toolbar.addSeparator();
+
+        //Move actions
+        moveTop = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/go-top.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+                for (int i = 0; i < rows.length; i++) {
+                    int row = rows[i];
+                    int to = i;
+                    tableModel.moveRow(row, to);
+                }
+                tableModel.fireTableDataChanged();
+                selectRowInterval(0, rows.length - 1);
+            }
+        });
+        moveTop.setToolTipText("Move to the top");
+        toolbar.add(moveTop);
+
+        moveUp = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/go-up.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+                if (table.getSelectedRow() != 0 && table.getSelectedRow() != -1) {
+                    int row = table.getSelectedRow() - 1;
+                    int to = rows[rows.length - 1];
+                    if (row >= 0) {
+                        tableModel.moveRow(row, to);
+                        tableModel.fireTableDataChanged();
+                        selectRowInterval(rows[0] - 1, rows[rows.length - 1] - 1);
+                    }
+                }
+            }
+        });
+        moveUp.setToolTipText("Move up");
+        toolbar.add(moveUp);
+
+        moveDown = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/go-down.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+                if (table.getSelectedRow() != -1) {
+                    int row = rows[rows.length - 1] + 1;
+                    int to = table.getSelectedRow();
+                    if (row <= table.getRowCount() - 1) {
+                        tableModel.moveRow(row, to);
+                        tableModel.fireTableDataChanged();
+                        selectRowInterval(rows[0] + 1, rows[rows.length - 1] + 1);
+                    }
+                }
+            }
+        });
+        moveDown.setToolTipText("Move down");
+        toolbar.add(moveDown);
+
+        moveBottom = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/go-bottom.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+                for (int i = 0; i < rows.length; i++) {
+                    int row = rows[i] - i;
+                    tableModel.moveRow(row, table.getRowCount() - 1);
+                }
+                tableModel.fireTableDataChanged();
+                selectRowInterval(table.getRowCount() - rows.length, table.getRowCount() - 1);
+            }
+        });
+        moveBottom.setToolTipText("Move to the bottom");
+        toolbar.add(moveBottom);
+
     }
 
-    @SuppressWarnings({"null", "ConstantConditions"})
     private void updateTable() {
-        final DefaultTableModel tableModel = obj.readFile();
+        tableModel = obj.readFile();
         tableModel.addTableModelListener(new TableModelListener() {
             @Override
             public void tableChanged(TableModelEvent e) {
@@ -209,36 +305,76 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(i));
             table.getColumnModel().getColumn(i).setPreferredWidth(width + 20);
         }
+        setActiveButtons();
     }
 
-    @SuppressWarnings("UseOfObsoleteCollectionType")
-    private Vector newDataVector(Vector v, int j) {
-        Vector v1 = new Vector();
-        try {
-            Vector v2;
-            Object[] o = v.toArray();
-            int i = 0;
-            while (i < o.length) {
-                v2 = (Vector) o[i];
-                v2.remove(j);
-                v1.add(v2);
-                i++;
+    private void setActiveButtons() {
+        final boolean enableRemove = table.getSelectedRowCount() >= 1;
+        removeRowButton.setEnabled(enableRemove);
+        removeColumnButton.setEnabled(enableRemove);
+        int[] rows = table.getSelectedRows();
+        if (moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
+            if (rows.length == 0) {
+                moveTop.setEnabled(false);
+                moveUp.setEnabled(false);
+                moveDown.setEnabled(false);
+                moveBottom.setEnabled(false);
+            } else if (rows.length == 1) {
+                moveTop.setEnabled(rows[0] != 0);
+                moveUp.setEnabled(rows[0] != 0);
+                moveDown.setEnabled(rows[0] != table.getRowCount() - 1);
+                moveBottom.setEnabled(rows[0] != table.getRowCount() - 1);
+            } else {
+                moveTop.setEnabled(true);
+                moveBottom.setEnabled(true);
+                int prev = rows[0];
+                for (int i = 1; i < rows.length; i++) {
+                    if (prev != rows[i] - 1) {
+                        moveUp.setEnabled(false);
+                        moveDown.setEnabled(false);
+                        return;
+                    } else {
+                        prev = rows[i];
+                    }
+                }
+                moveUp.setEnabled(true);
+                moveDown.setEnabled(true);
             }
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Error in newvector \n" + e);
         }
-        return v1;
     }
 
-    @SuppressWarnings("UseOfObsoleteCollectionType")
-    private Vector getColumnIdentifiers(DefaultTableModel tableModel, int removedColumn) {
-        Vector columnIdentifiers = new Vector();
-        int i = 0;
-        while (i < tableModel.getColumnCount()) {
-            if (i != removedColumn)
-                columnIdentifiers.add(tableModel.getColumnName(i));
-            i++;
-        }
-        return columnIdentifiers;
+    private void init() {
+        RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
+        tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
+        tableScrollPane.setRowHeaderView(rowNumberTable);
+
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                setActiveButtons();
+            }
+        });
+        tableScrollPane.setViewportView(table);
+    }
+
+    private void selectRow(int row) {
+        Rectangle rect = table.getCellRect(row, 0, true);
+        table.scrollRectToVisible(rect);
+        table.clearSelection();
+        table.addRowSelectionInterval(row, row);
+        table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
+    }
+
+    private void selectRowInterval(int row1, int row2) {
+        Rectangle rect = table.getCellRect(row1, 0, true);
+        table.scrollRectToVisible(rect);
+        table.clearSelection();
+        table.addRowSelectionInterval(row1, row1);
+        table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
+    }
+
+    private void selectColumn(int column) {
+        table.addColumnSelectionInterval(column, column);
+        table.addRowSelectionInterval(0, table.getRowCount() - 1);
     }
 }

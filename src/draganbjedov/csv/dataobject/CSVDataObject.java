@@ -1,7 +1,9 @@
 package draganbjedov.csv.dataobject;
 
+import draganbjedov.csv.view.CSVTableModel;
 import java.io.IOException;
-import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
+import java.util.Collections;
 import javax.swing.text.BadLocationException;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
@@ -87,16 +89,6 @@ import org.openide.windows.TopComponent;
 })
 public class CSVDataObject extends MultiDataObject {
 
-    public CSVDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
-        super(pf, loader);
-        registerEditor("text/csv", true);
-    }
-
-    @Override
-    protected int associateLookup() {
-        return 1;
-    }
-
     @MultiViewElement.Registration(
             displayName = "#LBL_CSV_EDITOR",
             iconBase = "draganbjedov/csv/icons/csv.png",
@@ -109,9 +101,19 @@ public class CSVDataObject extends MultiDataObject {
         return new MultiViewEditorElement(lkp);
     }
 
+    public CSVDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
+        super(pf, loader);
+        registerEditor("text/csv", true);
+    }
+
+    @Override
+    protected int associateLookup() {
+        return 1;
+    }
+
     @SuppressWarnings({"null", "ConstantConditions"})
-    public DefaultTableModel readFile() {
-        DefaultTableModel tableModel = null;
+    public CSVTableModel readFile() {
+        CSVTableModel tableModel = null;
         try {
             Lookup lookup = getCookieSet().getLookup();
             DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
@@ -133,21 +135,27 @@ public class CSVDataObject extends MultiDataObject {
                     boolean first = true;
                     for (String ss : s) {
                         if (first) {
-                            tableModel = new DefaultTableModel(ss.split(","), 0);
+                            String[] split = ss.split(",");
+                            ArrayList<String> headers = new ArrayList<String>(split.length);
+                            Collections.addAll(headers, split);
+                            tableModel = new CSVTableModel(headers);
                             first = false;
                             continue;
                         }
-                        tableModel.addRow(ss.split(","));
+                        String[] split = ss.split(",");
+                        ArrayList<String> rowData = new ArrayList<String>(split.length);
+                        Collections.addAll(rowData, split);
+                        tableModel.addRow(rowData);
                     }
                 }
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
-        return tableModel != null ? tableModel : new DefaultTableModel();
+        return tableModel != null ? tableModel : new CSVTableModel();
     }
 
-    public void updateFile(DefaultTableModel model) {
+    public void updateFile(CSVTableModel model) {
         Lookup lookup = getCookieSet().getLookup();
         DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
         NbEditorDocument document;
@@ -164,23 +172,23 @@ public class CSVDataObject extends MultiDataObject {
         }
         try {
             StringBuilder stringBuilder = new StringBuilder();
-            for(int i = 0; i < model.getColumnCount(); i++){
+            for (int i = 0; i < model.getColumnCount(); i++) {
                 stringBuilder.append(model.getColumnName(i));
-                if(i + 1 < model.getColumnCount())
+                if (i + 1 < model.getColumnCount())
                     stringBuilder.append(",");
             }
             stringBuilder.append("\n");
-            for(int i = 0; i < model.getRowCount(); i++){
-                for(int j = 0; j < model.getColumnCount(); j++){
+            for (int i = 0; i < model.getRowCount(); i++) {
+                for (int j = 0; j < model.getColumnCount(); j++) {
                     String value = (String) model.getValueAt(i, j);
-                    stringBuilder.append(value == null ? "": value);
-                    if(j + 1 < model.getColumnCount())
+                    stringBuilder.append(value == null ? "" : value);
+                    if (j + 1 < model.getColumnCount())
                         stringBuilder.append(",");
                 }
-                if(i + 1 < model.getRowCount())
+                if (i + 1 < model.getRowCount())
                     stringBuilder.append("\n");
             }
-            
+
             int length = document.getLength();
             String s = stringBuilder.toString();
             if (!document.getText(0, length).equals(s)) {
