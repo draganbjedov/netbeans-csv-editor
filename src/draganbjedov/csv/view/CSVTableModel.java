@@ -187,4 +187,18 @@ public class CSVTableModel extends AbstractTableModel {
         }
         fireTableStructureChanged();
     }
+
+    public void addColumn(String columnName, int index) {
+        try {
+            headers.add(index, columnName);
+        } catch (Exception e) {
+            addColumn(columnName);
+            return;
+        }
+
+        for (int i = 0; i < values.size(); i++) {
+            values.get(i).add(index, "");
+        }
+        fireTableStructureChanged();
+    }
 }

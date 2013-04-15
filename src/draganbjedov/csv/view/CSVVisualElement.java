@@ -4,6 +4,8 @@ import draganbjedov.csv.dataobject.CSVDataObject;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -13,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -40,6 +43,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
     private transient CSVTableModel tableModel;
+    private AbstractAction addRowAction;
+    private AbstractAction removeRowAction;
+    private AbstractAction addColumnAction;
+    private AbstractAction removeColumnAction;
 
     public CSVVisualElement(Lookup lkp) {
         obj = lkp.lookup(CSVDataObject.class);
@@ -62,6 +69,12 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         setLayout(new java.awt.BorderLayout());
 
+        tableScrollPane.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableScrollPaneMouseClicked(evt);
+            }
+        });
+
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -78,6 +91,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         add(tableScrollPane, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void tableScrollPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableScrollPaneMouseClicked
+        table.clearSelection();
+    }//GEN-LAST:event_tableScrollPaneMouseClicked
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTable table;
     private javax.swing.JScrollPane tableScrollPane;
@@ -156,65 +173,19 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     private void createToolBar() {
-        addRowButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-row.gif"))) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = table.getSelectedRow();
-                if (selectedRow == -1) {
-                    tableModel.addRow();
-                    selectRow(table.getRowCount() - 1);
-                } else {
-                    tableModel.insertRow(selectedRow + 1);
-                    selectRow(selectedRow + 1);
-                }
-            }
-        });
-        addRowButton.setToolTipText("Add row");
+        addRowButton = new JButton(addRowAction);
+        addRowButton.setToolTipText("Add row" + " (Insert)");
         toolbar.add(addRowButton);
 
-        removeRowButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-row.png"))) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int[] rows = table.getSelectedRows();
-                for (int i = 0; i < rows.length; i++) {
-                    tableModel.removeRow(table.convertRowIndexToModel(rows[i] - i));
-                }
-                if (rows.length > 0) {
-                    int row = rows[0] - 1;
-                    if (row < 0) {
-                        if (table.getRowCount() > 0)
-                            selectRow(0);
-                    } else {
-                        selectRow(row);
-                    }
-                }
-            }
-        });
-        removeRowButton.setToolTipText("Remove row");
+        removeRowButton = new JButton(removeRowAction);
+        removeRowButton.setToolTipText("Remove row" + " (Delete)");
         toolbar.add(removeRowButton);
 
-        addColumnButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-column.png"))) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String columnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", "New column");
-                tableModel.addColumn(columnName);
-                table.clearSelection();
-                int column = table.getColumnCount() - 1;
-                selectColumn(column);
-            }
-        });
+        addColumnButton = new JButton(addColumnAction);
         addColumnButton.setToolTipText("Add column");
         toolbar.add(addColumnButton);
 
-
-        removeColumnButton = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-column.png"))) {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (table.getSelectedColumn() != -1) {
-                    tableModel.removeColumn(table.getSelectedColumn());
-                }
-            }
-        });
+        removeColumnButton = new JButton(removeColumnAction);
         removeColumnButton.setToolTipText("Remove row");
         toolbar.add(removeColumnButton);
 
@@ -299,12 +270,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         });
         table.setModel(tableModel);
-        table.getTableHeader().getFont();
-        FontMetrics fontMetrics = table.getTableHeader().getFontMetrics(table.getTableHeader().getFont());
-        for (int i = 0; i < tableModel.getColumnCount(); i++) {
-            int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(i));
-            table.getColumnModel().getColumn(i).setPreferredWidth(width + 20);
-        }
+        updateColumnsWidths();
         setActiveButtons();
     }
 
@@ -355,6 +321,88 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         });
         tableScrollPane.setViewportView(table);
+
+        addRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-row.gif"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+                    tableModel.addRow();
+                    selectRow(table.getRowCount() - 1);
+                } else {
+                    tableModel.insertRow(selectedRow + 1);
+                    selectRow(selectedRow + 1);
+                }
+            }
+        };
+        removeRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-row.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+                for (int i = 0; i < rows.length; i++) {
+                    tableModel.removeRow(table.convertRowIndexToModel(rows[i] - i));
+                }
+                if (rows.length > 0) {
+                    int row = rows[0] - 1;
+                    if (row < 0) {
+                        if (table.getRowCount() > 0)
+                            selectRow(0);
+                    } else {
+                        selectRow(row);
+                    }
+                }
+            }
+        };
+        addColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/add-column.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String columnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", "New column");
+                int selectedColumn = table.getSelectedColumn();
+                if (selectedColumn == -1) {
+                    tableModel.addColumn(columnName);
+                    selectColumn(table.getColumnCount() - 1);
+                } else {
+                    tableModel.addColumn(columnName, selectedColumn + 1);
+                    selectColumn(selectedColumn + 1);
+                }
+
+                updateColumnsWidths();
+            }
+        };
+        removeColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/csv/icons/remove-column.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (table.getSelectedColumn() != -1) {
+                    tableModel.removeColumn(table.getSelectedColumn());
+                    updateColumnsWidths();
+                }
+            }
+        };
+
+        KeyStroke strokeAddRow = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0);
+        KeyStroke strokeRemoveRow = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+        KeyStroke strokeAddColumn = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke strokeRemoveColumn = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK);
+
+        this.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
+        this.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
+        this.getInputMap().put(strokeRemoveRow, "DELETE_ROW_COMMAND");
+        this.getActionMap().put("DELETE_ROW_COMMAND", removeRowAction);
+
+        table.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
+        table.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
+        table.getInputMap().put(strokeRemoveRow, "DELETE_ROW_COMMAND");
+        table.getActionMap().put("DELETE_ROW_COMMAND", removeRowAction);
+
+        this.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
+        this.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
+        this.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
+        this.getActionMap().put("DELETE_COLUMN_COMMAND", removeColumnAction);
+
+        table.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
+        table.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
+        table.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
+        table.getActionMap().put("DELETE_COLUMN_COMMAND", removeColumnAction);
     }
 
     private void selectRow(int row) {
@@ -369,12 +417,22 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         Rectangle rect = table.getCellRect(row1, 0, true);
         table.scrollRectToVisible(rect);
         table.clearSelection();
-        table.addRowSelectionInterval(row1, row1);
+        table.addRowSelectionInterval(row1, row2);
         table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
     }
 
     private void selectColumn(int column) {
+        table.clearSelection();
         table.addColumnSelectionInterval(column, column);
         table.addRowSelectionInterval(0, table.getRowCount() - 1);
+    }
+
+    private void updateColumnsWidths() {
+        table.getTableHeader().getFont();
+        FontMetrics fontMetrics = table.getTableHeader().getFontMetrics(table.getTableHeader().getFont());
+        for (int i = 0; i < tableModel.getColumnCount(); i++) {
+            int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(i));
+            table.getColumnModel().getColumn(i).setPreferredWidth(width + 20);
+        }
     }
 }
