@@ -25,6 +25,8 @@ import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -310,6 +312,13 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     private void init() {
+        obj.getPrimaryFile().addFileChangeListener(new FileChangeAdapter() {
+            @Override
+            public void fileChanged(FileEvent fe) {
+                updateTable();
+            }
+        });
+
         RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
         tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
         tableScrollPane.setRowHeaderView(rowNumberTable);
