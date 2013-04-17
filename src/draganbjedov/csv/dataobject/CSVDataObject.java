@@ -209,8 +209,8 @@ public class CSVDataObject extends MultiDataObject {
                     }
                     tableModel.setValues(values);
                 } else {
-                    tableModel.setHeaders(Collections.EMPTY_LIST);
-                    tableModel.setValues(Collections.EMPTY_LIST);
+                    tableModel.setHeaders(new ArrayList<String>());
+                    tableModel.setValues(new ArrayList<List<String>>());
                 }
             }
         } catch (BadLocationException ex) {
@@ -244,7 +244,7 @@ public class CSVDataObject extends MultiDataObject {
             stringBuilder.append("\n");
             for (int i = 0; i < model.getRowCount(); i++) {
                 for (int j = 0; j < model.getColumnCount(); j++) {
-                    String value = (String) model.getValueAt(i, j);
+                    String value = model.getValueAt(i, j);
                     stringBuilder.append(value == null ? "" : value);
                     if (j + 1 < model.getColumnCount())
                         stringBuilder.append(",");

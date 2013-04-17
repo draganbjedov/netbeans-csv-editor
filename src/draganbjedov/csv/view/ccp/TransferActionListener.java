@@ -15,7 +15,7 @@ import javax.swing.JComponent;
  * the appropriate action on the currently focused component.
  */
 public class TransferActionListener implements ActionListener,
-        PropertyChangeListener {
+                                               PropertyChangeListener {
 
     private JComponent focusOwner = null;
 
@@ -40,7 +40,7 @@ public class TransferActionListener implements ActionListener,
         if (focusOwner == null) {
             return;
         }
-        String action = (String) e.getActionCommand();
+        String action = e.getActionCommand();
         Action a = focusOwner.getActionMap().get(action);
         if (a != null) {
             a.actionPerformed(new ActionEvent(focusOwner,
