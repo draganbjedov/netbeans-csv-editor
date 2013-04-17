@@ -1,16 +1,22 @@
 package draganbjedov.csv.dataobject;
 
 import draganbjedov.csv.view.CSVTableModel;
+import draganbjedov.csv.view.CSVVisualElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import javax.swing.text.BadLocationException;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoableEdit;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
+import org.openide.awt.UndoRedo;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
@@ -100,10 +106,64 @@ public class CSVDataObject extends MultiDataObject {
     public static MultiViewEditorElement createEditor(Lookup lkp) {
         return new MultiViewEditorElement(lkp);
     }
+    private UndoRedo.Manager undoRedoManager;
+    private CSVVisualElement visualEditor;
 
     public CSVDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
+        undoRedoManager = new UndoRedo.Manager() {
+            @Override
+            public void undo() throws CannotUndoException {
+                super.undo();
+                updateTable();
+            }
+
+            @Override
+            protected void undoTo(UndoableEdit edit) throws CannotUndoException {
+                super.undoTo(edit);
+                updateTable();
+            }
+
+            @Override
+            public void redo() throws CannotRedoException {
+                super.redo();
+                updateTable();
+            }
+
+            @Override
+            protected void redoTo(UndoableEdit edit) throws CannotRedoException {
+                super.redoTo(edit);
+                updateTable();
+            }
+
+            @Override
+            public void undoOrRedo() throws CannotRedoException, CannotUndoException {
+                super.undoOrRedo();
+                updateTable();
+            }
+
+            private void updateTable() {
+                if (visualEditor != null && visualEditor.isVisible()) {
+                    visualEditor.updateTable();
+                }
+            }
+        };
         registerEditor("text/csv", true);
+
+        Lookup lookup = getCookieSet().getLookup();
+        DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
+        NbEditorDocument document = null;
+        if (dataEditorSupport.isDocumentLoaded()) {
+            document = (NbEditorDocument) dataEditorSupport.getDocument();
+        } else {
+            try {
+                document = (NbEditorDocument) dataEditorSupport.openDocument();
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+        if (document != null)
+            document.addUndoableEditListener(undoRedoManager);
     }
 
     @Override
@@ -112,8 +172,7 @@ public class CSVDataObject extends MultiDataObject {
     }
 
     @SuppressWarnings({"null", "ConstantConditions"})
-    public CSVTableModel readFile() {
-        CSVTableModel tableModel = null;
+    public void readFile(CSVTableModel tableModel) {
         try {
             Lookup lookup = getCookieSet().getLookup();
             DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
@@ -133,26 +192,31 @@ public class CSVDataObject extends MultiDataObject {
                     String text = document.getText(0, length);
                     String[] s = text.split("\n");
                     boolean first = true;
+                    List<List<String>> values = new ArrayList<List<String>>(s.length);
                     for (String ss : s) {
                         if (first) {
                             String[] split = ss.split(",");
                             ArrayList<String> headers = new ArrayList<String>(split.length);
                             Collections.addAll(headers, split);
-                            tableModel = new CSVTableModel(headers);
+                            tableModel.setHeaders(headers);
                             first = false;
                             continue;
                         }
                         String[] split = ss.split(",");
                         ArrayList<String> rowData = new ArrayList<String>(split.length);
                         Collections.addAll(rowData, split);
-                        tableModel.addRow(rowData);
+                        values.add(rowData);
                     }
+                    tableModel.setValues(values);
+                } else {
+                    tableModel.setHeaders(Collections.EMPTY_LIST);
+                    tableModel.setValues(Collections.EMPTY_LIST);
                 }
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
-        return tableModel != null ? tableModel : new CSVTableModel();
+        tableModel.fireTableStructureChanged();
     }
 
     public void updateFile(CSVTableModel model) {
@@ -197,5 +261,13 @@ public class CSVDataObject extends MultiDataObject {
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    public UndoRedo.Manager getUndoRedoManager() {
+        return undoRedoManager;
+    }
+
+    public void setVisualEditor(CSVVisualElement visualEditor) {
+        this.visualEditor = visualEditor;
     }
 }

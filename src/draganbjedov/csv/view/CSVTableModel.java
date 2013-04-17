@@ -13,8 +13,9 @@ import javax.swing.table.AbstractTableModel;
  */
 public class CSVTableModel extends AbstractTableModel {
 
-    protected List<List<String>> values;
-    protected List<String> headers;
+    private List<List<String>> values;
+    private List<String> headers;
+//    private UndoRedo.Manager undoRedoManager;
 
     public CSVTableModel() {
         headers = new ArrayList<String>();
@@ -110,6 +111,16 @@ public class CSVTableModel extends AbstractTableModel {
         }
     }
 
+    public void removeRows(int[] rows) {
+        for (int i = 0; i < rows.length; i++) {
+            values.remove(rows[i] - i);
+        }
+        if (values.size() > 0)
+            fireTableRowsDeleted(0, values.size() - 1);
+        else
+            fireTableDataChanged();
+    }
+
     @Override
     public int getRowCount() {
         return values.size();
@@ -151,8 +162,11 @@ public class CSVTableModel extends AbstractTableModel {
             List<String> data = values.get(row);
             while (data.size() < headers.size())
                 data.add("");
+//            String oldValue = data.get(column);
             data.set(column, (String) value);
             fireTableCellUpdated(row, column);
+//            if (!oldValue.equals(value))
+//                undoRedoManager.undoableEditHappened(new UndoableEditEvent(this, new CellUndoableEdit(this, oldValue, value, row, column)));
         }
     }
 
@@ -179,6 +193,19 @@ public class CSVTableModel extends AbstractTableModel {
         fireTableStructureChanged();
     }
 
+    public void removeColumns(int[] columns) {
+        for (int i = 0; i < columns.length; i++) {
+            int column = columns[i] - i;
+            headers.remove(column);
+
+            for (int j = 0; j < values.size(); j++) {
+                values.get(j).remove(column);
+            }
+        }
+        if (columns.length > 0)
+            fireTableStructureChanged();
+    }
+
     public void addColumn(String columnName) {
         headers.add(columnName);
 
@@ -200,5 +227,16 @@ public class CSVTableModel extends AbstractTableModel {
             values.get(i).add(index, "");
         }
         fireTableStructureChanged();
+    }
+
+//    public void setUndoRedoManager(UndoRedo.Manager undoRedoManager) {
+//        this.undoRedoManager = undoRedoManager;
+//    }
+    public void setValues(List<List<String>> values) {
+        this.values = values;
+    }
+
+    public void setHeaders(List<String> headers) {
+        this.headers = headers;
     }
 }
