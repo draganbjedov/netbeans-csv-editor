@@ -121,6 +121,21 @@ public class CSVTableModel extends AbstractTableModel {
             fireTableDataChanged();
     }
 
+    public void addRows(int row, List<List<String>> rows) {
+        try {
+            values.addAll(row, rows);
+            fireTableRowsInserted(row, row + rows.size() - 1);
+        } catch (Exception e) {
+            addRows(rows);
+        }
+    }
+
+    public void addRows(List<List<String>> rows) {
+        int row = values.size();
+        values.addAll(rows);
+        fireTableRowsInserted(row, row + rows.size() - 1);
+    }
+
     @Override
     public int getRowCount() {
         return values.size();

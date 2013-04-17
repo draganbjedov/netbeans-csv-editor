@@ -1,13 +1,18 @@
 package draganbjedov.csv.view;
 
 import draganbjedov.csv.dataobject.CSVDataObject;
+import draganbjedov.csv.view.ccp.TableRowTransferable;
+import draganbjedov.csv.view.ccp.TableTransferHandler;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -17,10 +22,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import jplcpro.project.symbolsTable.view.TransferActionListener;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -47,6 +54,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private AbstractAction removeRowAction;
     private AbstractAction addColumnAction;
     private AbstractAction removeColumnAction;
+    private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
     @SuppressWarnings("LeakingThisInConstructor")
     public CSVVisualElement(Lookup lkp) {
@@ -66,8 +74,34 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        tablePopUpMenu = new javax.swing.JPopupMenu();
+        copyPopUp = new javax.swing.JMenuItem();
+        cutPopUp = new javax.swing.JMenuItem();
+        pastePopUp = new javax.swing.JMenuItem();
         tableScrollPane = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
+
+        tablePopUpMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+                tablePopUpMenuPopupMenuWillBecomeVisible(evt);
+            }
+            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            }
+        });
+
+        copyPopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/csv/icons/copy.gif"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(copyPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.copyPopUp.text")); // NOI18N
+        tablePopUpMenu.add(copyPopUp);
+
+        cutPopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/csv/icons/cut.gif"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(cutPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.cutPopUp.text")); // NOI18N
+        tablePopUpMenu.add(cutPopUp);
+
+        pastePopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/csv/icons/paste.gif"))); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(pastePopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.pastePopUp.text")); // NOI18N
+        tablePopUpMenu.add(pastePopUp);
 
         setLayout(new java.awt.BorderLayout());
 
@@ -97,8 +131,20 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private void tableScrollPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableScrollPaneMouseClicked
         table.clearSelection();
     }//GEN-LAST:event_tableScrollPaneMouseClicked
+
+    private void tablePopUpMenuPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_tablePopUpMenuPopupMenuWillBecomeVisible
+        boolean enabled = table.getSelectedRowCount() > 0;
+        copyPopUp.setEnabled(enabled);
+        cutPopUp.setEnabled(enabled);
+
+        pastePopUp.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+    }//GEN-LAST:event_tablePopUpMenuPopupMenuWillBecomeVisible
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem copyPopUp;
+    private javax.swing.JMenuItem cutPopUp;
+    private javax.swing.JMenuItem pastePopUp;
     private javax.swing.JTable table;
+    private javax.swing.JPopupMenu tablePopUpMenu;
     private javax.swing.JScrollPane tableScrollPane;
     // End of variables declaration//GEN-END:variables
     private JButton addRowButton;
@@ -432,6 +478,39 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 //        InputMap im = table.getInputMap(javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
 //        KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK);
 //        im.put(ctrlS, "clearSelection");
+
+        //cut, copy, paste
+
+        table.setComponentPopupMenu(tablePopUpMenu);
+        tableScrollPane.setComponentPopupMenu(tablePopUpMenu);
+
+        table.setTransferHandler(new TableTransferHandler());
+
+        ActionMap map = table.getActionMap();
+
+        map.put(TransferHandler.getCutAction().getValue(Action.NAME),
+                TransferHandler.getCutAction());
+
+        map.put(TransferHandler.getCopyAction().getValue(Action.NAME),
+                TransferHandler.getCopyAction());
+
+        map.put(TransferHandler.getPasteAction().getValue(Action.NAME),
+                TransferHandler.getPasteAction());
+
+        TransferActionListener ccpAction = new TransferActionListener();
+
+        copyPopUp.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
+
+        copyPopUp.addActionListener(ccpAction);
+
+        cutPopUp.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
+
+        cutPopUp.addActionListener(ccpAction);
+
+        pastePopUp.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
+
+        pastePopUp.addActionListener(ccpAction);
+
     }
 
     private void selectRow(int row) {
