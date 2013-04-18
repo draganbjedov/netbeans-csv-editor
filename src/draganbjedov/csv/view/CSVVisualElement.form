@@ -13,6 +13,9 @@
       <SubComponents>
         <MenuItem class="javax.swing.JMenuItem" name="copyPopUp">
           <Properties>
+            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+              <KeyStroke key="Ctrl+C"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/draganbjedov/csv/icons/copy.gif"/>
             </Property>
@@ -23,6 +26,9 @@
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="cutPopUp">
           <Properties>
+            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+              <KeyStroke key="Ctrl+X"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/draganbjedov/csv/icons/cut.gif"/>
             </Property>
@@ -33,6 +39,9 @@
         </MenuItem>
         <MenuItem class="javax.swing.JMenuItem" name="pastePopUp">
           <Properties>
+            <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+              <KeyStroke key="Ctrl+V"/>
+            </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
               <Image iconType="3" name="/draganbjedov/csv/icons/paste.gif"/>
             </Property>
