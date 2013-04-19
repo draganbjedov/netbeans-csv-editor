@@ -82,23 +82,26 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         table = new javax.swing.JTable();
 
         tablePopUpMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
-                tablePopUpMenuPopupMenuWillBecomeVisible(evt);
-            }
             public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
             }
             public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
             }
+            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+                tablePopUpMenuPopupMenuWillBecomeVisible(evt);
+            }
         });
 
+        copyPopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_MASK));
         copyPopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/csv/icons/copy.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(copyPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.copyPopUp.text")); // NOI18N
         tablePopUpMenu.add(copyPopUp);
 
+        cutPopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_MASK));
         cutPopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/csv/icons/cut.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(cutPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.cutPopUp.text")); // NOI18N
         tablePopUpMenu.add(cutPopUp);
 
+        pastePopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.CTRL_MASK));
         pastePopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/csv/icons/paste.gif"))); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(pastePopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.pastePopUp.text")); // NOI18N
         tablePopUpMenu.add(pastePopUp);
