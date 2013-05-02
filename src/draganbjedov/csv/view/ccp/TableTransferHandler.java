@@ -16,6 +16,7 @@ public class TableTransferHandler extends TransferHandler {
      * Perform the actual data import.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public boolean importData(TransferHandler.TransferSupport info) {
         //If we can't handle the import, bail now.
         if (!canImport(info)) {
