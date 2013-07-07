@@ -54,8 +54,9 @@ public class CSVTableModel extends AbstractTableModel {
      * @param data Row data
      */
     public void addRow(List<String> data) {
-        while (data.size() < headers.size())
+        while (data.size() < headers.size()) {
             data.add("");
+        }
         values.add(data);
         fireTableRowsInserted(values.size() - 1, values.size() - 1);
     }
@@ -86,12 +87,13 @@ public class CSVTableModel extends AbstractTableModel {
     /**
      * Adds row to specific row
      *
-     * @param row  Row index
+     * @param row Row index
      * @param data Row data
      */
     public void insertRow(int row, List<String> data) {
-        while (data.size() < headers.size())
+        while (data.size() < headers.size()) {
             data.add("");
+        }
         values.add(row, data);
         fireTableRowsInserted(row, row);
     }
@@ -151,8 +153,9 @@ public class CSVTableModel extends AbstractTableModel {
         if (rowIndex >= values.size() || columnIndex >= headers.size())
             return null;
         final List<String> data = values.get(rowIndex);
-        while (data.size() < headers.size())
+        while (data.size() < headers.size()) {
             data.add("");
+        }
         return data.get(columnIndex);
     }
 
@@ -175,8 +178,9 @@ public class CSVTableModel extends AbstractTableModel {
     public void setValueAt(Object value, int row, int column) {
         if (row < values.size() && column < headers.size()) {
             List<String> data = values.get(row);
-            while (data.size() < headers.size())
+            while (data.size() < headers.size()) {
                 data.add("");
+            }
 //            String oldValue = data.get(column);
             data.set(column, (String) value);
             fireTableCellUpdated(row, column);
@@ -253,5 +257,49 @@ public class CSVTableModel extends AbstractTableModel {
 
     public void setHeaders(List<String> headers) {
         this.headers = headers;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + (this.values != null ? this.values.hashCode() : 0);
+        hash = 67 * hash + (this.headers != null ? this.headers.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        final CSVTableModel other = (CSVTableModel) obj;
+        if (this.values != other.values && (this.values == null || !this.values.equals(other.values)))
+            return false;
+        if (this.headers != other.headers && (this.headers == null || !this.headers.equals(other.headers)))
+            return false;
+        return true;
+    }
+
+    @Override
+    public CSVTableModel clone() {
+        CSVTableModel model = new CSVTableModel();
+        if (headers != null) {
+            List<String> cloned = new ArrayList<String>(headers.size());
+            for (String header : headers)
+                cloned.add(header);
+            model.setHeaders(cloned);
+        }
+        if (values != null) {
+            List<List<String>> cloned = new ArrayList<List<String>>(values.size());
+            for (List<String> row : values) {
+                List<String> clonedRow = new ArrayList<String>(row.size());
+                for (String s : row)
+                    clonedRow.add(s);
+                cloned.add(clonedRow);
+            }
+            model.setValues(cloned);
+        }
+        return model;
     }
 }

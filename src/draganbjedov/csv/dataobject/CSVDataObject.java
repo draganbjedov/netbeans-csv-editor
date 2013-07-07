@@ -109,6 +109,7 @@ public class CSVDataObject extends MultiDataObject {
     }
     private UndoRedo.Manager undoRedoManager;
     private boolean addedUndoRedoManager = false;
+    private CSVTableModel model;
     private CSVVisualElement visualEditor;
 
     public CSVDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
@@ -159,7 +160,7 @@ public class CSVDataObject extends MultiDataObject {
     }
 
     @SuppressWarnings({"null", "ConstantConditions"})
-    public void readFile(CSVTableModel tableModel) {
+    public void readFile(CSVTableModel model) {
         try {
             Lookup lookup = getCookieSet().getLookup();
             DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
@@ -172,34 +173,36 @@ public class CSVDataObject extends MultiDataObject {
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-//                File file = FileUtil.toFile(this.getPrimaryFile());
-//                if (file.length() != 0) {
-//                    try {
-//                        List<String> s = this.getPrimaryFile().asLines();
-//                        boolean first = true;
-//                        List<List<String>> values = new ArrayList<List<String>>(s.size());
-//                        for (String ss : s) {
-//                            if (first) {
-//                                String[] split = ss.split(",");
-//                                ArrayList<String> headers = new ArrayList<String>(split.length);
-//                                Collections.addAll(headers, split);
-//                                tableModel.setHeaders(headers);
-//                                first = false;
-//                                continue;
-//                            }
-//                            String[] split = ss.split(",");
-//                            ArrayList<String> rowData = new ArrayList<String>(split.length);
-//                            Collections.addAll(rowData, split);
-//                            values.add(rowData);
-//                        }
-//                        tableModel.setValues(values);
-//                    } catch (IOException ex) {
-//                        Exceptions.printStackTrace(ex);
-//                    }
-//                } else {
-//                    tableModel.setHeaders(new ArrayList<String>());
-//                    tableModel.setValues(new ArrayList<List<String>>());
-//                }
+                //<editor-fold defaultstate="collapsed" desc="comment">
+                //                File file = FileUtil.toFile(this.getPrimaryFile());
+                //                if (file.length() != 0) {
+                //                    try {
+                //                        List<String> s = this.getPrimaryFile().asLines();
+                //                        boolean first = true;
+                //                        List<List<String>> values = new ArrayList<List<String>>(s.size());
+                //                        for (String ss : s) {
+                //                            if (first) {
+                //                                String[] split = ss.split(",");
+                //                                ArrayList<String> headers = new ArrayList<String>(split.length);
+                //                                Collections.addAll(headers, split);
+                //                                tableModel.setHeaders(headers);
+                //                                first = false;
+                //                                continue;
+                //                            }
+                //                            String[] split = ss.split(",");
+                //                            ArrayList<String> rowData = new ArrayList<String>(split.length);
+                //                            Collections.addAll(rowData, split);
+                //                            values.add(rowData);
+                //                        }
+                //                        tableModel.setValues(values);
+                //                    } catch (IOException ex) {
+                //                        Exceptions.printStackTrace(ex);
+                //                    }
+                //                } else {
+                //                    tableModel.setHeaders(new ArrayList<String>());
+                //                    tableModel.setValues(new ArrayList<List<String>>());
+                //                }
+                //</editor-fold>
             }
             if (document != null) {
                 addUndoableEditListener(document);
@@ -215,7 +218,7 @@ public class CSVDataObject extends MultiDataObject {
                             String[] split = ss.split(",");
                             ArrayList<String> headers = new ArrayList<String>(split.length);
                             Collections.addAll(headers, split);
-                            tableModel.setHeaders(headers);
+                            model.setHeaders(headers);
                             first = false;
                             continue;
                         }
@@ -224,62 +227,66 @@ public class CSVDataObject extends MultiDataObject {
                         Collections.addAll(rowData, split);
                         values.add(rowData);
                     }
-                    tableModel.setValues(values);
+                    model.setValues(values);
                 } else {
-                    tableModel.setHeaders(new ArrayList<String>());
-                    tableModel.setValues(new ArrayList<List<String>>());
+                    model.setHeaders(new ArrayList<String>());
+                    model.setValues(new ArrayList<List<String>>());
                 }
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
-        tableModel.fireTableStructureChanged();
+        this.model = model.clone();
+        model.fireTableStructureChanged();
     }
 
     public void updateFile(CSVTableModel model) {
-        Lookup lookup = getCookieSet().getLookup();
-        DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
-        NbEditorDocument document;
-        if (dataEditorSupport.isDocumentLoaded())
-            document = (NbEditorDocument) dataEditorSupport.getDocument();
-        else {
+        if (!this.model.equals(model)) {
+            Lookup lookup = getCookieSet().getLookup();
+            DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
+            NbEditorDocument document;
+            if (dataEditorSupport.isDocumentLoaded())
+                document = (NbEditorDocument) dataEditorSupport.getDocument();
+            else {
+                try {
+                    document = (NbEditorDocument) dataEditorSupport.openDocument();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                    //TODO Unable to open file
+                    return;
+                }
+            }
+
+            addUndoableEditListener(document);
+
             try {
-                document = (NbEditorDocument) dataEditorSupport.openDocument();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-                //TODO Unable to open file
-                return;
-            }
-        }
-
-        addUndoableEditListener(document);
-
-        try {
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < model.getColumnCount(); i++) {
-                stringBuilder.append(model.getColumnName(i));
-                if (i + 1 < model.getColumnCount())
-                    stringBuilder.append(",");
-            }
-            stringBuilder.append("\n");
-            for (int i = 0; i < model.getRowCount(); i++) {
-                for (int j = 0; j < model.getColumnCount(); j++) {
-                    String value = model.getValueAt(i, j);
-                    stringBuilder.append(value == null ? "" : value);
-                    if (j + 1 < model.getColumnCount())
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < model.getColumnCount(); i++) {
+                    stringBuilder.append(model.getColumnName(i));
+                    if (i + 1 < model.getColumnCount())
                         stringBuilder.append(",");
                 }
-                if (i + 1 < model.getRowCount())
-                    stringBuilder.append("\n");
-            }
+                stringBuilder.append("\n");
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    for (int j = 0; j < model.getColumnCount(); j++) {
+                        String value = model.getValueAt(i, j);
+                        stringBuilder.append(value == null ? "" : value);
+                        if (j + 1 < model.getColumnCount())
+                            stringBuilder.append(",");
+                    }
+                    if (i + 1 < model.getRowCount())
+                        stringBuilder.append("\n");
+                }
 
-            int length = document.getLength();
-            String s = stringBuilder.toString();
-            if (!document.getText(0, length).equals(s)) {
-                document.replace(0, length, s, null);
+                int length = document.getLength();
+                String s = stringBuilder.toString();
+                if (!document.getText(0, length).equals(s)) {
+                    document.replace(0, length, s, null);
+                    this.model = model.clone();
+                }
+            } catch (BadLocationException ex) {
+                Exceptions.printStackTrace(ex);
             }
-        } catch (BadLocationException ex) {
-            Exceptions.printStackTrace(ex);
         }
     }
 
