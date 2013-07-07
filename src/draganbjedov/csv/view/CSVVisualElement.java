@@ -84,10 +84,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         tablePopUpMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
             public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
             }
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
-            }
             public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
                 tablePopUpMenuPopupMenuWillBecomeVisible(evt);
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
             }
         });
 

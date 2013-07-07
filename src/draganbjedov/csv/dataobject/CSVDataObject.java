@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
@@ -107,6 +108,7 @@ public class CSVDataObject extends MultiDataObject {
         return new MultiViewEditorElement(lkp);
     }
     private UndoRedo.Manager undoRedoManager;
+    private boolean addedUndoRedoManager = false;
     private CSVVisualElement visualEditor;
 
     public CSVDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
@@ -149,21 +151,6 @@ public class CSVDataObject extends MultiDataObject {
             }
         };
         registerEditor("text/csv", true);
-
-        Lookup lookup = getCookieSet().getLookup();
-        DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
-        NbEditorDocument document = null;
-        if (dataEditorSupport.isDocumentLoaded()) {
-            document = (NbEditorDocument) dataEditorSupport.getDocument();
-        } else {
-            try {
-                document = (NbEditorDocument) dataEditorSupport.openDocument();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-        if (document != null)
-            document.addUndoableEditListener(undoRedoManager);
     }
 
     @Override
@@ -185,8 +172,38 @@ public class CSVDataObject extends MultiDataObject {
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
+//                File file = FileUtil.toFile(this.getPrimaryFile());
+//                if (file.length() != 0) {
+//                    try {
+//                        List<String> s = this.getPrimaryFile().asLines();
+//                        boolean first = true;
+//                        List<List<String>> values = new ArrayList<List<String>>(s.size());
+//                        for (String ss : s) {
+//                            if (first) {
+//                                String[] split = ss.split(",");
+//                                ArrayList<String> headers = new ArrayList<String>(split.length);
+//                                Collections.addAll(headers, split);
+//                                tableModel.setHeaders(headers);
+//                                first = false;
+//                                continue;
+//                            }
+//                            String[] split = ss.split(",");
+//                            ArrayList<String> rowData = new ArrayList<String>(split.length);
+//                            Collections.addAll(rowData, split);
+//                            values.add(rowData);
+//                        }
+//                        tableModel.setValues(values);
+//                    } catch (IOException ex) {
+//                        Exceptions.printStackTrace(ex);
+//                    }
+//                } else {
+//                    tableModel.setHeaders(new ArrayList<String>());
+//                    tableModel.setValues(new ArrayList<List<String>>());
+//                }
             }
             if (document != null) {
+                addUndoableEditListener(document);
+
                 int length = document.getLength();
                 if (length > 0) {
                     String text = document.getText(0, length);
@@ -234,6 +251,9 @@ public class CSVDataObject extends MultiDataObject {
                 return;
             }
         }
+
+        addUndoableEditListener(document);
+
         try {
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < model.getColumnCount(); i++) {
@@ -269,5 +289,24 @@ public class CSVDataObject extends MultiDataObject {
 
     public void setVisualEditor(CSVVisualElement visualEditor) {
         this.visualEditor = visualEditor;
+    }
+
+    private void addUndoableEditListener(NbEditorDocument document) {
+        if (!addedUndoRedoManager) {
+            UndoableEditListener[] undoableEditListeners = document.getUndoableEditListeners();
+            boolean found = false;
+            if (undoableEditListeners.length > 0) {
+                for (UndoableEditListener uel : undoableEditListeners) {
+                    if (uel.equals(undoRedoManager)) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+            if (!found) {
+                document.addUndoableEditListener(undoRedoManager);
+                addedUndoRedoManager = true;
+            }
+        }
     }
 }
