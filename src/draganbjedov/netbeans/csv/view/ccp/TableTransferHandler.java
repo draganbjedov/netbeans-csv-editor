@@ -1,6 +1,6 @@
-package draganbjedov.csv.view.ccp;
+package draganbjedov.netbeans.csv.view.ccp;
 
-import draganbjedov.csv.view.CSVTableModel;
+import draganbjedov.netbeans.csv.view.CSVTableModel;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;

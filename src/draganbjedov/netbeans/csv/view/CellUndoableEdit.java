@@ -1,4 +1,4 @@
-package draganbjedov.csv.view;
+package draganbjedov.netbeans.csv.view;
 
 import javax.swing.table.TableModel;
 import javax.swing.undo.AbstractUndoableEdit;

@@ -17,10 +17,10 @@
               <KeyStroke key="Ctrl+C"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/draganbjedov/csv/icons/copy.gif"/>
+              <Image iconType="3" name="/draganbjedov/netbeans/csv/icons/copy.gif"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="draganbjedov/csv/view/Bundle.properties" key="CSVVisualElement.copyPopUp.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="draganbjedov/netbeans/csv/view/Bundle.properties" key="CSVVisualElement.copyPopUp.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </MenuItem>
@@ -30,10 +30,10 @@
               <KeyStroke key="Ctrl+X"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/draganbjedov/csv/icons/cut.gif"/>
+              <Image iconType="3" name="/draganbjedov/netbeans/csv/icons/cut.gif"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="draganbjedov/csv/view/Bundle.properties" key="CSVVisualElement.cutPopUp.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="draganbjedov/netbeans/csv/view/Bundle.properties" key="CSVVisualElement.cutPopUp.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </MenuItem>
@@ -43,10 +43,10 @@
               <KeyStroke key="Ctrl+V"/>
             </Property>
             <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-              <Image iconType="3" name="/draganbjedov/csv/icons/paste.gif"/>
+              <Image iconType="3" name="/draganbjedov/netbeans/csv/icons/paste.gif"/>
             </Property>
             <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-              <ResourceString bundle="draganbjedov/csv/view/Bundle.properties" key="CSVVisualElement.pastePopUp.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+              <ResourceString bundle="draganbjedov/netbeans/csv/view/Bundle.properties" key="CSVVisualElement.pastePopUp.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
             </Property>
           </Properties>
         </MenuItem>

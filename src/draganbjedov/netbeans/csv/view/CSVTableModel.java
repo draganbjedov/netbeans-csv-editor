@@ -1,4 +1,4 @@
-package draganbjedov.csv.view;
+package draganbjedov.netbeans.csv.view;
 
 import java.util.ArrayList;
 import java.util.List;

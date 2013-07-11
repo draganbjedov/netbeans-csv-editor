@@ -1,4 +1,4 @@
-package draganbjedov.csv.view.ccp;
+package draganbjedov.netbeans.csv.view.ccp;
 
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;

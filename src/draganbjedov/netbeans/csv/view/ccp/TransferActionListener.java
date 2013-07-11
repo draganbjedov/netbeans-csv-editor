@@ -1,4 +1,4 @@
-package jplcpro.project.symbolsTable.view;
+package draganbjedov.netbeans.csv.view.ccp;
 
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;

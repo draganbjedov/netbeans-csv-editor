@@ -1,7 +1,7 @@
-package draganbjedov.csv.dataobject;
+package draganbjedov.netbeans.csv.dataobject;
 
-import draganbjedov.csv.view.CSVTableModel;
-import draganbjedov.csv.view.CSVVisualElement;
+import draganbjedov.netbeans.csv.view.CSVTableModel;
+import draganbjedov.netbeans.csv.view.CSVVisualElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,7 +39,7 @@ import org.openide.windows.TopComponent;
         extension = {"csv", "CSV"})
 @DataObject.Registration(
         mimeType = "text/csv",
-        iconBase = "draganbjedov/csv/icons/csv.png",
+        iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
         displayName = "#LBL_CSV_LOADER",
         position = 300)
 @ActionReferences({
@@ -98,7 +98,7 @@ public class CSVDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
             displayName = "#LBL_CSV_EDITOR",
-            iconBase = "draganbjedov/csv/icons/csv.png",
+            iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
             mimeType = "text/csv",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
             preferredID = "CSV",
