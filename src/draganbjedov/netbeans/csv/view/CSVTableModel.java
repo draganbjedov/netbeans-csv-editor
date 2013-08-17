@@ -87,7 +87,7 @@ public class CSVTableModel extends AbstractTableModel {
     /**
      * Adds row to specific row
      *
-     * @param row Row index
+     * @param row  Row index
      * @param data Row data
      */
     public void insertRow(int row, List<String> data) {
@@ -199,6 +199,34 @@ public class CSVTableModel extends AbstractTableModel {
                 values.add(to, row);
             } else {
                 values.add(row);
+            }
+        }
+    }
+
+    public void moveColumn(int from, int to) {
+        if (from > to) {
+            String header = headers.remove(from);
+            headers.add(to, header);
+            for (int i = 0; i < getRowCount(); i++) {
+                List<String> row = values.get(i);
+                String value = row.remove(from);
+                row.add(to, value);
+            }
+        } else {
+            String header = headers.remove(from);
+            if (to < headers.size() - 1) {
+                headers.add(to, header);
+            } else {
+                headers.add(header);
+            }
+            for (int i = 0; i < getRowCount(); i++) {
+                List<String> row = values.get(i);
+                String value = row.remove(from);
+                if (to < row.size() - 1) {
+                    row.add(to, value);
+                } else {
+                    row.add(value);
+                }
             }
         }
     }
