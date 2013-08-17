@@ -87,7 +87,7 @@ public class CSVTableModel extends AbstractTableModel {
     /**
      * Adds row to specific row
      *
-     * @param row  Row index
+     * @param row Row index
      * @param data Row data
      */
     public void insertRow(int row, List<String> data) {
@@ -276,9 +276,10 @@ public class CSVTableModel extends AbstractTableModel {
         fireTableStructureChanged();
     }
 
-//    public void setUndoRedoManager(UndoRedo.Manager undoRedoManager) {
-//        this.undoRedoManager = undoRedoManager;
-//    }
+    public void renameColumn(int col, String newColumnName) {
+        headers.set(col, newColumnName);
+    }
+
     public void setValues(List<List<String>> values) {
         this.values = values;
     }

@@ -4,6 +4,7 @@ import draganbjedov.netbeans.csv.dataobject.CSVDataObject;
 import draganbjedov.netbeans.csv.view.ccp.TableRowTransferable;
 import draganbjedov.netbeans.csv.view.ccp.TableTransferHandler;
 import draganbjedov.netbeans.csv.view.ccp.TransferActionListener;
+import java.awt.Cursor;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -11,6 +12,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -23,12 +26,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import org.netbeans.core.spi.multiview.CloseOperationState;
@@ -85,12 +90,12 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         table = new javax.swing.JTable();
 
         tablePopUpMenu.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
-            }
             public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
                 tablePopUpMenuPopupMenuWillBecomeVisible(evt);
             }
             public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            }
+            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
             }
         });
 
@@ -126,7 +131,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         ));
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        table.setCellSelectionEnabled(true);
+        table.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         tableScrollPane.setViewportView(table);
         table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -330,77 +335,81 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
                     TableColumnModel columnModel = table.getColumnModel();
 
-                    HashMap<String, Integer> columnWidthHashMap = new HashMap<String, Integer>();
-                    for (int j = 0; j < columnModel.getColumnCount() - 1; j++) {
-                        TableColumn tableColumn = columnModel.getColumn(j);
-                        columnWidthHashMap.put((String) tableColumn.getHeaderValue(), tableColumn.getPreferredWidth());
-                    }
-
+                    HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
                     tableModel.moveColumn(column, to);
-
-                    for (int j = 0; j < columnModel.getColumnCount() - 1; j++) {
-                        final TableColumn tableColumn = columnModel.getColumn(j);
-                        final String columnName = tableModel.getColumnName(j);
-                        tableColumn.setHeaderValue(columnName);
-                        tableColumn.setPreferredWidth(columnWidthHashMap.get(columnName));
-                    }
+                    setColumnsWidths(columnModel, columnWidthHashMap);
                 }
                 tableModel.fireTableDataChanged();
                 selectColumnInterval(0, columns.length - 1);
             }
         });
-        moveHome.setToolTipText("Move column to the begining");
+        moveHome.setToolTipText("Move columns to the begining");
         toolbar.add(moveHome);
 
         moveLeft = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-left.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                int[] rows = table.getSelectedRows();
-//                if (table.getSelectedRow() != 0 && table.getSelectedRow() != -1) {
-//                    int row = table.getSelectedRow() - 1;
-//                    int to = rows[rows.length - 1];
-//                    if (row >= 0) {
-//                        tableModel.moveRow(row, to);
-//                        tableModel.fireTableDataChanged();
-//                        selectRowInterval(rows[0] - 1, rows[rows.length - 1] - 1);
-//                    }
-//                }
+                int[] columns = table.getSelectedColumns();
+                if (table.getSelectedColumn() != 0 && table.getSelectedColumn() != -1) {
+                    int column = table.getSelectedColumn() - 1;
+                    int to = columns[columns.length - 1];
+                    if (column >= 0) {
+                        TableColumnModel columnModel = table.getColumnModel();
+
+                        HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                        tableModel.moveColumn(column, to);
+                        setColumnsWidths(columnModel, columnWidthHashMap);
+
+                        tableModel.fireTableDataChanged();
+                        selectColumnInterval(columns[0] - 1, columns[columns.length - 1] - 1);
+                    }
+                }
             }
         });
-        moveLeft.setToolTipText("Move column left");
+        moveLeft.setToolTipText("Move columns left");
         toolbar.add(moveLeft);
 
         moveRight = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-right.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                int[] rows = table.getSelectedRows();
-//                if (table.getSelectedRow() != -1) {
-//                    int row = rows[rows.length - 1] + 1;
-//                    int to = table.getSelectedRow();
-//                    if (row <= table.getRowCount() - 1) {
-//                        tableModel.moveRow(row, to);
-//                        tableModel.fireTableDataChanged();
-//                        selectRowInterval(rows[0] + 1, rows[rows.length - 1] + 1);
-//                    }
-//                }
+                int[] columns = table.getSelectedColumns();
+                if (table.getSelectedColumn() != -1) {
+                    int column = columns[columns.length - 1] + 1;
+                    int to = table.getSelectedColumn();
+                    if (column <= table.getColumnCount() - 1) {
+                        TableColumnModel columnModel = table.getColumnModel();
+
+                        HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                        tableModel.moveColumn(column, to);
+                        setColumnsWidths(columnModel, columnWidthHashMap);
+
+                        tableModel.fireTableDataChanged();
+                        selectColumnInterval(columns[0] + 1, columns[columns.length - 1] + 1);
+                    }
+                }
             }
         });
-        moveRight.setToolTipText("Move column right");
+        moveRight.setToolTipText("Move columns right");
         toolbar.add(moveRight);
 
         moveEnd = new JButton(new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-end.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                int[] rows = table.getSelectedRows();
-//                for (int i = 0; i < rows.length; i++) {
-//                    int row = rows[i] - i;
-//                    tableModel.moveRow(row, table.getRowCount() - 1);
-//                }
-//                tableModel.fireTableDataChanged();
-//                selectRowInterval(table.getRowCount() - rows.length, table.getRowCount() - 1);
+                int[] columns = table.getSelectedColumns();
+                for (int i = 0; i < columns.length; i++) {
+                    int column = columns[i] - i;
+
+                    TableColumnModel columnModel = table.getColumnModel();
+
+                    HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                    tableModel.moveColumn(column, table.getColumnCount() - 1);
+                    setColumnsWidths(columnModel, columnWidthHashMap);
+                }
+                tableModel.fireTableDataChanged();
+                selectColumnInterval(table.getColumnCount() - columns.length, table.getColumnCount() - 1);
             }
         });
-        moveEnd.setToolTipText("Move to column to the end");
+        moveEnd.setToolTipText("Move to columns to the end");
         toolbar.add(moveEnd);
     }
 
@@ -415,6 +424,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         final boolean enableRemove = table.getSelectedRowCount() >= 1;
         removeRowButton.setEnabled(enableRemove);
         removeColumnButton.setEnabled(enableRemove);
+
         int[] rows = table.getSelectedRows();
         if (moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
             if (rows.length == 0) {
@@ -493,28 +503,54 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     private void init() {
-//        obj.getPrimaryFile().addFileChangeListener(new FileChangeAdapter() {
-//            @Override
-//            public void fileChanged(FileEvent fe) {
-//                fe.getSource();
-//                updateTable();
-//            }
-//        });
-
-        //Undo-redo
-//        undoRedoManager = new UndoRedo.Manager();
-
         //Table
         RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
         tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
         tableScrollPane.setRowHeaderView(rowNumberTable);
 
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        final ListSelectionListener listSelectionListener = new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 setActiveButtons();
             }
+        };
+        table.getSelectionModel().addListSelectionListener(listSelectionListener);
+        table.getColumnModel().getSelectionModel().addListSelectionListener(listSelectionListener);
+
+        table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        table.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        table.setRowSelectionAllowed(true);
+        table.setColumnSelectionAllowed(true);
+        table.setCellSelectionEnabled(true);
+
+        final JTableHeader tableHeader = table.getTableHeader();
+        tableHeader.setReorderingAllowed(false);
+        tableHeader.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int col = tableHeader.columnAtPoint(e.getPoint());
+                if (tableHeader.getCursor().getType() == Cursor.E_RESIZE_CURSOR)
+                    e.consume();
+                else {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        if (e.getClickCount() != 2)
+                            selectColumn(col);
+                        else {
+                            final TableColumn column = tableHeader.getColumnModel().getColumn(col);
+                            String header = (String) column.getHeaderValue();
+                            String newColumnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", header);
+                            if (newColumnName != null && !newColumnName.equals(header)) {
+                                tableModel.renameColumn(col, newColumnName);
+                                column.setHeaderValue(newColumnName);
+                                updateColumnWidth(col);
+                                tableModel.fireTableDataChanged();
+                            }
+                        }
+                    }
+                }
+            }
         });
+
         tableModel = new CSVTableModel();
         tableModel.addTableModelListener(new TableModelListener() {
             @Override
@@ -522,7 +558,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 obj.updateFile(tableModel);
             }
         });
-//        tableModel.setUndoRedoManager(undoRedoManager);
         table.setModel(tableModel);
         tableScrollPane.setViewportView(table);
 
@@ -633,15 +668,12 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         TransferActionListener ccpAction = new TransferActionListener();
 
         copyPopUp.setActionCommand((String) TransferHandler.getCopyAction().getValue(Action.NAME));
-
         copyPopUp.addActionListener(ccpAction);
 
         cutPopUp.setActionCommand((String) TransferHandler.getCutAction().getValue(Action.NAME));
-
         cutPopUp.addActionListener(ccpAction);
 
         pastePopUp.setActionCommand((String) TransferHandler.getPasteAction().getValue(Action.NAME));
-
         pastePopUp.addActionListener(ccpAction);
 
     }
@@ -678,15 +710,37 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
     private void updateColumnsWidths() {
         table.getTableHeader().getFont();
-        FontMetrics fontMetrics = table.getTableHeader().getFontMetrics(table.getTableHeader().getFont());
         for (int i = 0; i < tableModel.getColumnCount(); i++) {
-            int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(i));
-            for (int j = 0; j < tableModel.getRowCount(); j++) {
-                int w = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getValueAt(j, i));
-                if (w > width)
-                    width = w;
-            }
-            table.getColumnModel().getColumn(i).setPreferredWidth(width + 25);
+            updateColumnWidth(i);
         }
+    }
+
+    private HashMap<String, Integer> getColumnsWidths(TableColumnModel columnModel) {
+        HashMap<String, Integer> columnWidthHashMap = new HashMap<String, Integer>();
+        for (int j = 0; j < columnModel.getColumnCount(); j++) {
+            TableColumn tableColumn = columnModel.getColumn(j);
+            columnWidthHashMap.put((String) tableColumn.getHeaderValue(), tableColumn.getPreferredWidth());
+        }
+        return columnWidthHashMap;
+    }
+
+    private void setColumnsWidths(TableColumnModel columnModel, HashMap<String, Integer> columnWidthHashMap) {
+        for (int j = 0; j < columnModel.getColumnCount(); j++) {
+            final TableColumn tableColumn = columnModel.getColumn(j);
+            final String columnName = tableModel.getColumnName(j);
+            tableColumn.setHeaderValue(columnName);
+            tableColumn.setPreferredWidth(columnWidthHashMap.get(columnName));
+        }
+    }
+
+    private void updateColumnWidth(int colIndex) {
+        FontMetrics fontMetrics = table.getTableHeader().getFontMetrics(table.getTableHeader().getFont());
+        int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(colIndex));
+        for (int j = 0; j < tableModel.getRowCount(); j++) {
+            int w = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getValueAt(j, colIndex));
+            if (w > width)
+                width = w;
+        }
+        table.getColumnModel().getColumn(colIndex).setPreferredWidth(width + 25);
     }
 }
