@@ -595,16 +595,17 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String columnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", "New column");
-                int selectedColumn = table.getSelectedColumn();
-                if (selectedColumn == -1) {
-                    tableModel.addColumn(columnName);
-                    selectColumn(table.getColumnCount() - 1);
-                } else {
-                    tableModel.addColumn(columnName, selectedColumn + 1);
-                    selectColumn(selectedColumn + 1);
+                if (columnName != null) {
+                    int selectedColumn = table.getSelectedColumn();
+                    if (selectedColumn == -1) {
+                        tableModel.addColumn(columnName);
+                        selectColumn(table.getColumnCount() - 1);
+                    } else {
+                        tableModel.addColumn(columnName, selectedColumn + 1);
+                        selectColumn(selectedColumn + 1);
+                    }
+                    updateColumnsWidths();
                 }
-
-                updateColumnsWidths();
             }
         };
         removeColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-column.png"))) {

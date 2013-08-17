@@ -240,9 +240,6 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         setPreferredScrollableViewportSize(getPreferredSize());
     }
 
-    /*
-     * Borrow the renderer from JDK1.4.2 table header
-     */
     private final class RowNumberRenderer extends DefaultTableCellRenderer {
 
         public RowNumberRenderer() {

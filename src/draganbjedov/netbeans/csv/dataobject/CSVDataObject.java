@@ -218,6 +218,8 @@ public class CSVDataObject extends MultiDataObject {
                             String[] split = ss.split(",");
                             ArrayList<String> headers = new ArrayList<String>(split.length);
                             Collections.addAll(headers, split);
+                            if (ss.endsWith(","))
+                                headers.add("");
                             model.setHeaders(headers);
                             first = false;
                             continue;
@@ -225,6 +227,8 @@ public class CSVDataObject extends MultiDataObject {
                         String[] split = ss.split(",");
                         ArrayList<String> rowData = new ArrayList<String>(split.length);
                         Collections.addAll(rowData, split);
+                        if (ss.endsWith(","))
+                            rowData.add("");
                         values.add(rowData);
                     }
                     model.setValues(values);
