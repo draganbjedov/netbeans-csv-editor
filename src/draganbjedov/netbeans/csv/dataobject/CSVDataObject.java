@@ -1,11 +1,13 @@
 package draganbjedov.netbeans.csv.dataobject;
 
+import draganbjedov.netbeans.csv.options.util.OptionsUtils;
 import draganbjedov.netbeans.csv.view.CSVTableModel;
 import draganbjedov.netbeans.csv.view.CSVVisualElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.CannotRedoException;
@@ -95,6 +97,8 @@ import org.openide.windows.TopComponent;
             position = 1400)
 })
 public class CSVDataObject extends MultiDataObject {
+
+    private static final Logger LOG = Logger.getLogger(CSVDataObject.class.getName());
 
     @MultiViewElement.Registration(
             displayName = "#LBL_CSV_EDITOR",
@@ -213,21 +217,26 @@ public class CSVDataObject extends MultiDataObject {
                     String[] s = text.split("\n");
                     boolean first = true;
                     List<List<String>> values = new ArrayList<List<String>>(s.length);
+                    String separator;
+                    if (visualEditor != null)
+                        separator = visualEditor.getSeparator();
+                    else
+                        separator = OptionsUtils.readDefaultSeparator();
                     for (String ss : s) {
                         if (first) {
-                            String[] split = ss.split(",");
+                            String[] split = ss.split(separator);
                             ArrayList<String> headers = new ArrayList<String>(split.length);
                             Collections.addAll(headers, split);
-                            if (ss.endsWith(","))
+                            if (ss.endsWith(separator))
                                 headers.add("");
                             model.setHeaders(headers);
                             first = false;
                             continue;
                         }
-                        String[] split = ss.split(",");
+                        String[] split = ss.split(separator);
                         ArrayList<String> rowData = new ArrayList<String>(split.length);
                         Collections.addAll(rowData, split);
-                        if (ss.endsWith(","))
+                        if (ss.endsWith(separator))
                             rowData.add("");
                         values.add(rowData);
                     }
@@ -319,5 +328,10 @@ public class CSVDataObject extends MultiDataObject {
                 addedUndoRedoManager = true;
             }
         }
+    }
+
+    public void updateSeparators() {
+        if (visualEditor != null)
+            visualEditor.updateSeparators();
     }
 }

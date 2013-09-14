@@ -1,11 +1,13 @@
 package draganbjedov.netbeans.csv.view;
 
 import draganbjedov.netbeans.csv.dataobject.CSVDataObject;
+import draganbjedov.netbeans.csv.options.util.OptionsUtils;
 import draganbjedov.netbeans.csv.view.ccp.TableRowTransferable;
 import draganbjedov.netbeans.csv.view.ccp.TableTransferHandler;
 import draganbjedov.netbeans.csv.view.ccp.TransferActionListener;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -16,12 +18,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -77,6 +83,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private AbstractAction moveLeftAction;
     private AbstractAction moveRightAction;
     private AbstractAction moveEndAction;
+    private AbstractAction separatorChangedAction;
 
     @SuppressWarnings("LeakingThisInConstructor")
     public CSVVisualElement(Lookup lkp) {
@@ -308,6 +315,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private JButton moveLeft;
     private JButton moveRight;
     private JButton moveEnd;
+    private JComboBox separators;
 
     @Override
     public JComponent getVisualRepresentation() {
@@ -427,6 +435,27 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         moveEnd = new JButton(moveEndAction);
         moveEnd.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveEndPopUp.text") + " (Ctrl+Shift+Left)");
         toolbar.add(moveEnd);
+
+        toolbar.addSeparator();
+
+        //Separator
+        toolbar.add(new JLabel(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separatorLabel.text")));
+
+        int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
+        if (customSeparatorCount > 0) {
+            List<String> s = OptionsUtils.readCustomSeparators(customSeparatorCount);
+            s.add(0, ",");
+            s.add(1, ";");
+            separators = new JComboBox(new DefaultComboBoxModel(s.toArray()));
+        } else
+            separators = new JComboBox(new String[]{",", ";"});
+        toolbar.add(separators);
+        separators.setPreferredSize(new Dimension(50, separators.getPreferredSize().height));
+        separators.setMaximumSize(new Dimension(50, separators.getPreferredSize().height));
+        separators.setMinimumSize(new Dimension(50, separators.getPreferredSize().height));
+        separators.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separators.tooltip"));
+        separators.addActionListener(separatorChangedAction);
+        separators.setSelectedItem(OptionsUtils.readDefaultSeparator());
     }
 
     public void updateTable() {
@@ -707,6 +736,13 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 selectColumnInterval(table.getColumnCount() - columns.length, table.getColumnCount() - 1);
             }
         };
+
+        separatorChangedAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTable();
+            }
+        };
     }
 
     private void init() {
@@ -931,5 +967,31 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 width = w;
         }
         table.getColumnModel().getColumn(colIndex).setPreferredWidth(width + 25);
+    }
+
+    public String getSeparator() {
+        return (String) separators.getSelectedItem();
+    }
+
+    public void updateSeparators() {
+        String selectedItem = (String) separators.getSelectedItem();
+        boolean newModelContainsSelected;
+        int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
+        DefaultComboBoxModel model;
+        if (customSeparatorCount > 0) {
+            List<String> s = OptionsUtils.readCustomSeparators(customSeparatorCount);
+            s.add(0, ",");
+            s.add(1, ";");
+            model = new DefaultComboBoxModel(s.toArray());
+            newModelContainsSelected = s.contains(selectedItem);
+        } else {
+            model = new DefaultComboBoxModel(new String[]{",", ";"});
+            newModelContainsSelected = selectedItem.equals(",") || selectedItem.equals(";");
+        }
+        separators.setModel(model);
+        separators.setSelectedItem(selectedItem);
+        if (!newModelContainsSelected) {
+            separatorChangedAction.actionPerformed(null);
+        }
     }
 }
