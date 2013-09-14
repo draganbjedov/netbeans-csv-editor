@@ -8,4 +8,4 @@ build/*
 nbproject/private/*
 .DS_Store
 dist/
-test.csv
+*.csv
