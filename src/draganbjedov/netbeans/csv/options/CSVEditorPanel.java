@@ -13,26 +13,48 @@ import org.openide.util.NbBundle;
 
 public final class CSVEditorPanel extends javax.swing.JPanel {
 
-    private final CSVEditorOptionsPanelController controller;
-    private DefaultListModel listModel;
+	private final CSVEditorOptionsPanelController controller;
+	private DefaultListModel es;
+	private DefaultListModel escapeCharsModel;
 
-    CSVEditorPanel(CSVEditorOptionsPanelController controller) {
-        this.controller = controller;
-        initComponents();
-        init();
-    }
+	CSVEditorPanel(CSVEditorOptionsPanelController controller) {
+		this.controller = controller;
+		initComponents();
+		init();
+	}
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        separatorsPanel = new javax.swing.JPanel();
         defaultSeparatorLabel = new javax.swing.JLabel();
+        removeSButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         defaultSeparator = new javax.swing.JList();
-        addButton = new javax.swing.JButton();
+        addSButton = new javax.swing.JButton();
         customSeparator = new javax.swing.JTextField();
-        removeButton = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        escapeCharsPanel = new javax.swing.JPanel();
+        defaultEscapeCharLabel = new javax.swing.JLabel();
+        customEscapeChar = new javax.swing.JTextField();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        defaultEscapeChar = new javax.swing.JList();
+        removeEButton = new javax.swing.JButton();
+        addEButton = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+
+        setLayout(new java.awt.GridLayout());
+
+        separatorsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true), org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.separatorsPanel.border.title"))); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(defaultSeparatorLabel, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.defaultSeparatorLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(removeSButton, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.removeSButton.text")); // NOI18N
+        removeSButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeSButtonActionPerformed(evt);
+            }
+        });
 
         defaultSeparator.setModel(new javax.swing.AbstractListModel() {
             String[] strings = { ",", ";" };
@@ -41,171 +63,324 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
         });
         jScrollPane1.setViewportView(defaultSeparator);
 
-        org.openide.awt.Mnemonics.setLocalizedText(addButton, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.addButton.text")); // NOI18N
-        addButton.addActionListener(new java.awt.event.ActionListener() {
+        org.openide.awt.Mnemonics.setLocalizedText(addSButton, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.addSButton.text")); // NOI18N
+        addSButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addButtonActionPerformed(evt);
+                addSButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(removeButton, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.removeButton.text")); // NOI18N
-        removeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                removeButtonActionPerformed(evt);
-            }
-        });
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.jLabel2.text")); // NOI18N
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        javax.swing.GroupLayout separatorsPanelLayout = new javax.swing.GroupLayout(separatorsPanel);
+        separatorsPanel.setLayout(separatorsPanelLayout);
+        separatorsPanelLayout.setHorizontalGroup(
+            separatorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, separatorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(defaultSeparatorLabel)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 261, Short.MAX_VALUE)
+                .addGroup(separatorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(defaultSeparatorLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, separatorsPanelLayout.createSequentialGroup()
+                        .addGroup(separatorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(removeSButton)
+                            .addComponent(addSButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(removeButton)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(addButton)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(customSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 93, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap())
+                        .addComponent(customSeparator)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+                .addGap(16, 16, 16))
         );
 
-        layout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addButton, removeButton});
+        separatorsPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addSButton, removeSButton});
 
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        separatorsPanelLayout.setVerticalGroup(
+            separatorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(separatorsPanelLayout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(separatorsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addSButton)
+                    .addComponent(customSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(removeSButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(defaultSeparatorLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(addButton)
-                            .addComponent(customSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(removeButton)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
                 .addContainerGap())
         );
+
+        add(separatorsPanel);
+
+        escapeCharsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true), org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.escapeCharsPanel.border.title"))); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(defaultEscapeCharLabel, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.defaultEscapeCharLabel.text")); // NOI18N
+
+        defaultEscapeChar.setModel(new javax.swing.AbstractListModel() {
+            String[] strings = { "\"" };
+            public int getSize() { return strings.length; }
+            public Object getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane2.setViewportView(defaultEscapeChar);
+
+        org.openide.awt.Mnemonics.setLocalizedText(removeEButton, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.removeEButton.text")); // NOI18N
+        removeEButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeEButtonActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(addEButton, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.addEButton.text")); // NOI18N
+        addEButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addEButtonActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.jLabel1.text")); // NOI18N
+
+        javax.swing.GroupLayout escapeCharsPanelLayout = new javax.swing.GroupLayout(escapeCharsPanel);
+        escapeCharsPanel.setLayout(escapeCharsPanelLayout);
+        escapeCharsPanelLayout.setHorizontalGroup(
+            escapeCharsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(escapeCharsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(escapeCharsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(escapeCharsPanelLayout.createSequentialGroup()
+                        .addGroup(escapeCharsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(addEButton)
+                            .addComponent(removeEButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(customEscapeChar, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel1))
+                    .addComponent(defaultEscapeCharLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+
+        escapeCharsPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addEButton, removeEButton});
+
+        escapeCharsPanelLayout.setVerticalGroup(
+            escapeCharsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(escapeCharsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(escapeCharsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addEButton)
+                    .addComponent(customEscapeChar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(removeEButton)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(defaultEscapeCharLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        add(escapeCharsPanel);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        String s = customSeparator.getText();
-        if (!listModel.contains(s)) {
-            listModel.addElement(s);
-            controller.changed();
-        } else {
-            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-                    NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.add"),
-                    NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
-        }
-    }//GEN-LAST:event_addButtonActionPerformed
+    private void addSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSButtonActionPerformed
+		Character c = customSeparator.getText().charAt(0);
+		if (!es.contains(c)) {
+			es.addElement(c);
+			controller.changed();
+		} else {
+			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.addSeparator"),
+					NotifyDescriptor.ERROR_MESSAGE);
+			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+		}
+    }//GEN-LAST:event_addSButtonActionPerformed
 
-    private void removeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeButtonActionPerformed
-        int index = defaultSeparator.getSelectedIndex();
-        if (index > 1) {
-            listModel.remove(index);
-            controller.changed();
-        } else {
-            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-                    NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.remove"),
-                    NotifyDescriptor.ERROR_MESSAGE);
-            DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
-        }
-    }//GEN-LAST:event_removeButtonActionPerformed
+    private void removeSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSButtonActionPerformed
+		int index = defaultSeparator.getSelectedIndex();
+		if (index > 1) {
+			es.remove(index);
+			controller.changed();
+		} else {
+			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.removeSeparator"),
+					NotifyDescriptor.ERROR_MESSAGE);
+			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+		}
+    }//GEN-LAST:event_removeSButtonActionPerformed
 
-    void load() {
-        // Example:        
-        // someCheckBox.setSelected(Preferences.userNodeForPackage(CSVEditorPanel.class).getBoolean("someFlag", false));
-        // or for org.openide.util with API spec. version >= 7.4:
-        // someCheckBox.setSelected(NbPreferences.forModule(CSVEditorPanel.class).getBoolean("someFlag", false));
-        // or:
-        // someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
-        listModel.removeAllElements();
-        listModel.addElement(",");
-        listModel.addElement(";");
-        int count = OptionsUtils.readCustomSeparatorCount();
-        if (count > 0) {
-            List<String> s = OptionsUtils.readCustomSeparators(count);
-            for (String ss : s)
-                listModel.addElement(ss);
-        }
-        defaultSeparator.setSelectedValue(OptionsUtils.readDefaultSeparator(), true);
-    }
+    private void addEButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addEButtonActionPerformed
+		Character c = customEscapeChar.getText().charAt(0);
+		if (!escapeCharsModel.contains(c)) {
+			escapeCharsModel.addElement(c);
+			controller.changed();
+		} else {
+			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.addEscapeChar"),
+					NotifyDescriptor.ERROR_MESSAGE);
+			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+		}
+    }//GEN-LAST:event_addEButtonActionPerformed
 
-    void store() {
-        // Example:
-        // Preferences.userNodeForPackage(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or for org.openide.util with API spec. version >= 7.4:
-        // NbPreferences.forModule(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or:
-        // SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
-        int count = listModel.size() - 2;
-        OptionsUtils.saveCustomSeparatorCount(count);
-        if (count > 0) {
-            String[] s = new String[count];
-            for (int i = 0; i < s.length; i++) {
-                s[i] = (String) listModel.get(i + 2);
-            }
-            OptionsUtils.saveCustomSeparators(s);
-        }
-        OptionsUtils.saveDefaultSeparator(defaultSeparator.getSelectedValue().toString());
-    }
+    private void removeEButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeEButtonActionPerformed
+		int index = defaultEscapeChar.getSelectedIndex();
+		if (index > 0) {
+			escapeCharsModel.remove(index);
+			controller.changed();
+		} else {
+			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.removeEscapeChar"),
+					NotifyDescriptor.ERROR_MESSAGE);
+			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+		}
+    }//GEN-LAST:event_removeEButtonActionPerformed
 
-    boolean valid() {
-        return defaultSeparator.getSelectedIndex() != -1;
-    }
+	void load() {
+		// Example:        
+		// someCheckBox.setSelected(Preferences.userNodeForPackage(CSVEditorPanel.class).getBoolean("someFlag", false));
+		// or for org.openide.util with API spec. version >= 7.4:
+		// someCheckBox.setSelected(NbPreferences.forModule(CSVEditorPanel.class).getBoolean("someFlag", false));
+		// or:
+		// someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
+		es.removeAllElements();
+		es.addElement(',');
+		es.addElement(';');
+		int count = OptionsUtils.readCustomSeparatorCount();
+		if (count > 0) {
+			List<Character> chars = OptionsUtils.readCustomSeparators(count);
+			for (Character c : chars)
+				es.addElement(c);
+		}
+		defaultSeparator.setSelectedValue(OptionsUtils.readDefaultSeparator(), true);
+
+		escapeCharsModel.removeAllElements();
+		escapeCharsModel.addElement('"');
+		count = OptionsUtils.readCustomEscapeCharCount();
+		if (count > 0) {
+			List<Character> chars = OptionsUtils.readCustomEscapeChars(count);
+			for (Character c : chars)
+				es.addElement(c);
+		}
+		defaultEscapeChar.setSelectedValue(OptionsUtils.readDefaultEscapeChar(), true);
+	}
+
+	void store() {
+		// Example:
+		// Preferences.userNodeForPackage(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
+		// or for org.openide.util with API spec. version >= 7.4:
+		// NbPreferences.forModule(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
+		// or:
+		// SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
+		int count = es.size() - 2;
+		OptionsUtils.saveCustomSeparatorCount(count);
+		if (count > 0) {
+			Character[] chars = new Character[count];
+			for (int i = 0; i < chars.length; i++) {
+				chars[i] = (Character) es.get(i + 2);
+			}
+			OptionsUtils.saveCustomSeparators(chars);
+		}
+		OptionsUtils.saveDefaultSeparator((Character) defaultSeparator.getSelectedValue());
+
+		count = escapeCharsModel.size() - 1;
+		OptionsUtils.saveCustomEscapeCharCount(count);
+		if (count > 0) {
+			Character[] chars = new Character[count];
+			for (int i = 0; i < chars.length; i++) {
+				chars[i] = (Character) escapeCharsModel.get(i + 1);
+			}
+			OptionsUtils.saveCustomEscapeChars(chars);
+		}
+		OptionsUtils.saveDefaultEscapeChar((Character) defaultEscapeChar.getSelectedValue());
+	}
+
+	boolean valid() {
+		return defaultSeparator.getSelectedIndex() != -1 && defaultEscapeChar.getSelectedIndex() != -1;
+	}
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addButton;
+    private javax.swing.JButton addEButton;
+    private javax.swing.JButton addSButton;
+    private javax.swing.JTextField customEscapeChar;
     private javax.swing.JTextField customSeparator;
+    private javax.swing.JList defaultEscapeChar;
+    private javax.swing.JLabel defaultEscapeCharLabel;
     private javax.swing.JList defaultSeparator;
     private javax.swing.JLabel defaultSeparatorLabel;
+    private javax.swing.JPanel escapeCharsPanel;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JButton removeButton;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton removeEButton;
+    private javax.swing.JButton removeSButton;
+    private javax.swing.JPanel separatorsPanel;
     // End of variables declaration//GEN-END:variables
 
-    private void init() {
-        listModel = new DefaultListModel();
-        listModel.addElement(",");
-        listModel.addElement(";");
-        defaultSeparator.setModel(listModel);
-        customSeparator.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                isAddEnabled();
-            }
+	private void init() {
+		es = new DefaultListModel();
+		es.addElement(',');
+		es.addElement(';');
+		defaultSeparator.setModel(es);
+		customSeparator.setDocument(new LimitedPlainDocument(1));
+		customSeparator.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				isAddEnabled();
+			}
 
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                isAddEnabled();
-            }
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				isAddEnabled();
+			}
 
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                isAddEnabled();
-            }
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				isAddEnabled();
+			}
 
-            private void isAddEnabled() {
-                addButton.setEnabled(!customSeparator.getText().trim().isEmpty());
-            }
-        });
-        defaultSeparator.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                removeButton.setEnabled(defaultSeparator.getSelectedIndex() != -1);
-                controller.changed();
-            }
-        });
-        addButton.setEnabled(false);
-    }
+			private void isAddEnabled() {
+				addSButton.setEnabled(!customSeparator.getText().trim().isEmpty());
+			}
+		});
+		defaultSeparator.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				removeSButton.setEnabled(defaultSeparator.getSelectedIndex() != -1);
+				controller.changed();
+			}
+		});
+		addSButton.setEnabled(false);
+
+		escapeCharsModel = new DefaultListModel();
+		escapeCharsModel.addElement('"');
+		defaultEscapeChar.setModel(escapeCharsModel);
+		customEscapeChar.setDocument(new LimitedPlainDocument(1));
+		customEscapeChar.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				isAddEnabled();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				isAddEnabled();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				isAddEnabled();
+			}
+
+			private void isAddEnabled() {
+				addEButton.setEnabled(!customEscapeChar.getText().trim().isEmpty());
+			}
+		});
+		defaultEscapeChar.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				removeEButton.setEnabled(defaultEscapeChar.getSelectedIndex() != -1);
+				controller.changed();
+			}
+		});
+		addEButton.setEnabled(false);
+	}
 }
