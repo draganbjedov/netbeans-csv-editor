@@ -43,7 +43,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
         addEButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
 
-        setLayout(new java.awt.GridLayout());
+        setLayout(new java.awt.GridLayout(1, 0));
 
         separatorsPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(new javax.swing.border.LineBorder(new java.awt.Color(153, 153, 153), 1, true), org.openide.util.NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.separatorsPanel.border.title"))); // NOI18N
 
@@ -153,7 +153,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
                             .addComponent(addEButton)
                             .addComponent(removeEButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(customEscapeChar, javax.swing.GroupLayout.DEFAULT_SIZE, 31, Short.MAX_VALUE)
+                        .addComponent(customEscapeChar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel1))
                     .addComponent(defaultEscapeCharLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
