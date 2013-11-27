@@ -329,6 +329,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	@Override
 	public Action[] getActions() {
+		if (callback != null)
+			return callback.createDefaultActions();
 		return new Action[0];
 	}
 
