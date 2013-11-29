@@ -14,29 +14,29 @@ import javax.swing.undo.CannotUndoException;
  */
 public class CellUndoableEdit extends AbstractUndoableEdit {
 
-    private TableModel model;
-    private Object oldValue;
-    private Object newValue;
-    private int row;
-    private int column;
+	private final TableModel model;
+	private final Object oldValue;
+	private final Object newValue;
+	private final int row;
+	private final int column;
 
-    public CellUndoableEdit(TableModel model, Object oldValue, Object newValue, int row, int column) {
-        this.model = model;
-        this.oldValue = oldValue;
-        this.newValue = newValue;
-        this.row = row;
-        this.column = column;
-    }
+	public CellUndoableEdit(TableModel model, Object oldValue, Object newValue, int row, int column) {
+		this.model = model;
+		this.oldValue = oldValue;
+		this.newValue = newValue;
+		this.row = row;
+		this.column = column;
+	}
 
-    @Override
-    public void undo() throws CannotUndoException {
-        super.undo();
-        model.setValueAt(oldValue, row, column);
-    }
+	@Override
+	public void undo() throws CannotUndoException {
+		super.undo();
+		model.setValueAt(oldValue, row, column);
+	}
 
-    @Override
-    public void redo() throws CannotRedoException {
-        super.redo();
-        model.setValueAt(newValue, row, column);
-    }
+	@Override
+	public void redo() throws CannotRedoException {
+		super.redo();
+		model.setValueAt(newValue, row, column);
+	}
 }

@@ -32,6 +32,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -483,6 +484,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	}
 
 	private void setActiveButtons() {
+		addRowAction.setEnabled(true);
+		addColumnAction.setEnabled(true);
 		deleteRowAction.setEnabled(table.getSelectedRowCount() >= 1);
 		deleteColumnAction.setEnabled(table.getSelectedColumnCount() >= 1);
 
@@ -783,6 +786,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		table.setColumnSelectionAllowed(true);
 		table.setCellSelectionEnabled(true);
 
+//		table.setDefaultEditor(String.class, new CSVTableCellEditor());
 		table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
 			@Override
 			public void editingStopped(ChangeEvent e) {
@@ -840,6 +844,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		KeyStroke strokeRemoveRow = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
 		KeyStroke strokeAddColumn = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK);
 		KeyStroke strokeRemoveColumn = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK);
+		KeyStroke strokeEscape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 
 		this.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
 		this.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
@@ -887,9 +892,21 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		table.getInputMap().put(moveEndPopUp.getAccelerator(), "MOVE_END");
 		table.getActionMap().put("MOVE_END", moveEndAction);
 
-//        InputMap im = table.getInputMap(javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-//        KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_MASK);
-//        im.put(ctrlS, "clearSelection");
+		// Escape action (Because press on ESCAPE key when editing cell does not fire any event)
+		// Handle escape key on a JTable
+		Action escapeAction = new AbstractAction() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (table.isEditing()) {
+					int row = table.getEditingRow();
+					int col = table.getEditingColumn();
+					table.getCellEditor(row, col).cancelCellEditing();
+				}
+			}
+		};
+		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(strokeEscape, "ESCAPE");
+		table.getActionMap().put("ESCAPE", escapeAction);
+
 		table.setComponentPopupMenu(tablePopUpMenu);
 		tableScrollPane.setComponentPopupMenu(tablePopUpMenu);
 
