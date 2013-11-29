@@ -66,8 +66,8 @@ import org.openide.windows.TopComponent;
 @Messages("LBL_CSV_VISUAL=Table")
 public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
-	private CSVDataObject obj;
-	private JToolBar toolbar = new JToolBar();
+	private final CSVDataObject obj;
+	private final JToolBar toolbar = new JToolBar();
 	private transient MultiViewElementCallback callback;
 	private transient CSVTableModel tableModel;
 	private AbstractAction addRowAction;
@@ -329,6 +329,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	@Override
 	public Action[] getActions() {
+		if (callback != null)
+			return callback.createDefaultActions();
 		return new Action[0];
 	}
 
