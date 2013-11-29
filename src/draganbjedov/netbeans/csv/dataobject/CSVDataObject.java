@@ -3,11 +3,16 @@ package draganbjedov.netbeans.csv.dataobject;
 import draganbjedov.netbeans.csv.options.util.OptionsUtils;
 import draganbjedov.netbeans.csv.view.CSVTableModel;
 import draganbjedov.netbeans.csv.view.CSVVisualElement;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EventListener;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.undo.CannotRedoException;
@@ -15,6 +20,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
+import org.netbeans.lib.editor.util.PriorityListenerList;
 import org.netbeans.modules.editor.NbEditorDocument;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -103,7 +109,7 @@ public class CSVDataObject extends MultiDataObject {
 		return new MultiViewEditorElement(lkp);
 	}
 	private final UndoRedo.Manager undoRedoManager;
-	private boolean addedUndoRedoManager = false;
+	private final DocumentListener documentListener;
 	private CSVTableModel model;
 	private CSVVisualElement visualEditor;
 
@@ -146,7 +152,39 @@ public class CSVDataObject extends MultiDataObject {
 				}
 			}
 		};
+		documentListener = new DocumentListener() {
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateTable();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateTable();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateTable();
+			}
+
+			private void updateTable() {
+				if (visualEditor != null && visualEditor.isShowing())
+					visualEditor.updateTable();
+			}
+		};
 		registerEditor("text/csv", true);
+
+		this.addPropertyChangeListener(new PropertyChangeListener() {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getPropertyName().equals(DataObject.PROP_MODIFIED) && ((Boolean) evt.getNewValue())) {
+					initDocument();
+				}
+			}
+		});
 	}
 
 	@Override
@@ -200,7 +238,7 @@ public class CSVDataObject extends MultiDataObject {
 				//</editor-fold>
 			}
 			if (document != null) {
-				addUndoableEditListener(document);
+				initDocument(document);
 
 				int length = document.getLength();
 				if (length > 0) {
@@ -216,11 +254,11 @@ public class CSVDataObject extends MultiDataObject {
 						separator = OptionsUtils.readDefaultSeparator();
 					for (String ss : s) {
 						if (first) {
-							model.setHeaders(split(ss, separator, escapeChar));
+							model.setHeaders(splitLine(ss, separator, escapeChar));
 							first = false;
 							continue;
 						}
-						values.add(split(ss, separator, escapeChar));
+						values.add(splitLine(ss, separator, escapeChar));
 					}
 					model.setValues(values);
 				} else {
@@ -252,7 +290,7 @@ public class CSVDataObject extends MultiDataObject {
 				}
 			}
 
-			addUndoableEditListener(document);
+			initDocument(document);
 
 			try {
 				char separator;
@@ -310,23 +348,66 @@ public class CSVDataObject extends MultiDataObject {
 		this.visualEditor = visualEditor;
 	}
 
-	private void addUndoableEditListener(NbEditorDocument document) {
-		if (!addedUndoRedoManager) {
-			UndoableEditListener[] undoableEditListeners = document.getUndoableEditListeners();
-			boolean found = false;
-			if (undoableEditListeners.length > 0) {
-				for (UndoableEditListener uel : undoableEditListeners) {
-					if (uel.equals(undoRedoManager)) {
-						found = true;
-						break;
+	private void initDocument(NbEditorDocument document) {
+		UndoableEditListener[] undoableEditListeners = document.getUndoableEditListeners();
+		boolean found = false;
+		if (undoableEditListeners.length > 0) {
+			for (UndoableEditListener uel : undoableEditListeners) {
+				if (uel.equals(undoRedoManager)) {
+					found = true;
+					break;
+				}
+			}
+		}
+		if (!found) {
+			document.addUndoableEditListener(undoRedoManager);
+		}
+
+		DocumentListener[] documentListeners = document.getDocumentListeners();
+		found = false;
+		if (documentListeners.length > 0) {
+			loopDocumentListener:
+			for (DocumentListener dl : documentListeners) {
+				if (dl.equals(documentListener)) {
+					found = true;
+					break;
+				} else if (dl instanceof PriorityListenerList) {
+					PriorityListenerList pll = (PriorityListenerList) dl;
+					EventListener[][] listenersArray = pll.getListenersArray();
+					for (EventListener[] row : listenersArray) {
+						for (EventListener el : row) {
+							if (el.equals(documentListener)) {
+								found = true;
+								break loopDocumentListener;
+							}
+						}
 					}
 				}
 			}
-			if (!found) {
-				document.addUndoableEditListener(undoRedoManager);
-				addedUndoRedoManager = true;
+		}
+		if (!found) {
+			document.addDocumentListener(documentListener);
+		}
+	}
+
+	/**
+	 * Init document listeners
+	 */
+	public void initDocument() {
+		Lookup lookup = getCookieSet().getLookup();
+		DataEditorSupport dataEditorSupport = lookup.lookup(DataEditorSupport.class);
+		NbEditorDocument document = null;
+		if (dataEditorSupport.isDocumentLoaded()) {
+			document = (NbEditorDocument) dataEditorSupport.getDocument();
+		} else {
+			try {
+				document = (NbEditorDocument) dataEditorSupport.openDocument();
+			} catch (IOException ex) {
+				Exceptions.printStackTrace(ex);
 			}
 		}
+		if (document != null)
+			initDocument(document);
 	}
 
 	public void updateSeparators() {
@@ -334,7 +415,7 @@ public class CSVDataObject extends MultiDataObject {
 			visualEditor.updateSeparators();
 	}
 
-	private List<String> split(String s, char separator, char escapeChar) {
+	private List<String> splitLine(String s, char separator, char escapeChar) {
 		List<String> split;
 		if (s.indexOf(escapeChar) != -1) {
 			split = new ArrayList<String>();
