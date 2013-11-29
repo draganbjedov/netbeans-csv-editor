@@ -17,6 +17,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.AbstractAction;
@@ -153,6 +154,18 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 moveRightAction.setEnabled(false);
                 moveEndAction.setEnabled(false);
                 return c;
+            }
+
+            public boolean editCellAt(int row, int column, EventObject e){
+                if(e instanceof KeyEvent){
+                    int i = ((KeyEvent) e).getModifiers();
+                    String s = KeyEvent.getModifiersExText(((KeyEvent) e).getModifiers());
+                    //any time Control is used, disable cell editing
+                    if(i == InputEvent.CTRL_MASK){
+                        return false;
+                    }
+                }
+                return super.editCellAt(row, column, e);
             }
         };
 
@@ -384,6 +397,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	}
 
 	private void createToolBar() {
+		toolbar.setFloatable(false);
+
 		addRowButton = new JButton(addRowAction);
 		addRowButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addRowButton.text") + " (Insert)");
 		toolbar.add(addRowButton);
