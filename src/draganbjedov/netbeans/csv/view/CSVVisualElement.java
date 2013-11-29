@@ -154,6 +154,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 moveLeftAction.setEnabled(false);
                 moveRightAction.setEnabled(false);
                 moveEndAction.setEnabled(false);
+
+                separators.setEnabled(false);
                 return c;
             }
 
@@ -486,6 +488,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private void setActiveButtons() {
 		addRowAction.setEnabled(true);
 		addColumnAction.setEnabled(true);
+		separators.setEnabled(true);
 		deleteRowAction.setEnabled(table.getSelectedRowCount() >= 1);
 		deleteColumnAction.setEnabled(table.getSelectedColumnCount() >= 1);
 
@@ -786,7 +789,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		table.setColumnSelectionAllowed(true);
 		table.setCellSelectionEnabled(true);
 
-//		table.setDefaultEditor(String.class, new CSVTableCellEditor());
 		table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
 			@Override
 			public void editingStopped(ChangeEvent e) {
