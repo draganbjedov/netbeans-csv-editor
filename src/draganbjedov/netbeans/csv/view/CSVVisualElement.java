@@ -96,6 +96,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		init();
 		createToolBar();
 		obj.setVisualEditor(this);
+		updateTable();
 	}
 
 	@Override
