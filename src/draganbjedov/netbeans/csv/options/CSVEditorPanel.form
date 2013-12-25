@@ -52,9 +52,9 @@
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane1" pref="198" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="212" max="32767" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -165,9 +165,9 @@
                               <Component id="removeEButton" linkSize="4" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="customEscapeChar" max="32767" attributes="0"/>
+                          <Component id="customEscapeChar" pref="24" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel1" min="-2" pref="102" max="-2" attributes="0"/>
                       </Group>
                       <Component id="defaultEscapeCharLabel" alignment="0" max="32767" attributes="0"/>
                   </Group>
@@ -189,7 +189,7 @@
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="defaultEscapeCharLabel" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="jScrollPane2" pref="218" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" pref="213" max="32767" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
