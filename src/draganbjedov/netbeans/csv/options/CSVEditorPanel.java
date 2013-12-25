@@ -261,6 +261,10 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 				escapeCharsListModel.addElement(c);
 		}
 		defaultEscapeChar.setSelectedValue(OptionsUtils.readDefaultEscapeChar(), true);
+
+		//Clean up text fields
+		customSeparator.setText(null);
+		customEscapeChar.setText(null);
 	}
 
 	void store() {
