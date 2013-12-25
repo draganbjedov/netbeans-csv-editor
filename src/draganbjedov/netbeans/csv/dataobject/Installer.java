@@ -3,7 +3,6 @@ package draganbjedov.netbeans.csv.dataobject;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
-import org.openide.awt.StatusDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.windows.OnShowing;
@@ -47,7 +46,7 @@ public class Installer implements Runnable {
 //													+ "Saved " + fe.getFile().getNameExt(), 1);
 //										}
 //									});
-									StatusDisplayer.getDefault().setStatusText("Hurray! " + "Opened " + currentFile.getNameExt(), 1);
+//									StatusDisplayer.getDefault().setStatusText("Hurray! " + "Opened " + currentFile.getNameExt(), 1);
 								}
 							}
 						}
