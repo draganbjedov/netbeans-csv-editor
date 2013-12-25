@@ -14,8 +14,8 @@ import org.openide.util.NbBundle;
 public final class CSVEditorPanel extends javax.swing.JPanel {
 
 	private final CSVEditorOptionsPanelController controller;
-	private DefaultListModel es;
-	private DefaultListModel escapeCharsModel;
+	private DefaultListModel separatorsListModel;
+	private DefaultListModel escapeCharsListModel;
 
 	CSVEditorPanel(CSVEditorOptionsPanelController controller) {
 		this.controller = controller;
@@ -88,8 +88,8 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
                         .addComponent(customSeparator)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-                .addGap(16, 16, 16))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         separatorsPanelLayout.linkSize(javax.swing.SwingConstants.HORIZONTAL, new java.awt.Component[] {addSButton, removeSButton});
@@ -153,9 +153,9 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
                             .addComponent(addEButton)
                             .addComponent(removeEButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(customEscapeChar)
+                        .addComponent(customEscapeChar, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1))
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(defaultEscapeCharLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -175,7 +175,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(defaultEscapeCharLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 218, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -184,8 +184,8 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 
     private void addSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSButtonActionPerformed
 		Character c = customSeparator.getText().charAt(0);
-		if (!es.contains(c)) {
-			es.addElement(c);
+		if (!separatorsListModel.contains(c)) {
+			separatorsListModel.addElement(c);
 			controller.changed();
 		} else {
 			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
@@ -198,7 +198,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
     private void removeSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSButtonActionPerformed
 		int index = defaultSeparator.getSelectedIndex();
 		if (index > 1) {
-			es.remove(index);
+			separatorsListModel.remove(index);
 			controller.changed();
 		} else {
 			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
@@ -210,8 +210,8 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 
     private void addEButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addEButtonActionPerformed
 		Character c = customEscapeChar.getText().charAt(0);
-		if (!escapeCharsModel.contains(c)) {
-			escapeCharsModel.addElement(c);
+		if (!escapeCharsListModel.contains(c)) {
+			escapeCharsListModel.addElement(c);
 			controller.changed();
 		} else {
 			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
@@ -224,7 +224,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
     private void removeEButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeEButtonActionPerformed
 		int index = defaultEscapeChar.getSelectedIndex();
 		if (index > 0) {
-			escapeCharsModel.remove(index);
+			escapeCharsListModel.remove(index);
 			controller.changed();
 		} else {
 			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
@@ -241,26 +241,30 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 		// someCheckBox.setSelected(NbPreferences.forModule(CSVEditorPanel.class).getBoolean("someFlag", false));
 		// or:
 		// someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
-		es.removeAllElements();
-		es.addElement(',');
-		es.addElement(';');
+		separatorsListModel.removeAllElements();
+		separatorsListModel.addElement(',');
+		separatorsListModel.addElement(';');
 		int count = OptionsUtils.readCustomSeparatorCount();
 		if (count > 0) {
 			List<Character> chars = OptionsUtils.readCustomSeparators(count);
 			for (Character c : chars)
-				es.addElement(c);
+				separatorsListModel.addElement(c);
 		}
 		defaultSeparator.setSelectedValue(OptionsUtils.readDefaultSeparator(), true);
 
-		escapeCharsModel.removeAllElements();
-		escapeCharsModel.addElement('"');
+		escapeCharsListModel.removeAllElements();
+		escapeCharsListModel.addElement('"');
 		count = OptionsUtils.readCustomEscapeCharCount();
 		if (count > 0) {
 			List<Character> chars = OptionsUtils.readCustomEscapeChars(count);
 			for (Character c : chars)
-				es.addElement(c);
+				escapeCharsListModel.addElement(c);
 		}
 		defaultEscapeChar.setSelectedValue(OptionsUtils.readDefaultEscapeChar(), true);
+
+		//Clean up text fields
+		customSeparator.setText(null);
+		customEscapeChar.setText(null);
 	}
 
 	void store() {
@@ -270,23 +274,23 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 		// NbPreferences.forModule(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
 		// or:
 		// SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
-		int count = es.size() - 2;
+		int count = separatorsListModel.size() - 2;
 		OptionsUtils.saveCustomSeparatorCount(count);
 		if (count > 0) {
 			Character[] chars = new Character[count];
 			for (int i = 0; i < chars.length; i++) {
-				chars[i] = (Character) es.get(i + 2);
+				chars[i] = (Character) separatorsListModel.get(i + 2);
 			}
 			OptionsUtils.saveCustomSeparators(chars);
 		}
 		OptionsUtils.saveDefaultSeparator((Character) defaultSeparator.getSelectedValue());
 
-		count = escapeCharsModel.size() - 1;
+		count = escapeCharsListModel.size() - 1;
 		OptionsUtils.saveCustomEscapeCharCount(count);
 		if (count > 0) {
 			Character[] chars = new Character[count];
 			for (int i = 0; i < chars.length; i++) {
-				chars[i] = (Character) escapeCharsModel.get(i + 1);
+				chars[i] = (Character) escapeCharsListModel.get(i + 1);
 			}
 			OptionsUtils.saveCustomEscapeChars(chars);
 		}
@@ -316,10 +320,10 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
 	private void init() {
-		es = new DefaultListModel();
-		es.addElement(',');
-		es.addElement(';');
-		defaultSeparator.setModel(es);
+		separatorsListModel = new DefaultListModel();
+		separatorsListModel.addElement(',');
+		separatorsListModel.addElement(';');
+		defaultSeparator.setModel(separatorsListModel);
 		customSeparator.setDocument(new LimitedPlainDocument(1));
 		customSeparator.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
@@ -350,9 +354,9 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 		});
 		addSButton.setEnabled(false);
 
-		escapeCharsModel = new DefaultListModel();
-		escapeCharsModel.addElement('"');
-		defaultEscapeChar.setModel(escapeCharsModel);
+		escapeCharsListModel = new DefaultListModel();
+		escapeCharsListModel.addElement('"');
+		defaultEscapeChar.setModel(escapeCharsListModel);
 		customEscapeChar.setDocument(new LimitedPlainDocument(1));
 		customEscapeChar.getDocument().addDocumentListener(new DocumentListener() {
 			@Override
