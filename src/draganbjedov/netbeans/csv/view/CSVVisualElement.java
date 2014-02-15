@@ -278,6 +278,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         ));
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        table.setDragEnabled(true);
+        table.setDropMode(javax.swing.DropMode.ON_OR_INSERT_ROWS);
         table.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         tableScrollPane.setViewportView(table);
@@ -571,7 +573,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	}
 
 	private void initActions() {
-		//Actions
 		addRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-row.gif"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -632,27 +633,28 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		moveTopAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-top.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] rows = table.getSelectedRows();
+				int rows[] = table.getSelectedRows();
 				for (int i = 0; i < rows.length; i++) {
 					int row = rows[i];
 					int to = i;
 					tableModel.moveRow(row, to);
 				}
-				tableModel.fireTableDataChanged();
+
+				tableModel.fireTableRowsUpdated(0, table.getRowCount() - 1);
 				selectRowInterval(0, rows.length - 1);
 			}
 		};
 		moveUpAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-up.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] rows = table.getSelectedRows();
-				if (table.getSelectedRow() != 0 && table.getSelectedRow() != -1) {
-					int row = table.getSelectedRow() - 1;
-					int to = rows[rows.length - 1];
+				int rows[] = table.getSelectedRows();
+				if (rows.length > 0) {
+					int row = rows[0] - 1;
+					int to = rows[rows.length - 1] + 1;
 					if (row >= 0) {
 						tableModel.moveRow(row, to);
-						tableModel.fireTableDataChanged();
-						selectRowInterval(rows[0] - 1, rows[rows.length - 1] - 1);
+						tableModel.fireTableRowsUpdated(rows[0] - 1, rows[0] + rows.length - 1);
+						selectRowInterval(rows[0] - 1, rows[0] - 1 + rows.length - 1);
 					}
 				}
 			}
@@ -660,14 +662,14 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		moveDownAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-down.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] rows = table.getSelectedRows();
-				if (table.getSelectedRow() != -1) {
+				int rows[] = table.getSelectedRows();
+				if (rows.length > 0) {
 					int row = rows[rows.length - 1] + 1;
 					int to = table.getSelectedRow();
 					if (row <= table.getRowCount() - 1) {
 						tableModel.moveRow(row, to);
-						tableModel.fireTableDataChanged();
-						selectRowInterval(rows[0] + 1, rows[rows.length - 1] + 1);
+						tableModel.fireTableRowsUpdated(rows[0], rows[0] + 1 + rows.length - 1);
+						selectRowInterval(rows[0] + 1, rows[0] + 1 + rows.length - 1);
 					}
 				}
 			}
@@ -675,12 +677,13 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		moveBottomAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-bottom.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] rows = table.getSelectedRows();
+				int rows[] = table.getSelectedRows();
 				for (int i = 0; i < rows.length; i++) {
 					int row = rows[i] - i;
-					tableModel.moveRow(row, table.getRowCount() - 1);
+					tableModel.moveRow(row, table.getRowCount());
 				}
-				tableModel.fireTableDataChanged();
+
+				tableModel.fireTableRowsUpdated(0, table.getRowCount() - 1);
 				selectRowInterval(table.getRowCount() - rows.length, table.getRowCount() - 1);
 			}
 		};
