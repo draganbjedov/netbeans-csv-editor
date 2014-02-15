@@ -4,7 +4,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import org.openide.util.Pair;
 
 /*
  * TableRowTransferable.java
@@ -15,29 +17,29 @@ import java.util.List;
  */
 public class TableRowTransferable implements Transferable {
 
-    public static final DataFlavor CSV_ROWS_DATA_FLAVOR = new DataFlavor(List.class, "CSVTableRows");
-    private List<List<String>> rows;
+	public static final DataFlavor CSV_ROWS_DATA_FLAVOR = new DataFlavor(List.class, "CSVTableRows");
+	private final List<Pair<Integer, ArrayList<String>>> rows;
 
-    public TableRowTransferable(List<List<String>> rows) {
-        this.rows = rows;
-    }
+	public TableRowTransferable(List<Pair<Integer, ArrayList<String>>> rows) {
+		this.rows = rows;
+	}
 
-    @Override
-    public DataFlavor[] getTransferDataFlavors() {
-        return new DataFlavor[]{CSV_ROWS_DATA_FLAVOR};
-    }
+	@Override
+	public DataFlavor[] getTransferDataFlavors() {
+		return new DataFlavor[]{CSV_ROWS_DATA_FLAVOR};
+	}
 
-    @Override
-    public boolean isDataFlavorSupported(DataFlavor flavor) {
-        return flavor == CSV_ROWS_DATA_FLAVOR;
-    }
+	@Override
+	public boolean isDataFlavorSupported(DataFlavor flavor) {
+		return flavor == CSV_ROWS_DATA_FLAVOR;
+	}
 
-    @Override
-    public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
-        if (flavor == CSV_ROWS_DATA_FLAVOR) {
-            return rows;
-        } else {
-            throw new UnsupportedFlavorException(flavor);
-        }
-    }
+	@Override
+	public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+		if (flavor == CSV_ROWS_DATA_FLAVOR) {
+			return rows;
+		} else {
+			throw new UnsupportedFlavorException(flavor);
+		}
+	}
 }
