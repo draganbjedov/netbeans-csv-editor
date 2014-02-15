@@ -1,20 +1,24 @@
 package draganbjedov.netbeans.csv.view;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.*;
-import javax.swing.border.MatteBorder;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JViewport;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
@@ -27,263 +31,263 @@ import javax.swing.table.TableColumn;
  */
 public class RowNumberTable extends JTable implements ChangeListener, PropertyChangeListener {
 
-    private final JTable table;
-    private final boolean countFromZero;
-    private final String rowHeader;
-    private Font font;
-    private String[] values;
-    private MatteBorder lineBorder;
+	private final JTable table;
+	private final boolean countFromZero;
+	private final String rowHeader;
+	private Font font;
+	private String[] values;
 
-    public RowNumberTable(JTable table) {
-        this(table, false, "");
-    }
+	public RowNumberTable(JTable table) {
+		this(table, false, "");
+	}
 
-    public RowNumberTable(final JTable table, boolean countFromZero, String header) {
-        this(table, countFromZero, null, header);
-    }
+	public RowNumberTable(final JTable table, boolean countFromZero, String header) {
+		this(table, countFromZero, null, header);
+	}
 
-    public RowNumberTable(final JTable table, boolean countFromZero, String rowHeader, String header) {
-        this.table = table;
-        this.countFromZero = countFromZero;
-        this.rowHeader = rowHeader == null || rowHeader.isEmpty() ? "" : rowHeader + " ";
-        init(header);
-    }
+	public RowNumberTable(final JTable table, boolean countFromZero, String rowHeader, String header) {
+		this.table = table;
+		this.countFromZero = countFromZero;
+		this.rowHeader = rowHeader == null || rowHeader.isEmpty() ? "" : rowHeader + " ";
+		init(header);
+	}
 
-    private void init(String header) {
-        table.addPropertyChangeListener(this);
+	private void init(String header) {
+		table.addPropertyChangeListener(this);
 
-        setFocusable(false);
-        setAutoCreateColumnsFromModel(false);
-        setShowGrid(false);
+		setFocusable(false);
+		setAutoCreateColumnsFromModel(false);
+		setShowGrid(false);
 
-        updateRowHeight();
-        updateModel();
-        updateSelectionModel();
+		updateRowHeight();
+		updateModel();
+		updateSelectionModel();
 
-        font = new Font("Arial", Font.BOLD, table.getTableHeader().getFont().getSize());
-        table.getTableHeader().setFont(font);
-        this.getTableHeader().setFont(font);
+		font = table.getTableHeader().getFont()/*.deriveFont(Font.BOLD)*/;
+		table.getTableHeader().setFont(font);
+		this.getTableHeader().setFont(font);
 
-        lineBorder = new MatteBorder(new Insets(0, 0, 1, 2), new Color(222, 222, 223));
-//        lineBorder = new DBLineBorder(new Color(222, 222, 223));
-//        lineBorder.setInsets(new Insets(0, 2, 1, 2));
-//        lineBorder.setTopBorderVisible(false);
-//        lineBorder.setLeftBorderVisible(false);
+		table.getTableHeader().setDefaultRenderer(new HeaderRenderer(table));
+		this.getTableHeader().setDefaultRenderer(new HeaderRenderer(table));
 
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
-        this.getTableHeader().setForeground(Color.DARK_GRAY);
+		TableColumn column = new TableColumn();
+		column.setHeaderValue(header);
+		addColumn(column);
+		column.setCellRenderer(new RowNumberRenderer());
 
-        table.getTableHeader().setDefaultRenderer(new HeaderRenderer(table));
-        this.getTableHeader().setDefaultRenderer(new HeaderRenderer(table));
+		int width = 30;
+		if (header != null && !header.isEmpty()) {
+			FontMetrics metrics = new FontMetrics(font) {
+			};
+			Rectangle2D bounds = metrics.getStringBounds(header, null);
+			if ((int) bounds.getWidth() > 50) {
+				width = (int) bounds.getWidth();
+			}
+			width += 10;
+		}
 
-        TableColumn column = new TableColumn();
-        column.setHeaderValue(header);
-        addColumn(column);
-        column.setCellRenderer(new RowNumberRenderer());
+		getColumnModel().getColumn(0).setPreferredWidth(width);
+		setPreferredScrollableViewportSize(getPreferredSize());
 
-        int width = 30;
-        if (header != null && !header.isEmpty()) {
-            FontMetrics metrics = new FontMetrics(table.getTableHeader().getFont()) {
-            };
-            Rectangle2D bounds = metrics.getStringBounds(header, null);
-            if ((int) bounds.getWidth() > 50) {
-                width = (int) bounds.getWidth();
-            }
-            width += 10;
-        }
+		getTableHeader().setReorderingAllowed(false);
 
-        getColumnModel().getColumn(0).setPreferredWidth(width);
-        setPreferredScrollableViewportSize(getPreferredSize());
+		this.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent me) {
+				int row = RowNumberTable.this.rowAtPoint(me.getPoint());
+				if (row != -1) {
+					table.addRowSelectionInterval(row, row);
+					table.addColumnSelectionInterval(0, table.getModel().getColumnCount() - 1);
+				} else {
+					table.clearSelection();
+				}
+			}
+		});
+	}
 
-        getTableHeader().setReorderingAllowed(false);
+	@Override
+	public void addNotify() {
+		super.addNotify();
 
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent me) {
-                int row = RowNumberTable.this.rowAtPoint(me.getPoint());
-                if (row != -1) {
-                    table.addRowSelectionInterval(row, row);
-                    table.addColumnSelectionInterval(0, table.getModel().getColumnCount() - 1);
-                } else {
-                    table.clearSelection();
-                }
-            }
-        });
-    }
+		Component c = getParent();
 
-    @Override
-    public void addNotify() {
-        super.addNotify();
+		// Keep scrolling of the row table in sync with the main table.
+		if (c instanceof JViewport) {
+			JViewport viewport = (JViewport) c;
+			viewport.addChangeListener(this);
+		}
+	}
 
-        Component c = getParent();
+	/*
+	 * Delegate method to main table
+	 */
+	@Override
+	public int getRowCount() {
+		return table.getRowCount();
+	}
 
-        // Keep scrolling of the row table in sync with the main table.
+	@Override
+	public int getRowHeight(int row) {
+		return table.getRowHeight(row);
+	}
 
-        if (c instanceof JViewport) {
-            JViewport viewport = (JViewport) c;
-            viewport.addChangeListener(this);
-        }
-    }
+	/*
+	 * This table does not use any data from the main TableModel, so just return
+	 * a value based on the row parameter.
+	 */
+	@Override
+	public Object getValueAt(int row, int column) {
+		if (values == null || values.length <= row)
+			return rowHeader + Integer.toString(row + (countFromZero ? 0 : 1));
+		else
+			return values[row];
+	}
 
-    /*
-     * Delegate method to main table
-     */
-    @Override
-    public int getRowCount() {
-        return table.getRowCount();
-    }
+	/*
+	 * Don't edit data in the main TableModel by mistake
+	 */
+	@Override
+	public boolean isCellEditable(int row, int column) {
+		return false;
+	}
 
-    @Override
-    public int getRowHeight(int row) {
-        return table.getRowHeight(row);
-    }
+	// implements ChangeListener
+	@Override
+	public void stateChanged(ChangeEvent e) {
+		// Keep the scrolling of the row table in sync with main table
 
-    /*
-     * This table does not use any data from the main TableModel, so just return
-     * a value based on the row parameter.
-     */
-    @Override
-    public Object getValueAt(int row, int column) {
-        if (values == null || values.length <= row)
-            return rowHeader + Integer.toString(row + (countFromZero ? 0 : 1));
-        else
-            return values[row];
-    }
+		JViewport viewport = (JViewport) e.getSource();
+		JScrollPane scrollPane = (JScrollPane) viewport.getParent();
+		scrollPane.getVerticalScrollBar().setValue(viewport.getViewPosition().y);
+	}
 
-    /*
-     * Don't edit data in the main TableModel by mistake
-     */
-    @Override
-    public boolean isCellEditable(int row, int column) {
-        return false;
-    }
+	// implements PropertyChangeListener
+	@Override
+	public void propertyChange(PropertyChangeEvent e) {
+		// Keep the row table in sync with the main table
 
-    // implements ChangeListener
-    @Override
-    public void stateChanged(ChangeEvent e) {
-        // Keep the scrolling of the row table in sync with main table
+		if ("rowHeight".equals(e.getPropertyName())) {
+			updateRowHeight();
+		}
 
-        JViewport viewport = (JViewport) e.getSource();
-        JScrollPane scrollPane = (JScrollPane) viewport.getParent();
-        scrollPane.getVerticalScrollBar().setValue(viewport.getViewPosition().y);
-    }
+		if ("selectionModel".equals(e.getPropertyName())) {
+			updateSelectionModel();
+		}
 
-    // implements PropertyChangeListener
-    @Override
-    public void propertyChange(PropertyChangeEvent e) {
-        // Keep the row table in sync with the main table
+		if ("model".equals(e.getPropertyName())) {
+			updateModel();
+		}
+	}
 
-        if ("rowHeight".equals(e.getPropertyName())) {
-            updateRowHeight();
-        }
+	private void updateRowHeight() {
+		setRowHeight(table.getRowHeight());
+	}
 
-        if ("selectionModel".equals(e.getPropertyName())) {
-            updateSelectionModel();
-        }
+	private void updateModel() {
+		setModel(table.getModel());
+	}
 
-        if ("model".equals(e.getPropertyName())) {
-            updateModel();
-        }
-    }
+	private void updateSelectionModel() {
+		setSelectionModel(table.getSelectionModel());
+	}
 
-    private void updateRowHeight() {
-        setRowHeight(table.getRowHeight());
-    }
+	public JTable getTable() {
+		return table;
+	}
 
-    private void updateModel() {
-        setModel(table.getModel());
-    }
+	@Override
+	public boolean isEnabled() {
+		if (table != null)
+			return table.isEnabled();
+		return true;
+	}
 
-    private void updateSelectionModel() {
-        setSelectionModel(table.getSelectionModel());
-    }
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		this.getTableHeader().setEnabled(enabled);
+		table.getTableHeader().setEnabled(enabled);
+		table.getTableHeader().repaint();
+		getTableHeader().repaint();
+		repaint();
+	}
 
-    public JTable getTable() {
-        return table;
-    }
+	public void setValues(String[] values) {
+		this.values = values;
+		String s = "";
+		for (String ss : values) {
+			if (s.length() < ss.length())
+				s = ss;
+		}
+		int width = 50;
+		if (!s.isEmpty()) {
+			FontMetrics metrics = new FontMetrics(table.getTableHeader().getFont()) {
+			};
+			Rectangle2D bounds = metrics.getStringBounds(s, null);
+			if ((int) bounds.getWidth() > 50) {
+				width = (int) bounds.getWidth();
+			}
+			width += 10;
+		}
+		getColumnModel().getColumn(0).setPreferredWidth(width);
+		setPreferredScrollableViewportSize(getPreferredSize());
+	}
 
-    @Override
-    public boolean isEnabled() {
-        if (table != null)
-            return table.isEnabled();
-        return true;
-    }
+	private final class RowNumberRenderer extends DefaultTableCellRenderer {
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        this.getTableHeader().setEnabled(enabled);
-        table.getTableHeader().setEnabled(enabled);
-        table.getTableHeader().repaint();
-        getTableHeader().repaint();
-        repaint();
-    }
+		public RowNumberRenderer() {
+			setHorizontalAlignment(JLabel.CENTER);
+		}
 
-    public void setValues(String[] values) {
-        this.values = values;
-        String s = "";
-        for (String ss : values) {
-            if (s.length() < ss.length())
-                s = ss;
-        }
-        int width = 50;
-        if (s != null && !s.isEmpty()) {
-            FontMetrics metrics = new FontMetrics(table.getTableHeader().getFont()) {
-            };
-            Rectangle2D bounds = metrics.getStringBounds(s, null);
-            if ((int) bounds.getWidth() > 50) {
-                width = (int) bounds.getWidth();
-            }
-            width += 10;
-        }
-        getColumnModel().getColumn(0).setPreferredWidth(width);
-        setPreferredScrollableViewportSize(getPreferredSize());
-    }
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			if (table != null) {
+				JTableHeader header = table.getTableHeader();
+				if (header != null) {
+					TableCellRenderer defaultRenderer = header.getDefaultRenderer();
+					if (defaultRenderer != null) {
+						Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, 0, 0);
+						if (isSelected) {
+							component.setFont(component.getFont().deriveFont(Font.BOLD));
+						}
+						return component;
+					} else {
+						setForeground(header.getForeground());
+						setBackground(header.getBackground());
+						setFont(header.getFont());
+					}
+				}
+			}
 
-    private final class RowNumberRenderer extends DefaultTableCellRenderer {
+			if (isSelected) {
+				setFont(getFont().deriveFont(Font.BOLD));
+			}
 
-        public RowNumberRenderer() {
-            setHorizontalAlignment(JLabel.CENTER);
-            setFont(font);
-            setBorder(lineBorder);
-        }
+			setText((value == null) ? "" : value.toString());
+			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
 
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            if (table != null) {
-                if (table.isEnabled()) {
-                    if (isSelected) {
-                        setForeground(Color.WHITE);
-                        setBackground(table.getSelectionBackground());
-                    } else {
-                        setForeground(Color.DARK_GRAY);
-                        setBackground(Color.WHITE);
-                    }
-                } else {
-                    setForeground(Color.LIGHT_GRAY);
-                    setBackground(Color.WHITE);
-                }
-            }
-            setText((value == null) ? "" : value.toString());
-            return this;
-        }
-    }
+			return this;
+		}
+	}
 
-    private final class HeaderRenderer implements TableCellRenderer {
+	private final class HeaderRenderer implements TableCellRenderer {
 
-        private TableCellRenderer renderer;
+		private final TableCellRenderer renderer;
 
-        public HeaderRenderer(JTable table) {
-            renderer = table.getTableHeader().getDefaultRenderer();
-        }
+		public HeaderRenderer(JTable table) {
+			renderer = table.getTableHeader().getDefaultRenderer();
+		}
 
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-            JLabel comp = (JLabel) renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-            comp.setForeground(table.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
-            comp.setHorizontalAlignment(SwingConstants.CENTER);
-            return comp;
-        }
-    }
+		@Override
+		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+			JLabel comp = (JLabel) renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+//			comp.setForeground(table.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
+			if (comp instanceof JComponent) {
+				((JComponent) comp).setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+			}
+			comp.setHorizontalAlignment(SwingConstants.CENTER);
+			comp.setFont(font);
+			return comp;
+		}
+	}
 }
