@@ -1,10 +1,10 @@
 package draganbjedov.netbeans.csv.view;
 
 import draganbjedov.netbeans.csv.view.ccp.DropResult;
+import draganbjedov.netbeans.csv.view.ccp.Pair;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import org.openide.util.Pair;
 
 /*
  * BACnetObjectsTableModel.java
