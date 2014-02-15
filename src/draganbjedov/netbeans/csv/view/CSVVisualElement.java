@@ -54,7 +54,6 @@ import javax.swing.text.JTextComponent;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
-import org.openide.awt.ToolbarWithOverflow;
 import org.openide.awt.UndoRedo;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -77,7 +76,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 	private final CSVDataObject obj;
-	private final JToolBar toolbar = new ToolbarWithOverflow();
+	private final JToolBar toolbar = new JToolBar();
 	private transient MultiViewElementCallback callback;
 	private transient CSVTableModel tableModel;
 
