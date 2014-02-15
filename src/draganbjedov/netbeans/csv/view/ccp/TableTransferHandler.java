@@ -9,7 +9,6 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.TransferHandler;
-import org.openide.util.Pair;
 
 public class TableTransferHandler extends TransferHandler {
 
@@ -109,7 +108,7 @@ public class TableTransferHandler extends TransferHandler {
 				ArrayList<String> rowData = new ArrayList<String>(columnCount);
 				for (int i = 0; i < columnCount; i++)
 					rowData.add((String) table.getValueAt(row, i));
-				rowsData.add(Pair.of(row, rowData));
+				rowsData.add(new Pair<Integer, ArrayList<String>>(row, rowData));
 			}
 			return new TableRowTransferable(rowsData);
 		}
