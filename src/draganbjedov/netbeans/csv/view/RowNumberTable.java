@@ -1,6 +1,7 @@
 package draganbjedov.netbeans.csv.view;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.MouseAdapter;
@@ -77,8 +78,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 
 		int width = 30;
 		if (header != null && !header.isEmpty()) {
-			FontMetrics metrics = new FontMetrics(font) {
-			};
+			FontMetrics metrics = table.getFontMetrics(table.getTableHeader().getFont().deriveFont(Font.BOLD));
 			Rectangle2D bounds = metrics.getStringBounds(header, null);
 			if ((int) bounds.getWidth() > 50) {
 				width = (int) bounds.getWidth();
@@ -103,6 +103,8 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 				}
 			}
 		});
+
+		setIntercellSpacing(new Dimension(0, 0));
 	}
 
 	@Override
@@ -246,9 +248,11 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 				if (header != null) {
 					TableCellRenderer defaultRenderer = header.getDefaultRenderer();
 					if (defaultRenderer != null) {
-						Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, 0, 0);
-						if (isSelected) {
-							component.setFont(component.getFont().deriveFont(Font.BOLD));
+						Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+						if (component instanceof JComponent) {
+							JComponent jComponent = (JComponent) component;
+							jComponent.setOpaque(false);
+							jComponent.setFont(isSelected ? font.deriveFont(Font.BOLD) : font);
 						}
 						return component;
 					} else {
@@ -272,21 +276,21 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 
 	private final class HeaderRenderer implements TableCellRenderer {
 
+		private final JTable table;
 		private final TableCellRenderer renderer;
 
 		public HeaderRenderer(JTable table) {
+			this.table = table;
 			renderer = table.getTableHeader().getDefaultRenderer();
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-			JLabel comp = (JLabel) renderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
-//			comp.setForeground(table.isEnabled() ? Color.DARK_GRAY : Color.LIGHT_GRAY);
-			if (comp instanceof JComponent) {
-				((JComponent) comp).setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-			}
+			boolean selected = table == RowNumberTable.this ? this.table.isRowSelected(row) : this.table.isColumnSelected(col);
+			JLabel comp = (JLabel) renderer.getTableCellRendererComponent(table, value, selected, hasFocus, row, col);
 			comp.setHorizontalAlignment(SwingConstants.CENTER);
-			comp.setFont(font);
+			comp.setFont(selected ? font.deriveFont(Font.BOLD) : font);
+			this.table.getTableHeader().repaint();
 			return comp;
 		}
 	}
