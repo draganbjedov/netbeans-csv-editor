@@ -258,6 +258,7 @@
             <Property name="dropMode" type="javax.swing.DropMode" editor="org.netbeans.modules.form.editors.EnumEditor">
               <Value id="ON_OR_INSERT_ROWS"/>
             </Property>
+            <Property name="rowHeight" type="int" value="25"/>
             <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
               <JTableSelectionModel selectionMode="2"/>
             </Property>

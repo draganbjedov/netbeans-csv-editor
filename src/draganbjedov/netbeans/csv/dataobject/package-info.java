@@ -1,8 +1,9 @@
 @TemplateRegistration(
 		folder = "Other",
-		content = "CSV_File.csv.template",
+		content = "CSV.csv.template",
 		displayName = "CSV File",
-		requireProject = false)
+		requireProject = false,
+		description = "description.html")
 package draganbjedov.netbeans.csv.dataobject;
 
 import org.netbeans.api.templates.TemplateRegistration;

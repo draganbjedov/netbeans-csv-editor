@@ -5,6 +5,7 @@ import draganbjedov.netbeans.csv.options.util.OptionsUtils;
 import draganbjedov.netbeans.csv.view.ccp.TableRowTransferable;
 import draganbjedov.netbeans.csv.view.ccp.TableTransferHandler;
 import draganbjedov.netbeans.csv.view.ccp.TransferActionListener;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -38,8 +39,10 @@ import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
+import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -304,6 +307,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
         table.setDragEnabled(true);
         table.setDropMode(javax.swing.DropMode.ON_OR_INSERT_ROWS);
+        table.setRowHeight(25);
         table.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.getTableHeader().setReorderingAllowed(false);
         tableScrollPane.setViewportView(table);
@@ -826,6 +830,15 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		table.setRowSelectionAllowed(true);
 		table.setColumnSelectionAllowed(true);
 		table.setCellSelectionEnabled(true);
+
+		/* Popravljalje visine redova zbog editovanja. Windows i Metal LAF nemaju margine u tekst poljima, a ostali imaju */
+		LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+		boolean lafNotExpand = lookAndFeel.getID().toLowerCase().contains("windows") || lookAndFeel.getID().toLowerCase().contains("metal");
+
+		table.setRowHeight(lafNotExpand ? 25 : 27);
+
+		table.setShowGrid(true);
+		table.setGridColor(new Color(128, 128, 128, 85));
 
 		table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
 			@Override
