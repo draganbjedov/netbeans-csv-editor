@@ -851,6 +851,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 				setActiveButtons();
 			}
 		});
+		table.setDefaultRenderer(String.class, new OddEvenCellRenderer());
 
 		final String lafName = UIManager.getLookAndFeel().getName();
 		boolean setBackground = lafName.equals("Nimbus");
