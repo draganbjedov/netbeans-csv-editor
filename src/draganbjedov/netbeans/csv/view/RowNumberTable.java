@@ -237,8 +237,12 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 
 	private final class RowNumberRenderer extends DefaultTableCellRenderer {
 
+		private final boolean opaque;
+
 		public RowNumberRenderer() {
 			setHorizontalAlignment(JLabel.CENTER);
+			final String lafName = UIManager.getLookAndFeel().getName();
+			opaque = lafName.equals("Metal") || lafName.equals("Windows Classic");
 		}
 
 		@Override
@@ -251,7 +255,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 						Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 						if (component instanceof JComponent) {
 							JComponent jComponent = (JComponent) component;
-							jComponent.setOpaque(false);
+							jComponent.setOpaque(opaque);
 							jComponent.setFont(isSelected ? font.deriveFont(Font.BOLD) : font);
 						}
 						return component;
@@ -290,6 +294,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
 			JLabel comp = (JLabel) renderer.getTableCellRendererComponent(table, value, selected, hasFocus, row, col);
 			comp.setHorizontalAlignment(SwingConstants.CENTER);
 			comp.setFont(selected ? font.deriveFont(Font.BOLD) : font);
+			comp.setOpaque(true);
 			this.table.getTableHeader().repaint();
 			return comp;
 		}

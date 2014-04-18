@@ -852,6 +852,20 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 			}
 		});
 
+		final String lafName = UIManager.getLookAndFeel().getName();
+		boolean setBackground = lafName.equals("Nimbus");
+
+		if (setBackground)
+			table.getTableHeader().setBackground(Color.WHITE);
+
+		if (!lafName.startsWith("GTK")) {
+			tableScrollPane.getRowHeader().setBackground(Color.WHITE);
+			tableScrollPane.getViewport().setBackground(Color.WHITE);
+			tableScrollPane.setBackground(Color.WHITE);
+		} else {
+			rowNumberTable.setBackground(table.getTableHeader().getBackground());
+		}
+
 		final JTableHeader tableHeader = table.getTableHeader();
 		tableHeader.setReorderingAllowed(false);
 		tableHeader.addMouseListener(new MouseAdapter() {
