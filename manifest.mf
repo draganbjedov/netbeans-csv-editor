@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 OpenIDE-Module: netbeans.csv.editor/2
-OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Implementation-Version: 2
 OpenIDE-Module-Localizing-Bundle: draganbjedov/netbeans/csv/Bundle.properties
 OpenIDE-Module-Requires: org.openide.windows.WindowManager
 
