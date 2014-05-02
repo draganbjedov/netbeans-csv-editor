@@ -231,9 +231,6 @@
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout"/>
   <SubComponents>
     <Container class="javax.swing.JScrollPane" name="tableScrollPane">
-      <Events>
-        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableScrollPaneMouseClicked"/>
-      </Events>
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
       </AuxValues>
@@ -245,29 +242,30 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTable" name="table">
+        <Component class="org.jdesktop.swingx.JXTable" name="table">
           <Properties>
-            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-              <Table columnCount="0" rowCount="0"/>
+            <Property name="autoCreateRowSorter" type="boolean" value="false"/>
+            <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="tableModel" type="code"/>
             </Property>
             <Property name="autoResizeMode" type="int" value="0"/>
-            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
-              <TableColumnModel selectionModel="2"/>
-            </Property>
+            <Property name="columnControlVisible" type="boolean" value="true"/>
             <Property name="dragEnabled" type="boolean" value="true"/>
             <Property name="dropMode" type="javax.swing.DropMode" editor="org.netbeans.modules.form.editors.EnumEditor">
               <Value id="ON_OR_INSERT_ROWS"/>
             </Property>
             <Property name="rowHeight" type="int" value="25"/>
-            <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
-              <JTableSelectionModel selectionMode="2"/>
+            <Property name="rowSorter" type="javax.swing.RowSorter" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="null"/>
             </Property>
-            <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-              <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
+            <Property name="searchable" type="org.jdesktop.swingx.search.Searchable" editor="org.netbeans.modules.form.ComponentChooserEditor">
+              <ComponentRef name="null"/>
             </Property>
+            <Property name="sortable" type="boolean" value="false"/>
+            <Property name="sortsOnUpdates" type="boolean" value="false"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;    @Override&#xa;    public Component prepareEditor(TableCellEditor editor, int row, int column) {&#xa;        final Component c = super.prepareEditor(editor, row, column);&#xa;&#xa;        SwingUtilities.invokeLater(new Runnable() {&#xa;            @Override&#xa;            public void run(){&#xa;                if (c instanceof JTextComponent) {&#xa;                    ((JTextComponent) c).selectAll();&#xa;                }&#xa;            }&#xa;        });&#xa;&#xa;        addRowAction.setEnabled(false);&#xa;        deleteRowAction.setEnabled(false);&#xa;        addColumnAction.setEnabled(false);&#xa;        deleteColumnAction.setEnabled(false);&#xa;&#xa;        moveTopAction.setEnabled(false);&#xa;        moveUpAction.setEnabled(false);&#xa;        moveDownAction.setEnabled(false);&#xa;        moveBottomAction.setEnabled(false);&#xa;&#xa;        moveHomeAction.setEnabled(false);&#xa;        moveLeftAction.setEnabled(false);&#xa;        moveRightAction.setEnabled(false);&#xa;        moveEndAction.setEnabled(false);&#xa;&#xa;&#x9;&#x9;cutAction.setEnabled(false);&#xa;&#x9;&#x9;copyAction.setEnabled(false);&#xa;&#x9;&#x9;pasteAction.setEnabled(false);&#xa;&#xa;        separators.setEnabled(false);&#xa;        return c;&#xa;    }&#xa;&#xa;    public boolean editCellAt(int row, int column, EventObject e){&#xa;        if(e instanceof KeyEvent){&#xa;            int i = ((KeyEvent) e).getModifiers();&#xa;            String s = KeyEvent.getModifiersExText(((KeyEvent) e).getModifiers());&#xa;            //any time Control is used, disable cell editing&#xa;            if(i == InputEvent.CTRL_MASK){&#xa;                return false;&#xa;            }&#xa;        }&#xa;        return super.editCellAt(row, column, e);&#xa;    }&#xa;}"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new org.jdesktop.swingx.JXTable(){&#xa;&#xa;    @Override&#xa;    public Component prepareEditor(TableCellEditor editor, int row, int column) {&#xa;        final Component c = super.prepareEditor(editor, row, column);&#xa;&#xa;        SwingUtilities.invokeLater(new Runnable() {&#xa;            @Override&#xa;            public void run(){&#xa;                if (c instanceof JTextComponent) {&#xa;                    ((JTextComponent) c).selectAll();&#xa;                }&#xa;            }&#xa;        });&#xa;&#xa;        addRowAction.setEnabled(false);&#xa;        deleteRowAction.setEnabled(false);&#xa;        addColumnAction.setEnabled(false);&#xa;        deleteColumnAction.setEnabled(false);&#xa;&#xa;        moveTopAction.setEnabled(false);&#xa;        moveUpAction.setEnabled(false);&#xa;        moveDownAction.setEnabled(false);&#xa;        moveBottomAction.setEnabled(false);&#xa;&#xa;        moveHomeAction.setEnabled(false);&#xa;        moveLeftAction.setEnabled(false);&#xa;        moveRightAction.setEnabled(false);&#xa;        moveEndAction.setEnabled(false);&#xa;&#xa;        cutAction.setEnabled(false);&#xa;        copyAction.setEnabled(false);&#xa;        pasteAction.setEnabled(false);&#xa;&#xa;        separators.setEnabled(false);&#xa;        return c;&#xa;    }&#xa;&#xa;    public boolean editCellAt(int row, int column, EventObject e){&#xa;        if(e instanceof KeyEvent){&#xa;            int i = ((KeyEvent) e).getModifiers();&#xa;            String s = KeyEvent.getModifiersExText(((KeyEvent) e).getModifiers());&#xa;            //any time Control is used, disable cell editing&#xa;            if(i == InputEvent.CTRL_MASK){&#xa;                return false;&#xa;            }&#xa;        }&#xa;        return super.editCellAt(row, column, e);&#xa;    }&#xa;}"/>
           </AuxValues>
         </Component>
       </SubComponents>

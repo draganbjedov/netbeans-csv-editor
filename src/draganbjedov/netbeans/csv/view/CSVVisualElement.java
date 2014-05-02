@@ -84,7 +84,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private final JToolBar toolbar = new ToolbarWithOverflow();
 
 	private transient MultiViewElementCallback callback;
-	private transient CSVTableModel tableModel;
+	private final transient CSVTableModel tableModel;
 
 	private boolean activated;
 
@@ -118,6 +118,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		assert obj != null;
 		instanceContent = new InstanceContent();
 		lookup = new ProxyLookup(objLookup, new AbstractLookup(instanceContent));
+		tableModel = new CSVTableModel();
 		initActions();
 		initComponents();
 		init();
@@ -154,7 +155,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         moveRightPopUp = new javax.swing.JMenuItem();
         moveEndPopUp = new javax.swing.JMenuItem();
         tableScrollPane = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable(){
+        table = new org.jdesktop.swingx.JXTable(){
+
             @Override
             public Component prepareEditor(TableCellEditor editor, int row, int column) {
                 final Component c = super.prepareEditor(editor, row, column);
@@ -294,35 +296,21 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         setLayout(new java.awt.BorderLayout());
 
-        tableScrollPane.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                tableScrollPaneMouseClicked(evt);
-            }
-        });
-
-        table.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-
-            }
-        ));
+        table.setAutoCreateRowSorter(false);
+        table.setModel(tableModel);
         table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        table.setColumnControlVisible(true);
         table.setDragEnabled(true);
         table.setDropMode(javax.swing.DropMode.ON_OR_INSERT_ROWS);
         table.setRowHeight(25);
-        table.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        table.getTableHeader().setReorderingAllowed(false);
+        table.setRowSorter(null);
+        table.setSearchable(null);
+        table.setSortable(false);
+        table.setSortsOnUpdates(false);
         tableScrollPane.setViewportView(table);
-        table.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 
         add(tableScrollPane, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tableScrollPaneMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableScrollPaneMouseClicked
-		table.clearSelection();
-    }//GEN-LAST:event_tableScrollPaneMouseClicked
 
     private void tablePopUpMenuPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_tablePopUpMenuPopupMenuWillBecomeVisible
 		boolean enabled = table.getSelectedRowCount() > 0;
@@ -331,6 +319,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 		pasteAction.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
     }//GEN-LAST:event_tablePopUpMenuPopupMenuWillBecomeVisible
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenuItem addColumnPopUp;
     private javax.swing.JMenuItem addRowPopUp;
@@ -350,7 +339,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private javax.swing.JPopupMenu.Separator separator1;
     private javax.swing.JPopupMenu.Separator separator2;
     private javax.swing.JPopupMenu.Separator separator3;
-    private javax.swing.JTable table;
+    private org.jdesktop.swingx.JXTable table;
     private javax.swing.JPopupMenu tablePopUpMenu;
     private javax.swing.JScrollPane tableScrollPane;
     // End of variables declaration//GEN-END:variables
@@ -415,6 +404,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		if (callback != null)
 			callback.updateTitle(obj.getPrimaryFile().getNameExt());
 		pasteAction.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+
+		tableModel.fireTableDataChanged();
 	}
 
 	@Override
@@ -523,7 +514,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	public void updateTable() {
 		obj.readFile(tableModel);
 
-		updateColumnsWidths();
+//		updateColumnsWidths();
+		table.packAll();
 		setActiveButtons();
 	}
 
@@ -658,7 +650,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 						tableModel.addColumn(columnName, selectedColumn + 1);
 						selectColumn(selectedColumn + 1);
 					}
-					updateColumnsWidths();
+//					updateColumnsWidths();
+					table.packAll();
 				}
 			}
 		};
@@ -668,7 +661,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 				int[] columns = table.getSelectedColumns();
 				if (columns.length > 0) {
 					tableModel.removeColumns(columns);
-					updateColumnsWidths();
+//					updateColumnsWidths();
+					table.packAll();
 				}
 			}
 		};
@@ -907,7 +901,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 			}
 		});
 
-		tableModel = new CSVTableModel();
 		tableModel.addTableModelListener(new TableModelListener() {
 			@Override
 			public void tableChanged(TableModelEvent e) {
