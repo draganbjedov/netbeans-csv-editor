@@ -170,7 +170,7 @@ public class CSVDataObject extends MultiDataObject {
 			}
 
 			private void updateTable() {
-				if (visualEditor != null && visualEditor.isShowing())
+				if (visualEditor != null && !visualEditor.isActivated())
 					visualEditor.updateTable();
 			}
 		};
@@ -415,7 +415,7 @@ public class CSVDataObject extends MultiDataObject {
 			visualEditor.updateSeparators();
 	}
 
-	private List<String> splitLine(String s, char separator, char escapeChar) {
+	private static List<String> splitLine(String s, char separator, char escapeChar) {
 		List<String> split;
 		if (s.indexOf(escapeChar) != -1) {
 			split = new ArrayList<String>();

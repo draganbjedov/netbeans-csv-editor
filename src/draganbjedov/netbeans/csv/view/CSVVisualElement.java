@@ -78,11 +78,15 @@ import org.openide.windows.TopComponent;
 @Messages("LBL_CSV_VISUAL=Table")
 public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
-	private final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	private static final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+
 	private final CSVDataObject obj;
 	private final JToolBar toolbar = new ToolbarWithOverflow();
+
 	private transient MultiViewElementCallback callback;
 	private transient CSVTableModel tableModel;
+
+	private boolean activated;
 
 	private AbstractAction addRowAction;
 	private AbstractAction deleteRowAction;
@@ -407,6 +411,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	@Override
 	public void componentActivated() {
+		activated = true;
 		if (callback != null)
 			callback.updateTitle(obj.getPrimaryFile().getNameExt());
 		pasteAction.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
@@ -414,6 +419,11 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	@Override
 	public void componentDeactivated() {
+		activated = false;
+	}
+
+	public boolean isActivated() {
+		return activated;
 	}
 
 	@Override
