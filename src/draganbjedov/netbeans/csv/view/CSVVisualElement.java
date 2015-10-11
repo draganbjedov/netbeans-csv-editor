@@ -67,6 +67,9 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
+import org.oxbow.swingbits.table.filter.IFilterChangeListener;
+import org.oxbow.swingbits.table.filter.ITableFilter;
+import org.oxbow.swingbits.table.filter.TableRowFilterSupport;
 
 @MultiViewElement.Registration(
 		displayName = "#LBL_CSV_VISUAL",
@@ -78,13 +81,15 @@ import org.openide.windows.TopComponent;
 @Messages("LBL_CSV_VISUAL=Table")
 public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
-	private static final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+	private static final Clipboard CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
 
 	private final CSVDataObject obj;
 	private final JToolBar toolbar = new ToolbarWithOverflow();
 
 	private transient MultiViewElementCallback callback;
+
 	private final transient CSVTableModel tableModel;
+	private final TableRowFilterSupport tableRowFilterSupport;
 
 	private boolean activated;
 
@@ -118,13 +123,30 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		assert obj != null;
 		instanceContent = new InstanceContent();
 		lookup = new ProxyLookup(objLookup, new AbstractLookup(instanceContent));
+
 		tableModel = new CSVTableModel();
+
 		initActions();
 		initComponents();
 		init();
 		createToolBar();
+
 		obj.setVisualEditor(this);
+
 		updateTable();
+
+		tableRowFilterSupport = TableRowFilterSupport.forTable(table);
+		tableRowFilterSupport.searchable(true);
+		tableRowFilterSupport.actions(true);
+		tableRowFilterSupport.useTableRenderers(true);
+		tableRowFilterSupport.apply();
+		tableRowFilterSupport.addChangeListener(new IFilterChangeListener() {
+
+			@Override
+			public void filterChanged(ITableFilter<?> filter) {
+				tableModel.fireTableDataChanged();
+			}
+		});
 	}
 
 	@Override
@@ -317,7 +339,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		copyAction.setEnabled(enabled);
 		cutAction.setEnabled(enabled);
 
-		pasteAction.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
     }//GEN-LAST:event_tablePopUpMenuPopupMenuWillBecomeVisible
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -355,6 +377,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private JButton moveLeft;
 	private JButton moveRight;
 	private JButton moveEnd;
+	private JButton clearFilters;
+	private JButton setColumnsWidth;
 	private JComboBox separators;
 
 	@Override
@@ -403,7 +427,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		activated = true;
 		if (callback != null)
 			callback.updateTitle(obj.getPrimaryFile().getNameExt());
-		pasteAction.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
 		tableModel.fireTableDataChanged();
 	}
@@ -432,6 +456,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		return CloseOperationState.STATE_OK;
 	}
 
+	@Messages({
+		"BUTTON_CLEAR_FILTERS=Clear all filters",
+		"BUTTON_COL_WIDTH=Set column widths"
+	})
 	private void createToolBar() {
 		toolbar.setFloatable(false);
 
@@ -491,6 +519,18 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 		toolbar.addSeparator();
 
+		clearFilters = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/filter-clear.png", false));
+		clearFilters.setToolTipText(Bundle.BUTTON_CLEAR_FILTERS());
+		clearFilters.addActionListener((e) -> tableRowFilterSupport.clearAllFilters());
+		toolbar.add(clearFilters);
+
+		setColumnsWidth = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/resize.png", false));
+		setColumnsWidth.setToolTipText(Bundle.BUTTON_COL_WIDTH());
+		setColumnsWidth.addActionListener((e) -> table.packAll());
+		toolbar.add(setColumnsWidth);
+
+		toolbar.addSeparator();
+
 		//Separator
 		toolbar.add(new JLabel(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separatorLabel.text")));
 
@@ -528,7 +568,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		deleteColumnAction.setEnabled(table.getSelectedColumnCount() >= 1);
 		cutAction.setEnabled(hasSelectedRow);
 		copyAction.setEnabled(hasSelectedRow);
-		pasteAction.setEnabled(clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
 		int[] rows = table.getSelectedRows();
 		if (moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
@@ -879,22 +919,20 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 				int col = tableHeader.columnAtPoint(e.getPoint());
 				if (tableHeader.getCursor().getType() == Cursor.E_RESIZE_CURSOR)
 					e.consume();
-				else {
-					if (e.getButton() == MouseEvent.BUTTON1) {
-						if (e.getClickCount() != 2)
+				else if (e.getButton() == MouseEvent.BUTTON1) {
+					if (e.getClickCount() != 2)
+						selectColumn(col);
+					else {
+						final TableColumn column = tableHeader.getColumnModel().getColumn(col);
+						String header = (String) column.getHeaderValue();
+						String newColumnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", header);
+						if (newColumnName != null && !newColumnName.equals(header)) {
+							tableModel.renameColumn(col, newColumnName);
+							column.setHeaderValue(newColumnName);
+							updateColumnWidth(col);
+							tableModel.fireTableDataChanged();
 							selectColumn(col);
-						else {
-							final TableColumn column = tableHeader.getColumnModel().getColumn(col);
-							String header = (String) column.getHeaderValue();
-							String newColumnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", header);
-							if (newColumnName != null && !newColumnName.equals(header)) {
-								tableModel.renameColumn(col, newColumnName);
-								column.setHeaderValue(newColumnName);
-								updateColumnWidth(col);
-								tableModel.fireTableDataChanged();
-								selectColumn(col);
-								table.requestFocusInWindow();
-							}
+							table.requestFocusInWindow();
 						}
 					}
 				}
@@ -1017,11 +1055,11 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 //		actionMap.put("paste-from-clipboard", pasteAction);
 //
 //		instanceContent.add(actionMap);
-		clipboard.addFlavorListener(new FlavorListener() {
+		CLIPBOARD.addFlavorListener(new FlavorListener() {
 
 			@Override
 			public void flavorsChanged(FlavorEvent e) {
-				final boolean dataFlavorAvailable = clipboard.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
+				final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
 				pasteAction.setEnabled(dataFlavorAvailable);
 			}
 		});
