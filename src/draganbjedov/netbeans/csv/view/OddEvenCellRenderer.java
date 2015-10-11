@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  */
 public class OddEvenCellRenderer extends DefaultTableCellRenderer {
 
-	protected Color oddRowColor = new Color(128, 128, 128, 70);
+	protected Color oddRowColor = new Color(128, 128, 128, 35);
 
 	public OddEvenCellRenderer() {
 	}

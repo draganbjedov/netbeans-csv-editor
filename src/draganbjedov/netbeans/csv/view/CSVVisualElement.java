@@ -54,6 +54,7 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
+import static org.jdesktop.swingx.JXTable.USE_DTCR_COLORMEMORY_HACK;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -878,6 +879,13 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		/* Popravljalje visine redova zbog editovanja. Windows i Metal LAF nemaju margine u tekst poljima, a ostali imaju */
 		LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
 		boolean lafNotExpand = lookAndFeel.getID().toLowerCase().contains("windows") || lookAndFeel.getID().toLowerCase().contains("metal");
+
+		/* 
+		 * Da se ne bi ponistavala boja koju postavi renderer posto ne koristimo Highlighter iz SwingX-a
+		 * Videti JXTable.prepareRenderer() i 
+		 * JXTable.resetDefaultTableCellRendererColors()
+		 */
+		table.putClientProperty(USE_DTCR_COLORMEMORY_HACK, false);
 
 		table.setRowHeight(lafNotExpand ? 25 : 27);
 
