@@ -5,9 +5,11 @@ import draganbjedov.netbeans.csv.options.util.OptionsUtils;
 import draganbjedov.netbeans.csv.view.ccp.TableRowTransferable;
 import draganbjedov.netbeans.csv.view.ccp.TableTransferHandler;
 import draganbjedov.netbeans.csv.view.ccp.TransferActionListener;
+import draganbjedov.netbeans.csv.view.columns.AddColumnDialog;
+import draganbjedov.netbeans.csv.view.columns.RemoveColumnDialog;
+import draganbjedov.netbeans.csv.view.columns.RenameColumnDialog;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
@@ -18,8 +20,7 @@ import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -48,7 +48,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
@@ -64,12 +63,11 @@ import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.Pair;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
-import org.oxbow.swingbits.table.filter.IFilterChangeListener;
-import org.oxbow.swingbits.table.filter.ITableFilter;
 import org.oxbow.swingbits.table.filter.TableRowFilterSupport;
 
 @MultiViewElement.Registration(
@@ -90,7 +88,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private transient MultiViewElementCallback callback;
 
 	private final transient CSVTableModel tableModel;
-	private final TableRowFilterSupport tableRowFilterSupport;
+	private TableRowFilterSupport tableRowFilterSupport;
 
 	private boolean activated;
 
@@ -98,6 +96,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private AbstractAction deleteRowAction;
 	private AbstractAction addColumnAction;
 	private AbstractAction deleteColumnAction;
+	private AbstractAction renameColumnAction;
 
 	private AbstractAction moveTopAction;
 	private AbstractAction moveUpAction;
@@ -135,19 +134,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		obj.setVisualEditor(this);
 
 		updateTable();
-
-		tableRowFilterSupport = TableRowFilterSupport.forTable(table);
-		tableRowFilterSupport.searchable(true);
-		tableRowFilterSupport.actions(true);
-		tableRowFilterSupport.useTableRenderers(true);
-		tableRowFilterSupport.apply();
-		tableRowFilterSupport.addChangeListener(new IFilterChangeListener() {
-
-			@Override
-			public void filterChanged(ITableFilter<?> filter) {
-				tableModel.fireTableDataChanged();
-			}
-		});
 	}
 
 	@Override
@@ -370,6 +356,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private JButton deleteRowButton;
 	private JButton addColumnButton;
 	private JButton deleteColumnButton;
+	private JButton renameColumnButton;
 	private JButton moveTop;
 	private JButton moveUp;
 	private JButton moveDown;
@@ -480,6 +467,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		deleteColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.deleteColumnButton.text") + " (Crtl+Delete)");
 		toolbar.add(deleteColumnButton);
 
+		renameColumnButton = new JButton(renameColumnAction);
+		renameColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.renameColumnButton.text") + " (Crtl+R)");
+		toolbar.add(renameColumnButton);
+
 		toolbar.addSeparator();
 
 		//Move row actions
@@ -537,16 +528,19 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 		int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
 		if (customSeparatorCount > 0) {
-			List<Character> s = OptionsUtils.readCustomSeparators(customSeparatorCount);
-			s.add(0, ',');
-			s.add(1, ';');
+			List<Character> chars = OptionsUtils.readCustomSeparators(customSeparatorCount);
+			List<String> s = new ArrayList<>();
+			s.add(0, ",");
+			s.add(1, ";");
+			s.add(2, "Tab");
+			chars.stream().forEach(c -> s.add(c.toString()));
 			separators = new JComboBox(new DefaultComboBoxModel(s.toArray()));
 		} else
-			separators = new JComboBox(new Character[]{',', ';'});
+			separators = new JComboBox(new String[]{",", ";", "Tab"});
 		toolbar.add(separators);
-		separators.setPreferredSize(new Dimension(50, separators.getPreferredSize().height));
-		separators.setMaximumSize(new Dimension(50, separators.getPreferredSize().height));
-		separators.setMinimumSize(new Dimension(50, separators.getPreferredSize().height));
+		separators.setPreferredSize(new Dimension(100, separators.getPreferredSize().height));
+		separators.setMaximumSize(new Dimension(100, separators.getPreferredSize().height));
+		separators.setMinimumSize(new Dimension(100, separators.getPreferredSize().height));
 		separators.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separators.tooltip"));
 		separators.addActionListener(separatorChangedAction);
 		separators.setSelectedItem(OptionsUtils.readDefaultSeparator());
@@ -557,93 +551,97 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 //		updateColumnsWidths();
 		table.packAll();
-		setActiveButtons();
+		setActiveActions();
 	}
 
-	private void setActiveButtons() {
-		addRowAction.setEnabled(true);
+	private void setActiveActions() {
+		addRowAction.setEnabled(!tableRowFilterSupport.hasActiveFilters());
 		addColumnAction.setEnabled(true);
+		deleteColumnAction.setEnabled(true);
+		renameColumnAction.setEnabled(true);
 		separators.setEnabled(true);
 		final boolean hasSelectedRow = table.getSelectedRowCount() >= 1;
 		deleteRowAction.setEnabled(hasSelectedRow);
-		deleteColumnAction.setEnabled(table.getSelectedColumnCount() >= 1);
 		cutAction.setEnabled(hasSelectedRow);
 		copyAction.setEnabled(hasSelectedRow);
 		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
 		int[] rows = table.getSelectedRows();
 		if (moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
-			if (rows.length == 0) {
-				moveTopAction.setEnabled(false);
-				moveUpAction.setEnabled(false);
-				moveDownAction.setEnabled(false);
-				moveBottomAction.setEnabled(false);
-			} else if (rows.length == 1) {
-				moveTopAction.setEnabled(rows[0] != 0);
-				moveUpAction.setEnabled(rows[0] != 0);
-				moveDownAction.setEnabled(rows[0] != table.getRowCount() - 1);
-				moveBottomAction.setEnabled(rows[0] != table.getRowCount() - 1);
-			} else {
-				moveTopAction.setEnabled(true);
-				moveBottomAction.setEnabled(true);
-				int prev = rows[0];
-				for (int i = 1; i < rows.length; i++) {
-					if (prev != rows[i] - 1) {
-						moveUpAction.setEnabled(false);
-						moveDownAction.setEnabled(false);
-						return;
-					} else {
-						prev = rows[i];
-					}
-				}
-
-				//Continious top rows
-				final boolean topRows = rows[0] != 0;
-				moveTopAction.setEnabled(topRows);
-				moveUpAction.setEnabled(topRows);
-
-				//Continious rows at bottom
-				final boolean bottomRows = rows[rows.length - 1] != table.getRowCount() - 1;
-				moveDownAction.setEnabled(bottomRows);
-				moveBottomAction.setEnabled(bottomRows);
+			switch (rows.length) {
+				case 0:
+					moveTopAction.setEnabled(false);
+					moveUpAction.setEnabled(false);
+					moveDownAction.setEnabled(false);
+					moveBottomAction.setEnabled(false);
+					break;
+				case 1:
+					moveTopAction.setEnabled(rows[0] != 0);
+					moveUpAction.setEnabled(rows[0] != 0);
+					moveDownAction.setEnabled(rows[0] != table.getRowCount() - 1);
+					moveBottomAction.setEnabled(rows[0] != table.getRowCount() - 1);
+					break;
+				default:
+					moveTopAction.setEnabled(true);
+					moveBottomAction.setEnabled(true);
+					int prev = rows[0];
+					for (int i = 1; i < rows.length; i++) {
+						if (prev != rows[i] - 1) {
+							moveUpAction.setEnabled(false);
+							moveDownAction.setEnabled(false);
+							return;
+						} else {
+							prev = rows[i];
+						}
+					}	//Continious top rows
+					final boolean topRows = rows[0] != 0;
+					moveTopAction.setEnabled(topRows);
+					moveUpAction.setEnabled(topRows);
+					//Continious rows at bottom
+					final boolean bottomRows = rows[rows.length - 1] != table.getRowCount() - 1;
+					moveDownAction.setEnabled(bottomRows);
+					moveBottomAction.setEnabled(bottomRows);
+					break;
 			}
 		}
 
 		int[] columns = table.getSelectedColumns();
 		if (moveHome != null && moveLeft != null && moveRight != null && moveEnd != null) {
-			if (columns.length == 0) {
-				moveHomeAction.setEnabled(false);
-				moveLeftAction.setEnabled(false);
-				moveRightAction.setEnabled(false);
-				moveEndAction.setEnabled(false);
-			} else if (columns.length == 1) {
-				moveHomeAction.setEnabled(columns[0] != 0);
-				moveLeftAction.setEnabled(columns[0] != 0);
-				moveRightAction.setEnabled(columns[0] != table.getColumnCount() - 1);
-				moveEndAction.setEnabled(columns[0] != table.getColumnCount() - 1);
-			} else {
-				moveHomeAction.setEnabled(true);
-				moveEndAction.setEnabled(true);
-				int prev = columns[0];
-				for (int i = 1; i < columns.length; i++) {
-					if (prev != columns[i] - 1) {
-						moveLeftAction.setEnabled(false);
-						moveRightAction.setEnabled(false);
-						return;
-					} else {
-						prev = columns[i];
+			switch (columns.length) {
+				case 0:
+					moveHomeAction.setEnabled(false);
+					moveLeftAction.setEnabled(false);
+					moveRightAction.setEnabled(false);
+					moveEndAction.setEnabled(false);
+					break;
+				case 1:
+					moveHomeAction.setEnabled(columns[0] != 0);
+					moveLeftAction.setEnabled(columns[0] != 0);
+					moveRightAction.setEnabled(columns[0] != table.getColumnCount() - 1);
+					moveEndAction.setEnabled(columns[0] != table.getColumnCount() - 1);
+					break;
+				default:
+					moveHomeAction.setEnabled(true);
+					moveEndAction.setEnabled(true);
+					int prev = columns[0];
+					for (int i = 1; i < columns.length; i++) {
+						if (prev != columns[i] - 1) {
+							moveLeftAction.setEnabled(false);
+							moveRightAction.setEnabled(false);
+							return;
+						} else {
+							prev = columns[i];
+						}
 					}
-				}
-
-				//Continious home columns
-				final boolean homeColumns = columns[0] != 0;
-				moveHomeAction.setEnabled(homeColumns);
-				moveLeftAction.setEnabled(homeColumns);
-
-				//Continious colums at the end
-				final boolean endColumns = columns[columns.length - 1] != table.getColumnCount() - 1;
-				moveRightAction.setEnabled(endColumns);
-				moveEndAction.setEnabled(endColumns);
+					//Continious home columns
+					final boolean homeColumns = columns[0] != 0;
+					moveHomeAction.setEnabled(homeColumns);
+					moveLeftAction.setEnabled(homeColumns);
+					//Continious colums at the end
+					final boolean endColumns = columns[columns.length - 1] != table.getColumnCount() - 1;
+					moveRightAction.setEnabled(endColumns);
+					moveEndAction.setEnabled(endColumns);
+					break;
 			}
 		}
 	}
@@ -681,15 +679,16 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		addColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-column.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String columnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", "New column");
-				if (columnName != null) {
-					int selectedColumn = table.getSelectedColumn();
-					if (selectedColumn == -1) {
+				Pair<Integer, String> indexNewName = AddColumnDialog.show(tableModel.getHeaders());
+				if (indexNewName != null) {
+					int index = indexNewName.first();
+					String columnName = indexNewName.second();
+					if (index > tableModel.getColumnCount()) {
 						tableModel.addColumn(columnName);
 						selectColumn(table.getColumnCount() - 1);
 					} else {
-						tableModel.addColumn(columnName, selectedColumn + 1);
-						selectColumn(selectedColumn + 1);
+						tableModel.addColumn(columnName, index);
+						selectColumn(index);
 					}
 //					updateColumnsWidths();
 					table.packAll();
@@ -699,10 +698,32 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		deleteColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-column.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int[] columns = table.getSelectedColumns();
-				if (columns.length > 0) {
-					tableModel.removeColumns(columns);
+				Integer columnIndex = RemoveColumnDialog.show(tableModel.getHeaders());
+				if (columnIndex != null) {
+					tableModel.removeColumn(columnIndex);
 //					updateColumnsWidths();
+					table.packAll();
+				}
+			}
+		};
+		renameColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/rename-column.png"))) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Pair<Integer, String> indexNewName = RenameColumnDialog.show(tableModel.getHeaders());
+				if (indexNewName != null) {
+					final Integer index = indexNewName.first();
+					final String newName = indexNewName.second();
+					final int viewIndex = table.convertColumnIndexToView(index);
+
+					tableModel.renameColumn(index, newName);
+
+					TableColumn column = table.getColumn(viewIndex);
+					column.setHeaderValue(newName);
+					updateColumnWidth(viewIndex);
+
+					tableModel.fireTableDataChanged();
+					selectColumn(viewIndex);
+					table.requestFocusInWindow();
 					table.packAll();
 				}
 			}
@@ -857,14 +878,14 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	})
 	private void init() {
 		//Table
-		RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
+		final RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
 		tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
 		tableScrollPane.setRowHeaderView(rowNumberTable);
 
 		final ListSelectionListener listSelectionListener = new ListSelectionListener() {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				setActiveButtons();
+				setActiveActions();
 			}
 		};
 		table.getSelectionModel().addListSelectionListener(listSelectionListener);
@@ -895,12 +916,12 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
 			@Override
 			public void editingStopped(ChangeEvent e) {
-				setActiveButtons();
+				setActiveActions();
 			}
 
 			@Override
 			public void editingCanceled(ChangeEvent e) {
-				setActiveButtons();
+				setActiveActions();
 			}
 		});
 		table.setDefaultRenderer(String.class, new OddEvenCellRenderer());
@@ -921,46 +942,27 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 		final JTableHeader tableHeader = table.getTableHeader();
 		tableHeader.setReorderingAllowed(false);
-		tableHeader.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int col = tableHeader.columnAtPoint(e.getPoint());
-				if (tableHeader.getCursor().getType() == Cursor.E_RESIZE_CURSOR)
-					e.consume();
-				else if (e.getButton() == MouseEvent.BUTTON1) {
-					if (e.getClickCount() != 2)
-						selectColumn(col);
-					else {
-						final TableColumn column = tableHeader.getColumnModel().getColumn(col);
-						String header = (String) column.getHeaderValue();
-						String newColumnName = JOptionPane.showInputDialog(CSVVisualElement.this, "Enter new column name", header);
-						if (newColumnName != null && !newColumnName.equals(header)) {
-							tableModel.renameColumn(col, newColumnName);
-							column.setHeaderValue(newColumnName);
-							updateColumnWidth(col);
-							tableModel.fireTableDataChanged();
-							selectColumn(col);
-							table.requestFocusInWindow();
-						}
-					}
-				}
-			}
-		});
 
-		tableModel.addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				obj.updateFile(tableModel);
-			}
-		});
+		tableModel.addTableModelListener((TableModelEvent e) -> obj.updateFile(tableModel));
 		table.setModel(tableModel);
 		tableScrollPane.setViewportView(table);
+
+		tableRowFilterSupport = TableRowFilterSupport.forTable(table);
+		tableRowFilterSupport.searchable(true);
+		tableRowFilterSupport.actions(true);
+		tableRowFilterSupport.useTableRenderers(true);
+		tableRowFilterSupport.apply();
+		tableRowFilterSupport.addChangeListener(filter -> {
+			setActiveActions();
+			tableModel.fireTableDataChanged();
+		});
 
 		//Toolbar buttons
 		KeyStroke strokeAddRow = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0);
 		KeyStroke strokeRemoveRow = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
 		KeyStroke strokeAddColumn = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK);
 		KeyStroke strokeRemoveColumn = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK);
+		KeyStroke strokeRenameColumn = KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK);
 		KeyStroke strokeEscape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 
 		this.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
@@ -977,11 +979,15 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		this.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
 		this.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
 		this.getActionMap().put("DELETE_COLUMN_COMMAND", deleteColumnAction);
+		this.getInputMap().put(strokeRenameColumn, "RENAME_COLUMN_COMMAND");
+		this.getActionMap().put("RENAME_COLUMN_COMMAND", renameColumnAction);
 
 		table.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
 		table.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
 		table.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
 		table.getActionMap().put("DELETE_COLUMN_COMMAND", deleteColumnAction);
+		table.getInputMap().put(strokeRenameColumn, "RENAME_COLUMN_COMMAND");
+		table.getActionMap().put("RENAME_COLUMN_COMMAND", renameColumnAction);
 
 		//Move rows shortcuts
 		table.getInputMap().put(moveTopPopUp.getAccelerator(), "MOVE_TOP");
@@ -1148,23 +1154,31 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	}
 
 	public Character getSeparator() {
-		return (Character) separators.getSelectedItem();
+		if (separators.getSelectedIndex() == 2)
+			return '\t';
+		final String selectedItem = (String) separators.getSelectedItem();
+		return selectedItem.charAt(0);
 	}
 
 	public void updateSeparators() {
-		Character selectedItem = (Character) separators.getSelectedItem();
+		String selectedItem = (String) separators.getSelectedItem();
 		boolean newModelContainsSelected;
 		int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
 		DefaultComboBoxModel model;
 		if (customSeparatorCount > 0) {
-			List<Character> s = OptionsUtils.readCustomSeparators(customSeparatorCount);
-			s.add(0, ',');
-			s.add(1, ';');
+			List<Character> chars = OptionsUtils.readCustomSeparators(customSeparatorCount);
+			List<String> s = new ArrayList<>();
+			s.add(0, ",");
+			s.add(1, ";");
+			s.add(2, "Tab");
+			chars.stream().forEach(c -> s.add(c.toString()));
 			model = new DefaultComboBoxModel(s.toArray());
 			newModelContainsSelected = s.contains(selectedItem);
 		} else {
-			model = new DefaultComboBoxModel(new Character[]{',', ';'});
-			newModelContainsSelected = selectedItem.equals(',') || selectedItem.equals(';');
+			model = new DefaultComboBoxModel(new String[]{",", ";", "Tab"});
+			newModelContainsSelected = selectedItem.equals(",")
+					|| selectedItem.equals(";")
+					|| selectedItem.equals("Tab");
 		}
 		separators.setModel(model);
 		separators.setSelectedItem(selectedItem);

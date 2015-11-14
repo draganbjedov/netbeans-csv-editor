@@ -361,6 +361,10 @@ public class CSVTableModel extends AbstractTableModel {
 		this.values = values;
 	}
 
+	public List<String> getHeaders() {
+		return headers;
+	}
+
 	public void setHeaders(List<String> headers) {
 		this.headers = headers;
 	}
