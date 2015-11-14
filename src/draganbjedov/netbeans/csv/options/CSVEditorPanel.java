@@ -1,8 +1,12 @@
 package draganbjedov.netbeans.csv.options;
 
 import draganbjedov.netbeans.csv.options.util.OptionsUtils;
+import java.awt.Component;
 import java.util.List;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -57,7 +61,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
         });
 
         defaultSeparator.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { ",", ";" };
+            String[] strings = { ",", ";", "Tab" };
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
@@ -88,7 +92,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
                         .addComponent(customSeparator)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jLabel2))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 212, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1))
                 .addContainerGap())
         );
 
@@ -153,9 +157,9 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
                             .addComponent(addEButton)
                             .addComponent(removeEButton))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(customEscapeChar, javax.swing.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
+                        .addComponent(customEscapeChar)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jLabel1))
                     .addComponent(defaultEscapeCharLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
@@ -197,7 +201,7 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 
     private void removeSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSButtonActionPerformed
 		int index = defaultSeparator.getSelectedIndex();
-		if (index > 1) {
+		if (index > 2) {
 			separatorsListModel.remove(index);
 			controller.changed();
 		} else {
@@ -244,11 +248,11 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 		separatorsListModel.removeAllElements();
 		separatorsListModel.addElement(',');
 		separatorsListModel.addElement(';');
+		separatorsListModel.addElement('\t');
 		int count = OptionsUtils.readCustomSeparatorCount();
 		if (count > 0) {
 			List<Character> chars = OptionsUtils.readCustomSeparators(count);
-			for (Character c : chars)
-				separatorsListModel.addElement(c);
+			chars.stream().forEach((c) -> separatorsListModel.addElement(c));
 		}
 		defaultSeparator.setSelectedValue(OptionsUtils.readDefaultSeparator(), true);
 
@@ -257,14 +261,24 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 		count = OptionsUtils.readCustomEscapeCharCount();
 		if (count > 0) {
 			List<Character> chars = OptionsUtils.readCustomEscapeChars(count);
-			for (Character c : chars)
-				escapeCharsListModel.addElement(c);
+			chars.stream().forEach((c) -> escapeCharsListModel.addElement(c));
 		}
 		defaultEscapeChar.setSelectedValue(OptionsUtils.readDefaultEscapeChar(), true);
 
 		//Clean up text fields
 		customSeparator.setText(null);
 		customEscapeChar.setText(null);
+
+		defaultSeparator.setCellRenderer(new DefaultListCellRenderer() {
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+				final JLabel listItem = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				if (index == 2)
+					listItem.setText("Tab");
+				return listItem;
+			}
+
+		});
 	}
 
 	void store() {
@@ -274,12 +288,12 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
 		// NbPreferences.forModule(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
 		// or:
 		// SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
-		int count = separatorsListModel.size() - 2;
+		int count = separatorsListModel.size() - 3;
 		OptionsUtils.saveCustomSeparatorCount(count);
 		if (count > 0) {
 			Character[] chars = new Character[count];
 			for (int i = 0; i < chars.length; i++) {
-				chars[i] = (Character) separatorsListModel.get(i + 2);
+				chars[i] = (Character) separatorsListModel.get(i + 3);
 			}
 			OptionsUtils.saveCustomSeparators(chars);
 		}
