@@ -245,7 +245,7 @@ public class CSVDataObject extends MultiDataObject {
 					String text = document.getText(0, length);
 					String[] s = text.split("\n");
 					boolean first = true;
-					List<List<String>> values = new ArrayList<List<String>>(s.length);
+					List<List<String>> values = new ArrayList<>(s.length);
 					char separator;
 					char escapeChar = OptionsUtils.readDefaultEscapeChar();
 					if (visualEditor != null)
@@ -415,10 +415,10 @@ public class CSVDataObject extends MultiDataObject {
 			visualEditor.updateSeparators();
 	}
 
-	private static List<String> splitLine(String s, char separator, char escapeChar) {
+	private static List<String> splitLine(String s, char separatorChar, char escapeChar) {
 		List<String> split;
 		if (s.indexOf(escapeChar) != -1) {
-			split = new ArrayList<String>();
+			split = new ArrayList<>();
 			boolean escape = false;
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i < s.length(); i++) {
@@ -431,7 +431,7 @@ public class CSVDataObject extends MultiDataObject {
 							sb.append(c);
 					} else
 						escape = false;
-				} else if (c == separator) {
+				} else if (c == separatorChar) {
 					if (escape)
 						sb.append(c);
 					else {
@@ -444,10 +444,14 @@ public class CSVDataObject extends MultiDataObject {
 			}
 			split.add(sb.toString());
 		} else {
-			String[] ss = s.split(separator + "");
-			split = new ArrayList<String>(ss.length);
+			String separator = separatorChar + "";
+			separator = separator.replaceAll("([\\\\\\.\\[\\{\\(\\*\\+\\?\\^\\$\\|])", "\\\\$1");
+//			if (separatorChar == '|')
+//				separator = "\\" + separator;
+			String[] ss = s.split(separator);
+			split = new ArrayList<>(ss.length);
 			Collections.addAll(split, ss);
-			if (s.endsWith(separator + ""))
+			if (s.endsWith(separator))
 				split.add("");
 		}
 		return split;
