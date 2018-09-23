@@ -104,7 +104,7 @@ public class CSVDataObject extends MultiDataObject {
 			persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
 			preferredID = "CSV",
 			position = 2000)
-	@Messages("LBL_CSV_EDITOR=Text")
+	@Messages("LBL_CSV_EDITOR=Source")
 	public static MultiViewEditorElement createEditor(Lookup lkp) {
 		return new MultiViewEditorElement(lkp);
 	}
@@ -189,7 +189,7 @@ public class CSVDataObject extends MultiDataObject {
 
 	@Override
 	protected int associateLookup() {
-		return 1;
+        return 1;
 	}
 
 	@SuppressWarnings({"null", "ConstantConditions"})
