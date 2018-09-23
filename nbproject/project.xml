@@ -177,7 +177,11 @@
             </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/swing-bits-1.0.jar</runtime-relative-path>
-                <binary-origin>/media/Dragan/NetBeansProjects/NB CSV Editor/release/modules/ext/swing-bits-1.0.jar</binary-origin>
+                <binary-origin>release/modules/ext/swing-bits-1.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/iconloader.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/iconloader.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

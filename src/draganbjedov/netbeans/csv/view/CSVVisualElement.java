@@ -81,6 +81,7 @@ import org.oxbow.swingbits.table.filter.TableRowFilterSupport;
 public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	private static final Clipboard CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
+    private static final Color GRID_COLOR = new Color(128, 128, 128, 85);
 
 	private final CSVDataObject obj;
 	private final JToolBar toolbar = new ToolbarWithOverflow();
@@ -911,7 +912,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		table.setRowHeight(lafNotExpand ? 25 : 27);
 
 		table.setShowGrid(true);
-		table.setGridColor(new Color(128, 128, 128, 85));
+		table.setGridColor(GRID_COLOR);
+		rowNumberTable.setShowGrid(true);
+		rowNumberTable.setGridColor(GRID_COLOR);
 
 		table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
 			@Override
@@ -932,7 +935,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		if (setBackground)
 			table.getTableHeader().setBackground(Color.WHITE);
 
-		if (!lafName.startsWith("GTK")) {
+		if (!lafName.startsWith("GTK") & !lafName.startsWith("Darcula")) {
 			tableScrollPane.getRowHeader().setBackground(Color.WHITE);
 			tableScrollPane.getViewport().setBackground(Color.WHITE);
 			tableScrollPane.setBackground(Color.WHITE);
