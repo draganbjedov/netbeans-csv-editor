@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
+import java.util.MissingResourceException;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -36,6 +37,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -98,6 +100,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private AbstractAction addColumnAction;
 	private AbstractAction deleteColumnAction;
 	private AbstractAction renameColumnAction;
+	private AbstractAction toggleHeaderAction;
 
 	private AbstractAction moveTopAction;
 	private AbstractAction moveUpAction;
@@ -353,7 +356,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private javax.swing.JPopupMenu tablePopUpMenu;
     private javax.swing.JScrollPane tableScrollPane;
     // End of variables declaration//GEN-END:variables
-	private JButton addRowButton;
+    private JToggleButton toggleHeaderButton;
+    private JButton addRowButton;
 	private JButton deleteRowButton;
 	private JButton addColumnButton;
 	private JButton deleteColumnButton;
@@ -452,6 +456,15 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private void createToolBar() {
 		toolbar.setFloatable(false);
 
+		// Header actions
+        toggleHeaderButton = new JToggleButton(toggleHeaderAction);
+        toggleHeaderButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.toggleHeaderButton.text"));
+        toggleHeaderButton.setSelected(true);
+        toolbar.add(toggleHeaderButton);
+
+        toolbar.addSeparator();
+        
+        // Add and delete actions
 		addRowButton = new JButton(addRowAction);
 		addRowButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addRowButton.text") + " (Insert)");
 		toolbar.add(addRowButton);
@@ -539,9 +552,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		} else
 			separators = new JComboBox(new String[]{",", ";", "Tab"});
 		toolbar.add(separators);
-		separators.setPreferredSize(new Dimension(100, separators.getPreferredSize().height));
-		separators.setMaximumSize(new Dimension(100, separators.getPreferredSize().height));
-		separators.setMinimumSize(new Dimension(100, separators.getPreferredSize().height));
+		separators.setPreferredSize(new Dimension(70, separators.getPreferredSize().height));
+		separators.setMaximumSize(new Dimension(70, separators.getPreferredSize().height));
+		separators.setMinimumSize(new Dimension(70, separators.getPreferredSize().height));
 		separators.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separators.tooltip"));
 		separators.addActionListener(separatorChangedAction);
 		separators.setSelectedItem(OptionsUtils.readDefaultSeparator());
@@ -559,7 +572,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		addRowAction.setEnabled(!tableRowFilterSupport.hasActiveFilters());
 		addColumnAction.setEnabled(true);
 		deleteColumnAction.setEnabled(true);
-		renameColumnAction.setEnabled(true);
+		renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
 		separators.setEnabled(true);
 		final boolean hasSelectedRow = table.getSelectedRowCount() >= 1;
 		deleteRowAction.setEnabled(hasSelectedRow);
@@ -648,6 +661,30 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	}
 
 	private void initActions() {
+        toggleHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/header-row.png"))) {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final List<TableColumn> columns = table.getColumns(true);
+				if (toggleHeaderButton.isSelected()) {
+					if (tableModel.getRowCount() > 0) {
+						for (int i = 0; i < columns.size(); i++) {
+							final String header = tableModel.getValueAt(0, i);
+							columns.get(i).setHeaderValue(header);
+							tableModel.getHeaders().set(i, header);
+						}
+						tableModel.removeRow(0);
+					}
+					renameColumnAction.setEnabled(true);
+				} else {
+					List<String> rowData = setDefaultHeaders();
+					tableModel.insertRow(0, rowData);
+					renameColumnAction.setEnabled(false);
+				}
+				table.packAll();
+			}
+		};
+        
 		addRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-row.gif"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -680,7 +717,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		addColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-column.png"))) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Pair<Integer, String> indexNewName = AddColumnDialog.show(tableModel.getHeaders());
+				final boolean hasHeaderRow = toggleHeaderButton.isSelected();
+				final Pair<Integer, String> indexNewName = AddColumnDialog.show(tableModel.getHeaders(), hasHeaderRow);
 				if (indexNewName != null) {
 					int index = indexNewName.first();
 					String columnName = indexNewName.second();
@@ -691,7 +729,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 						tableModel.addColumn(columnName, index);
 						selectColumn(index);
 					}
-//					updateColumnsWidths();
+
+					if (!hasHeaderRow)
+						setDefaultHeaders();
 					table.packAll();
 				}
 			}
@@ -801,6 +841,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 					HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
 					tableModel.moveColumn(column, to);
 					setColumnsWidths(columnModel, columnWidthHashMap);
+					if (!toggleHeaderButton.isSelected())
+						setDefaultHeaders();
 				}
 				tableModel.fireTableDataChanged();
 				selectColumnInterval(0, columns.length - 1);
@@ -819,6 +861,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 						HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
 						tableModel.moveColumn(column, to);
 						setColumnsWidths(columnModel, columnWidthHashMap);
+						if (!toggleHeaderButton.isSelected())
+							setDefaultHeaders();
 
 						tableModel.fireTableDataChanged();
 						selectColumnInterval(columns[0] - 1, columns[columns.length - 1] - 1);
@@ -839,6 +883,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 						HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
 						tableModel.moveColumn(column, to);
 						setColumnsWidths(columnModel, columnWidthHashMap);
+						if (!toggleHeaderButton.isSelected())
+							setDefaultHeaders();
 
 						tableModel.fireTableDataChanged();
 						selectColumnInterval(columns[0] + 1, columns[columns.length - 1] + 1);
@@ -858,6 +904,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 					HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
 					tableModel.moveColumn(column, table.getColumnCount() - 1);
 					setColumnsWidths(columnModel, columnWidthHashMap);
+					if (!toggleHeaderButton.isSelected())
+						setDefaultHeaders();
 				}
 				tableModel.fireTableDataChanged();
 				selectColumnInterval(table.getColumnCount() - columns.length, table.getColumnCount() - 1);
@@ -1162,7 +1210,24 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		final String selectedItem = (String) separators.getSelectedItem();
 		return selectedItem.charAt(0);
 	}
+	
+	public boolean hasHeaderRow() {
+		return toggleHeaderButton.isSelected();
+	}
 
+	private List<String> setDefaultHeaders() {
+		final List<TableColumn> columns = table.getColumns(true);
+		final List<String> oldColumnNames = new ArrayList<>(columns.size());
+		for (int i = 0; i < columns.size(); i++) {
+			final TableColumn column = columns.get(i);
+			oldColumnNames.add((String) column.getHeaderValue());
+			final String header = NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.defaultColName", i + 1);
+			column.setHeaderValue(header);
+			tableModel.getHeaders().set(i, header);
+		}
+		return oldColumnNames;
+	}
+	
 	public void updateSeparators() {
 		String selectedItem = (String) separators.getSelectedItem();
 		boolean newModelContainsSelected;

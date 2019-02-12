@@ -21,7 +21,7 @@ import org.openide.util.Pair;
  * @author Dragan Bjedov
  */
 @NbBundle.Messages({
-	"DIALOG_TITLE=New column name"
+	"DIALOG_TITLE=Add new column"
 })
 public class AddColumnDialog extends javax.swing.JPanel implements DocumentListener {
 
@@ -161,27 +161,33 @@ public class AddColumnDialog extends javax.swing.JPanel implements DocumentListe
 		"# {0} - Selected column name",
 		"INFO_MSG_AFTER=<html>New column will be inserted <u>after</u> column \"{0}\""
 	})
-	private void init(List<String> columnNames) {
+	private void init(List<String> columnNames, boolean tableHasHeaderRow) {
 		this.columnNames = columnNames;
 
 		columnsComboBox.setModel(new DefaultComboBoxModel(columnNames.toArray()));
 
 		columnsComboBoxActionPerformed(null);
+
+		labelColName.setVisible(tableHasHeaderRow);
+		columnNameTextField.setVisible(tableHasHeaderRow);
+		separator.setVisible(tableHasHeaderRow);
+
+		columnNameTextField.setText(tableHasHeaderRow ? "" : "default");
+
 		textChanged();
 	}
 
 	/**
-	 * Prikazuje dijalog za unos imena kolone i poziciju
+	 * Shows dialog to enter new column name and position
 	 *
-	 * @param customColumnNames
-	 * @param selectedColumnName
-	 * @param hasFixed
-	 * @return Par ime kolone - dodati posle selektovane kolone
+	 * @param columnNames column names
+	 * @param tableHasHeaderRow flag indicating does table has header row or not
+	 * @return Pair column - name of column after which new one should be added
 	 */
-	public static Pair<Integer, String> show(List<String> columnNames) {
+	public static Pair<Integer, String> show(List<String> columnNames, boolean tableHasHeaderRow) {
 		if (dialog == null)
 			dialog = new AddColumnDialog();
-		dialog.init(columnNames);
+		dialog.init(columnNames, tableHasHeaderRow);
 		return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
 	}
 

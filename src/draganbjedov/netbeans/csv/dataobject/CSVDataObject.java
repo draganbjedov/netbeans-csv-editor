@@ -7,6 +7,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.openide.loaders.MultiFileLoader;
 import org.openide.text.DataEditorSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
@@ -254,7 +256,18 @@ public class CSVDataObject extends MultiDataObject {
 						separator = OptionsUtils.readDefaultSeparator();
 					for (String ss : s) {
 						if (first) {
-							model.setHeaders(splitLine(ss, separator, escapeChar));
+							final List<String> split = splitLine(ss, separator, escapeChar);
+							List<String> headers;
+							if (visualEditor.hasHeaderRow()) {
+								headers = split;
+							} else {
+								headers = new ArrayList<>(split.size());
+								for (int i = 1; i <= split.size(); i++) {
+									headers.add(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.defaultColName", i));
+								}
+								values.add(split);
+							}
+							model.setHeaders(headers);
 							first = false;
 							continue;
 						}
@@ -300,17 +313,20 @@ public class CSVDataObject extends MultiDataObject {
 				else
 					separator = OptionsUtils.readDefaultSeparator();
 				StringBuilder stringBuilder = new StringBuilder();
-				for (int i = 0; i < model.getColumnCount(); i++) {
-					final String columnName = model.getColumnName(i);
-					if (columnName.indexOf(separator) != -1) {
-						stringBuilder.append(escapeChar).append(columnName).append(escapeChar);
-					} else {
-						stringBuilder.append(columnName);
+				if (visualEditor.hasHeaderRow()) {
+					for (int i = 0; i < model.getColumnCount(); i++) {
+						final String columnName = model.getColumnName(i);
+						if (columnName.indexOf(separator) != -1) {
+							stringBuilder.append(escapeChar).append(columnName).append(escapeChar);
+						} else {
+							stringBuilder.append(columnName);
+						}
+						if (i + 1 < model.getColumnCount()) {
+							stringBuilder.append(separator);
+						}
 					}
-					if (i + 1 < model.getColumnCount())
-						stringBuilder.append(separator);
+					stringBuilder.append("\n");
 				}
-				stringBuilder.append("\n");
 				for (int i = 0; i < model.getRowCount(); i++) {
 					for (int j = 0; j < model.getColumnCount(); j++) {
 						String value = model.getValueAt(i, j);
