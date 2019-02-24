@@ -21,10 +21,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.MissingResourceException;
+import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -34,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -70,6 +73,7 @@ import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
+import org.openide.windows.WindowManager;
 import org.oxbow.swingbits.table.filter.TableRowFilterSupport;
 
 @MultiViewElement.Registration(
@@ -101,6 +105,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	private AbstractAction deleteColumnAction;
 	private AbstractAction renameColumnAction;
 	private AbstractAction toggleHeaderAction;
+	private AbstractAction addHeaderAction;
 
 	private AbstractAction moveTopAction;
 	private AbstractAction moveUpAction;
@@ -357,6 +362,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private javax.swing.JScrollPane tableScrollPane;
     // End of variables declaration//GEN-END:variables
     private JToggleButton toggleHeaderButton;
+    private JButton addHeaderButton;
     private JButton addRowButton;
 	private JButton deleteRowButton;
 	private JButton addColumnButton;
@@ -460,7 +466,13 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         toggleHeaderButton = new JToggleButton(toggleHeaderAction);
         toggleHeaderButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.toggleHeaderButton.text"));
         toggleHeaderButton.setSelected(true);
+		
         toolbar.add(toggleHeaderButton);
+		
+		addHeaderButton = new JButton(addHeaderAction);
+		addHeaderButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.text"));
+		addHeaderButton.setEnabled(false);
+		toolbar.add(addHeaderButton);
 
         toolbar.addSeparator();
         
@@ -572,6 +584,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		addRowAction.setEnabled(!tableRowFilterSupport.hasActiveFilters());
 		addColumnAction.setEnabled(true);
 		deleteColumnAction.setEnabled(true);
+		addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
 		renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
 		separators.setEnabled(true);
 		final boolean hasSelectedRow = table.getSelectedRowCount() >= 1;
@@ -675,13 +688,39 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 						}
 						tableModel.removeRow(0);
 					}
-					renameColumnAction.setEnabled(true);
 				} else {
 					List<String> rowData = setDefaultHeaders();
 					tableModel.insertRow(0, rowData);
-					renameColumnAction.setEnabled(false);
 				}
 				table.packAll();
+				
+				renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
+				addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
+			}
+		};
+		addHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-header-row.png"))) {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				final int columnCount = table.getColumnCount(true);
+				final String input = JOptionPane.showInputDialog(WindowManager.getDefault().getMainWindow(),
+						NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.dialog.msg", columnCount),
+						NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.text"),
+						JOptionPane.PLAIN_MESSAGE);
+				if (input != null) {
+					final List<String> columnNames = new ArrayList<>(Arrays.asList(input.split(",")));
+					// Reduce names count to number of columns
+					while (columnNames.size() > columnCount) {
+						columnNames.remove(columnNames.size() - 1);
+					}
+					// Add missing columns
+					for (int i = columnNames.size(); i < columnCount; i++) {
+						columnNames.add(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.colName", i + 1));
+					}
+
+					tableModel.insertRow(0, columnNames.stream().map(s -> s.trim()).collect(Collectors.toList()));
+					toggleHeaderButton.setSelected(true);
+					toggleHeaderAction.actionPerformed(null);
+				}
 			}
 		};
         
