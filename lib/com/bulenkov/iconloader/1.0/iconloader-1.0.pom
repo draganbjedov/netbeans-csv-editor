@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.bulenkov</groupId>
+    <artifactId>iconloader</artifactId>
+    <version>1.0</version>
+    <url>https://github.com/bulenkov/iconloader</url>
+    <description>commit d993b829d8b37c23fdbc492afc784ac3d4e41410</description>
+</project>

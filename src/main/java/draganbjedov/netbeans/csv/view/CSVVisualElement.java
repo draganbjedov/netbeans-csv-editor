@@ -22,6 +22,7 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
@@ -1041,9 +1042,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		tableRowFilterSupport.useTableRenderers(true);
 		tableRowFilterSupport.apply();
 		tableRowFilterSupport.addChangeListener(filter -> {
-			setActiveActions();
-			tableModel.fireTableDataChanged();
-		});
+                    setActiveActions();
+                    tableModel.fireTableDataChanged();
+        });
 
 		//Toolbar buttons
 		KeyStroke strokeAddRow = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0);
