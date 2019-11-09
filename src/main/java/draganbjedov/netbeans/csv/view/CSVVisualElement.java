@@ -22,7 +22,6 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EventObject;
 import java.util.HashMap;
 import java.util.List;
@@ -96,6 +95,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 	private final transient CSVTableModel tableModel;
 	private TableRowFilterSupport tableRowFilterSupport;
+    private CSVTableFilter tableFilter;
 
 	private boolean activated;
 
@@ -538,7 +538,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
 		clearFilters = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/filter-clear.png", false));
 		clearFilters.setToolTipText(Bundle.BUTTON_CLEAR_FILTERS());
-		clearFilters.addActionListener((e) -> tableRowFilterSupport.clearAllFilters());
+		clearFilters.addActionListener(e -> tableFilter.clear());
 		toolbar.add(clearFilters);
 
 		setColumnsWidth = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/resize.png", false));
@@ -580,7 +580,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 	}
 
 	private void setActiveActions() {
-		addRowAction.setEnabled(!tableRowFilterSupport.hasActiveFilters());
+		addRowAction.setEnabled(!tableFilter.hasActiveFilters());
 		addColumnAction.setEnabled(true);
 		deleteColumnAction.setEnabled(true);
 		addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
@@ -593,7 +593,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
 		int[] rows = table.getSelectedRows();
-		if (moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
+		if (!tableFilter.hasActiveFilters() && moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
 			switch (rows.length) {
 				case 0:
 					moveTopAction.setEnabled(false);
@@ -741,7 +741,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 			public void actionPerformed(ActionEvent e) {
 				int[] rows = table.getSelectedRows();
 				if (rows.length > 0) {
-					tableModel.removeRows(rows);
+                     int[] modelRows = new int[rows.length];                    
+                     for(int i = 0; i < rows.length; i++)
+                         modelRows[i] = table.convertRowIndexToModel(rows[i]);
+					tableModel.removeRows(modelRows);
 					int row = rows[0] - 1;
 					if (row < 0) {
 						if (table.getRowCount() > 0)
@@ -964,213 +967,215 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 		"ACTION_PASTE=Paste"
 	})
 	private void init() {
-		//Table
-		final RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
-		tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
-		tableScrollPane.setRowHeaderView(rowNumberTable);
+        //Table
+        final RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
+        tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
+        tableScrollPane.setRowHeaderView(rowNumberTable);
 
-		final ListSelectionListener listSelectionListener = new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				setActiveActions();
-			}
-		};
-		table.getSelectionModel().addListSelectionListener(listSelectionListener);
-		table.getColumnModel().getSelectionModel().addListSelectionListener(listSelectionListener);
+        final ListSelectionListener listSelectionListener = new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                setActiveActions();
+            }
+        };
+        table.getSelectionModel().addListSelectionListener(listSelectionListener);
+        table.getColumnModel().getSelectionModel().addListSelectionListener(listSelectionListener);
 
-		table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		table.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		table.setRowSelectionAllowed(true);
-		table.setColumnSelectionAllowed(true);
-		table.setCellSelectionEnabled(true);
+        table.getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        table.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        table.setRowSelectionAllowed(true);
+        table.setColumnSelectionAllowed(true);
+        table.setCellSelectionEnabled(true);
 
-		/* Popravljalje visine redova zbog editovanja. Windows i Metal LAF nemaju margine u tekst poljima, a ostali imaju */
-		LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
-		boolean lafNotExpand = lookAndFeel.getID().toLowerCase().contains("windows") || lookAndFeel.getID().toLowerCase().contains("metal");
+        /* Popravljalje visine redova zbog editovanja. Windows i Metal LAF nemaju margine u tekst poljima, a ostali imaju */
+        LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
+        boolean lafNotExpand = lookAndFeel.getID().toLowerCase().contains("windows")
+                || lookAndFeel.getID().toLowerCase().contains("metal");
 
-		/*
+        /*
 		 * Da se ne bi ponistavala boja koju postavi renderer posto ne koristimo Highlighter iz SwingX-a
 		 * Videti JXTable.prepareRenderer() i
 		 * JXTable.resetDefaultTableCellRendererColors()
-		 */
-		table.putClientProperty(USE_DTCR_COLORMEMORY_HACK, false);
+         */
+        table.putClientProperty(USE_DTCR_COLORMEMORY_HACK, false);
 
-		table.setRowHeight(lafNotExpand ? 25 : 27);
+        table.setRowHeight(lafNotExpand ? 25 : 27);
 
-		table.setShowGrid(true);
-		table.setGridColor(GRID_COLOR);
-		rowNumberTable.setShowGrid(true);
-		rowNumberTable.setGridColor(GRID_COLOR);
+        table.setShowGrid(true);
+        table.setGridColor(GRID_COLOR);
+        rowNumberTable.setShowGrid(true);
+        rowNumberTable.setGridColor(GRID_COLOR);
 
-		table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
-			@Override
-			public void editingStopped(ChangeEvent e) {
-				setActiveActions();
-			}
+        table.getDefaultEditor(String.class).addCellEditorListener(new CellEditorListener() {
+            @Override
+            public void editingStopped(ChangeEvent e) {
+                setActiveActions();
+            }
 
-			@Override
-			public void editingCanceled(ChangeEvent e) {
-				setActiveActions();
-			}
-		});
-		table.setDefaultRenderer(String.class, new OddEvenCellRenderer());
+            @Override
+            public void editingCanceled(ChangeEvent e) {
+                setActiveActions();
+            }
+        });
+        table.setDefaultRenderer(String.class, new OddEvenCellRenderer());
 
-		final String lafName = UIManager.getLookAndFeel().getName();
-		boolean setBackground = lafName.equals("Nimbus");
+        final String lafName = UIManager.getLookAndFeel().getName();
+        boolean setBackground = lafName.equals("Nimbus");
 
-		if (setBackground)
-			table.getTableHeader().setBackground(Color.WHITE);
+        if (setBackground)
+            table.getTableHeader().setBackground(Color.WHITE);
 
-		if (!lafName.startsWith("GTK") & !lafName.startsWith("Darcula")) {
-			tableScrollPane.getRowHeader().setBackground(Color.WHITE);
-			tableScrollPane.getViewport().setBackground(Color.WHITE);
-			tableScrollPane.setBackground(Color.WHITE);
-		} else {
-			rowNumberTable.setBackground(table.getTableHeader().getBackground());
-		}
+        if (!lafName.startsWith("GTK") & !lafName.startsWith("Darcula")) {
+            tableScrollPane.getRowHeader().setBackground(Color.WHITE);
+            tableScrollPane.getViewport().setBackground(Color.WHITE);
+            tableScrollPane.setBackground(Color.WHITE);
+        } else {
+            rowNumberTable.setBackground(table.getTableHeader().getBackground());
+        }
 
-		final JTableHeader tableHeader = table.getTableHeader();
-		tableHeader.setReorderingAllowed(false);
+        final JTableHeader tableHeader = table.getTableHeader();
+        tableHeader.setReorderingAllowed(false);
 
-		tableModel.addTableModelListener((TableModelEvent e) -> obj.updateFile(tableModel));
-		table.setModel(tableModel);
-		tableScrollPane.setViewportView(table);
+        tableModel.addTableModelListener((TableModelEvent e) -> obj.updateFile(tableModel));
+        table.setModel(tableModel);
+        tableScrollPane.setViewportView(table);
 
-		tableRowFilterSupport = TableRowFilterSupport.forTable(table);
-		tableRowFilterSupport.searchable(true);
-		tableRowFilterSupport.actions(true);
-		tableRowFilterSupport.useTableRenderers(true);
-		tableRowFilterSupport.apply();
-		tableRowFilterSupport.addChangeListener(filter -> {
-                    setActiveActions();
-                    tableModel.fireTableDataChanged();
+        tableFilter = new CSVTableFilter(table);
+        tableRowFilterSupport = TableRowFilterSupport.forFilter(tableFilter);
+        tableRowFilterSupport.searchable(true);
+        tableRowFilterSupport.actions(true);
+        tableRowFilterSupport.useTableRenderers(true);
+        tableRowFilterSupport.apply();
+        tableRowFilterSupport.onFilterChange(filter -> {
+            setActiveActions();
+            tableModel.fireTableDataChanged();
         });
 
-		//Toolbar buttons
-		KeyStroke strokeAddRow = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0);
-		KeyStroke strokeRemoveRow = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
-		KeyStroke strokeAddColumn = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK);
-		KeyStroke strokeRemoveColumn = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK);
-		KeyStroke strokeRenameColumn = KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK);
-		KeyStroke strokeEscape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
+        //Toolbar buttons
+        KeyStroke strokeAddRow = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0);
+        KeyStroke strokeRemoveRow = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+        KeyStroke strokeAddColumn = KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke strokeRemoveColumn = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke strokeRenameColumn = KeyStroke.getKeyStroke(KeyEvent.VK_R, InputEvent.CTRL_DOWN_MASK);
+        KeyStroke strokeEscape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 
-		this.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
-		this.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
-		this.getInputMap().put(strokeRemoveRow, "DELETE_ROW_COMMAND");
-		this.getActionMap().put("DELETE_ROW_COMMAND", deleteRowAction);
+        this.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
+        this.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
+        this.getInputMap().put(strokeRemoveRow, "DELETE_ROW_COMMAND");
+        this.getActionMap().put("DELETE_ROW_COMMAND", deleteRowAction);
 
-		table.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
-		table.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
-		table.getInputMap().put(strokeRemoveRow, "DELETE_ROW_COMMAND");
-		table.getActionMap().put("DELETE_ROW_COMMAND", deleteRowAction);
+        table.getInputMap().put(strokeAddRow, "INSERT_ROW_COMMAND");
+        table.getActionMap().put("INSERT_ROW_COMMAND", addRowAction);
+        table.getInputMap().put(strokeRemoveRow, "DELETE_ROW_COMMAND");
+        table.getActionMap().put("DELETE_ROW_COMMAND", deleteRowAction);
 
-		this.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
-		this.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
-		this.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
-		this.getActionMap().put("DELETE_COLUMN_COMMAND", deleteColumnAction);
-		this.getInputMap().put(strokeRenameColumn, "RENAME_COLUMN_COMMAND");
-		this.getActionMap().put("RENAME_COLUMN_COMMAND", renameColumnAction);
+        this.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
+        this.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
+        this.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
+        this.getActionMap().put("DELETE_COLUMN_COMMAND", deleteColumnAction);
+        this.getInputMap().put(strokeRenameColumn, "RENAME_COLUMN_COMMAND");
+        this.getActionMap().put("RENAME_COLUMN_COMMAND", renameColumnAction);
 
-		table.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
-		table.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
-		table.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
-		table.getActionMap().put("DELETE_COLUMN_COMMAND", deleteColumnAction);
-		table.getInputMap().put(strokeRenameColumn, "RENAME_COLUMN_COMMAND");
-		table.getActionMap().put("RENAME_COLUMN_COMMAND", renameColumnAction);
+        table.getInputMap().put(strokeAddColumn, "INSERT_COLUMN_COMMAND");
+        table.getActionMap().put("INSERT_COLUMN_COMMAND", addColumnAction);
+        table.getInputMap().put(strokeRemoveColumn, "DELETE_COLUMN_COMMAND");
+        table.getActionMap().put("DELETE_COLUMN_COMMAND", deleteColumnAction);
+        table.getInputMap().put(strokeRenameColumn, "RENAME_COLUMN_COMMAND");
+        table.getActionMap().put("RENAME_COLUMN_COMMAND", renameColumnAction);
 
-		//Move rows shortcuts
-		table.getInputMap().put(moveTopPopUp.getAccelerator(), "MOVE_TOP");
-		table.getActionMap().put("MOVE_TOP", moveTopAction);
+        //Move rows shortcuts
+        table.getInputMap().put(moveTopPopUp.getAccelerator(), "MOVE_TOP");
+        table.getActionMap().put("MOVE_TOP", moveTopAction);
 
-		table.getInputMap().put(moveUpPopUp.getAccelerator(), "MOVE_UP");
-		table.getActionMap().put("MOVE_UP", moveUpAction);
+        table.getInputMap().put(moveUpPopUp.getAccelerator(), "MOVE_UP");
+        table.getActionMap().put("MOVE_UP", moveUpAction);
 
-		table.getInputMap().put(moveDownPopUp.getAccelerator(), "MOVE_DOWN");
-		table.getActionMap().put("MOVE_DOWN", moveDownAction);
+        table.getInputMap().put(moveDownPopUp.getAccelerator(), "MOVE_DOWN");
+        table.getActionMap().put("MOVE_DOWN", moveDownAction);
 
-		table.getInputMap().put(moveBottomPopUp.getAccelerator(), "MOVE_BOTTOM");
-		table.getActionMap().put("MOVE_BOTTOM", moveBottomAction);
+        table.getInputMap().put(moveBottomPopUp.getAccelerator(), "MOVE_BOTTOM");
+        table.getActionMap().put("MOVE_BOTTOM", moveBottomAction);
 
-		//Move columns shortcuts
-		table.getInputMap().put(moveHomePopUp.getAccelerator(), "MOVE_HOME");
-		table.getActionMap().put("MOVE_HOME", moveHomeAction);
+        //Move columns shortcuts
+        table.getInputMap().put(moveHomePopUp.getAccelerator(), "MOVE_HOME");
+        table.getActionMap().put("MOVE_HOME", moveHomeAction);
 
-		table.getInputMap().put(moveLeftPopUp.getAccelerator(), "MOVE_LEFT");
-		table.getActionMap().put("MOVE_LEFT", moveLeftAction);
+        table.getInputMap().put(moveLeftPopUp.getAccelerator(), "MOVE_LEFT");
+        table.getActionMap().put("MOVE_LEFT", moveLeftAction);
 
-		table.getInputMap().put(moveRightPopUp.getAccelerator(), "MOVE_RIGHT");
-		table.getActionMap().put("MOVE_RIGHT", moveRightAction);
+        table.getInputMap().put(moveRightPopUp.getAccelerator(), "MOVE_RIGHT");
+        table.getActionMap().put("MOVE_RIGHT", moveRightAction);
 
-		table.getInputMap().put(moveEndPopUp.getAccelerator(), "MOVE_END");
-		table.getActionMap().put("MOVE_END", moveEndAction);
+        table.getInputMap().put(moveEndPopUp.getAccelerator(), "MOVE_END");
+        table.getActionMap().put("MOVE_END", moveEndAction);
 
-		// Escape action (Because press on ESCAPE key when editing cell does not fire any event)
-		// Handle escape key on a JTable
-		Action escapeAction = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (table.isEditing()) {
-					int row = table.getEditingRow();
-					int col = table.getEditingColumn();
-					table.getCellEditor(row, col).cancelCellEditing();
-				}
-			}
-		};
-		table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(strokeEscape, "ESCAPE");
-		table.getActionMap().put("ESCAPE", escapeAction);
+        // Escape action (Because press on ESCAPE key when editing cell does not fire any event)
+        // Handle escape key on a JTable
+        Action escapeAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (table.isEditing()) {
+                    int row = table.getEditingRow();
+                    int col = table.getEditingColumn();
+                    table.getCellEditor(row, col).cancelCellEditing();
+                }
+            }
+        };
+        table.getInputMap(JTable.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(strokeEscape, "ESCAPE");
+        table.getActionMap().put("ESCAPE", escapeAction);
 
-		table.setComponentPopupMenu(tablePopUpMenu);
-		tableScrollPane.setComponentPopupMenu(tablePopUpMenu);
+        table.setComponentPopupMenu(tablePopUpMenu);
+        tableScrollPane.setComponentPopupMenu(tablePopUpMenu);
 
-		//Cut, Copy, Paste
-		table.setTransferHandler(new TableTransferHandler());
+        //Cut, Copy, Paste
+        table.setTransferHandler(new TableTransferHandler());
 
-		ActionMap map = table.getActionMap();
+        ActionMap map = table.getActionMap();
 
-		map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
-		map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
-		map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
+        map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
+        map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
+        map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
 
-		TransferActionListener ccpAction = new TransferActionListener();
+        TransferActionListener ccpAction = new TransferActionListener();
 
-		cutAction = new CCPAction(Bundle.ACTION_CUT(), ccpAction);
-		cutAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCutAction().getValue(Action.NAME));
-		cutAction.putValue(Action.ACCELERATOR_KEY, cutPopUp.getAccelerator());
-		cutPopUp.setAction(cutAction);
-		cutPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/cut.gif", false));
+        cutAction = new CCPAction(Bundle.ACTION_CUT(), ccpAction);
+        cutAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCutAction().getValue(Action.NAME));
+        cutAction.putValue(Action.ACCELERATOR_KEY, cutPopUp.getAccelerator());
+        cutPopUp.setAction(cutAction);
+        cutPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/cut.gif", false));
 
-		copyAction = new CCPAction(Bundle.ACTION_COPY(), ccpAction);
-		copyAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCopyAction().getValue(Action.NAME));
-		copyAction.putValue(Action.ACCELERATOR_KEY, copyPopUp.getAccelerator());
-		copyPopUp.setAction(copyAction);
-		copyPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/copy.gif", false));
+        copyAction = new CCPAction(Bundle.ACTION_COPY(), ccpAction);
+        copyAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCopyAction().getValue(Action.NAME));
+        copyAction.putValue(Action.ACCELERATOR_KEY, copyPopUp.getAccelerator());
+        copyPopUp.setAction(copyAction);
+        copyPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/copy.gif", false));
 
-		pasteAction = new CCPAction(Bundle.ACTION_PASTE(), ccpAction);
-		pasteAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getPasteAction().getValue(Action.NAME));
-		pasteAction.putValue(Action.ACCELERATOR_KEY, pastePopUp.getAccelerator());
-		pastePopUp.setAction(pasteAction);
-		pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/paste.gif", false));
+        pasteAction = new CCPAction(Bundle.ACTION_PASTE(), ccpAction);
+        pasteAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getPasteAction().getValue(Action.NAME));
+        pasteAction.putValue(Action.ACCELERATOR_KEY, pastePopUp.getAccelerator());
+        pastePopUp.setAction(pasteAction);
+        pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/paste.gif", false));
 
-		/* Integrate CCP with NetBeans default menubar items and toolbar buttons */
+        /* Integrate CCP with NetBeans default menubar items and toolbar buttons */
 //		ActionMap actionMap = getActionMap();
 //		actionMap.put("cut-to-clipboard", cutAction);
 //		actionMap.put("copy-to-clipboard", copyAction);
 //		actionMap.put("paste-from-clipboard", pasteAction);
 //
 //		instanceContent.add(actionMap);
-		CLIPBOARD.addFlavorListener(new FlavorListener() {
+        CLIPBOARD.addFlavorListener(new FlavorListener() {
 
-			@Override
-			public void flavorsChanged(FlavorEvent e) {
-				final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
-				pasteAction.setEnabled(dataFlavorAvailable);
-			}
-		});
+            @Override
+            public void flavorsChanged(FlavorEvent e) {
+                final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
+                pasteAction.setEnabled(dataFlavorAvailable);
+            }
+        });
 
-		cutAction.setEnabled(false);
-		copyAction.setEnabled(false);
-		pasteAction.setEnabled(false);
-	}
+        cutAction.setEnabled(false);
+        copyAction.setEnabled(false);
+        pasteAction.setEnabled(false);
+    }
 
 	private void selectRow(int row) {
 		Rectangle rect = table.getCellRect(row, 0, true);
@@ -1292,7 +1297,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 			separatorChangedAction.actionPerformed(null);
 		}
 	}
-
+    
 	private class CCPAction extends AbstractAction {
 
 		private final TransferActionListener ccpAction;
