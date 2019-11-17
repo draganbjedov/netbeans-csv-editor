@@ -3,9 +3,8 @@
 \.chg\..*$
 \.rej$
 \.conflict\~$
-/build/*
-/nbproject/private/*
+/build/
+/nbproject/private/
 .DS_Store
-/dist/*
-/target/*
-target/*
+/dist/
+/target/
