@@ -3,9 +3,8 @@
 \.chg\..*$
 \.rej$
 \.conflict\~$
-syntax: glob
-build/*
-nbproject/private/*
+/build/*
+/nbproject/private/*
 .DS_Store
-dist/
-*.csv
+/dist/*
+/target/*
