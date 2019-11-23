@@ -88,10 +88,10 @@ public class RemoveColumnDialog extends javax.swing.JPanel {
 	}
 
 	/**
-	 * Prikazuje dijalog za izbor kolone za brisanje
+	 * Show dialog for choosing column to delete
 	 *
-	 * @param customColumnNames
-	 * @return ime kolone ili null za isto ime ili cancel
+	 * @param customColumnNames column names
+	 * @return new column name or <code>null</code> for same name or cancel
 	 */
 	public static Integer show(Collection<String> customColumnNames) {
 		if (dialog == null)

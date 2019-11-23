@@ -122,11 +122,10 @@ public class RenameColumnDialog extends javax.swing.JPanel implements DocumentLi
 	}
 
 	/**
-	 * Prikazuje dijalog za unos novog imena kolone
+	 * Show dialog for renaming column
 	 *
-	 * @param customColumnNames
-	 * @param selectedColumnName
-	 * @return ime kolone ili null za isto ime ili cancel
+	 * @param customColumnNames column names
+	 * @return new column name or <code>null</code> for same name or cancel
 	 */
 	public static Pair<Integer, String> show(Collection<String> customColumnNames) {
 		if (dialog == null)
