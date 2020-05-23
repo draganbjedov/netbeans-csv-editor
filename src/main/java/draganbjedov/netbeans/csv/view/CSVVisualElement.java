@@ -47,6 +47,7 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -1019,20 +1020,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         });
         table.setDefaultRenderer(String.class, new OddEvenCellRenderer());
 
-        final String lafName = UIManager.getLookAndFeel().getName();
-        boolean setBackground = lafName.equals("Nimbus");
-
-        if (setBackground)
-            table.getTableHeader().setBackground(Color.WHITE);
-
-        if (!lafName.startsWith("GTK") & !lafName.startsWith("Darcula")) {
-            tableScrollPane.getRowHeader().setBackground(Color.WHITE);
-            tableScrollPane.getViewport().setBackground(Color.WHITE);
-            tableScrollPane.setBackground(Color.WHITE);
-        } else {
-            rowNumberTable.setBackground(table.getTableHeader().getBackground());
-        }
-
+        tableScrollPane.getViewport().setBackground(new Color(table.getBackground().getRGB()));
+        
+        table.getTableHeader().setPreferredSize(new Dimension(table.getTableHeader().getPreferredSize().width, table.getRowHeight()));
+        
         final JTableHeader tableHeader = table.getTableHeader();
         tableHeader.setReorderingAllowed(false);
 
