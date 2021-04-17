@@ -28,6 +28,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 /*
  * RowNumberTable.java
@@ -82,18 +83,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         addColumn(column);
         column.setCellRenderer(new RowNumberRenderer());
 
-        int width = 30;
-        if (header != null && !header.isEmpty()) {
-            FontMetrics metrics = table.getFontMetrics(table.getTableHeader().getFont().deriveFont(Font.BOLD));
-            Rectangle2D bounds = metrics.getStringBounds(header, null);
-            if ((int) bounds.getWidth() > 50) {
-                width = (int) bounds.getWidth();
-            }
-            width += 10;
-        }
-
-        getColumnModel().getColumn(0).setPreferredWidth(width);
-        setPreferredScrollableViewportSize(getPreferredSize());
+        updateWidth(header);
 
         getTableHeader().setReorderingAllowed(false);
 
@@ -126,8 +116,8 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         }
     }
 
-    /*
-	 * Delegate method to main table
+    /**
+     * Delegate method to main table
      */
     @Override
     public int getRowCount() {
@@ -139,9 +129,9 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         return table.getRowHeight(row);
     }
 
-    /*
-	 * This table does not use any data from the main TableModel, so just return
-	 * a value based on the row parameter.
+    /**
+     * This table does not use any data from the main TableModel, so just return
+     * a value based on the row parameter.
      */
     @Override
     public Object getValueAt(int row, int column) {
@@ -152,15 +142,14 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         }
     }
 
-    /*
-	 * Don't edit data in the main TableModel by mistake
+    /**
+     * Don't edit data in the main TableModel by mistake
      */
     @Override
     public boolean isCellEditable(int row, int column) {
         return false;
     }
 
-    // implements ChangeListener
     @Override
     public void stateChanged(ChangeEvent e) {
         // Keep the scrolling of the row table in sync with main table
@@ -170,7 +159,6 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         scrollPane.getVerticalScrollBar().setValue(viewport.getViewPosition().y);
     }
 
-    // implements PropertyChangeListener
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         // Keep the row table in sync with the main table
@@ -193,7 +181,25 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
     }
 
     private void updateModel() {
-        setModel(table.getModel());
+        final TableModel model = table.getModel();
+        model.addTableModelListener(e -> updateWidth(String.valueOf(model.getRowCount())));
+        setModel(model);
+    }
+
+    private void updateWidth(String s) {
+        int width = 15;
+        if (!s.isEmpty()) {
+            FontMetrics metrics = new FontMetrics(table.getTableHeader().getFont()) {
+            };
+            Rectangle2D bounds = metrics.getStringBounds(s, null);
+            width += (int) bounds.getWidth();
+        }
+
+        final int currentWidth = getColumnModel().getColumn(0).getPreferredWidth();
+        if (currentWidth != width) {
+            getColumnModel().getColumn(0).setPreferredWidth(width);
+            setPreferredScrollableViewportSize(getPreferredSize());
+        }
     }
 
     private void updateSelectionModel() {
@@ -230,18 +236,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
                 s = ss;
             }
         }
-        int width = 50;
-        if (!s.isEmpty()) {
-            FontMetrics metrics = new FontMetrics(table.getTableHeader().getFont()) {
-            };
-            Rectangle2D bounds = metrics.getStringBounds(s, null);
-            if ((int) bounds.getWidth() > 50) {
-                width = (int) bounds.getWidth();
-            }
-            width += 10;
-        }
-        getColumnModel().getColumn(0).setPreferredWidth(width);
-        setPreferredScrollableViewportSize(getPreferredSize());
+        updateWidth(s);
     }
 
     private final class RowNumberRenderer extends DefaultTableCellRenderer {
