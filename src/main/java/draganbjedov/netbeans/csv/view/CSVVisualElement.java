@@ -47,7 +47,6 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.UIManager;
-import javax.swing.border.LineBorder;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -77,79 +76,79 @@ import org.openide.windows.WindowManager;
 import org.oxbow.swingbits.table.filter.TableRowFilterSupport;
 
 @MultiViewElement.Registration(
-		displayName = "#LBL_CSV_VISUAL",
-		iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
-		mimeType = "text/csv",
-		persistenceType = TopComponent.PERSISTENCE_NEVER,
-		preferredID = "CSVVisual",
-		position = 1000)
+        displayName = "#LBL_CSV_VISUAL",
+        iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
+        mimeType = "text/csv",
+        persistenceType = TopComponent.PERSISTENCE_NEVER,
+        preferredID = "CSVVisual",
+        position = 1000)
 @Messages("LBL_CSV_VISUAL=Table")
 public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
-	private static final Clipboard CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
+    private static final Clipboard CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
     private static final Color GRID_COLOR = new Color(128, 128, 128, 85);
 
-	private final CSVDataObject obj;
-	private final JToolBar toolbar = new ToolbarWithOverflow();
+    private final CSVDataObject obj;
+    private final JToolBar toolbar = new ToolbarWithOverflow();
 
-	private transient MultiViewElementCallback callback;
+    private transient MultiViewElementCallback callback;
 
-	private final transient CSVTableModel tableModel;
-	private TableRowFilterSupport tableRowFilterSupport;
+    private final transient CSVTableModel tableModel;
+    private TableRowFilterSupport tableRowFilterSupport;
     private CSVTableFilter tableFilter;
 
-	private boolean activated;
+    private boolean activated;
 
-	private AbstractAction addRowAction;
-	private AbstractAction deleteRowAction;
-	private AbstractAction addColumnAction;
-	private AbstractAction deleteColumnAction;
-	private AbstractAction renameColumnAction;
-	private AbstractAction toggleHeaderAction;
-	private AbstractAction addHeaderAction;
+    private AbstractAction addRowAction;
+    private AbstractAction deleteRowAction;
+    private AbstractAction addColumnAction;
+    private AbstractAction deleteColumnAction;
+    private AbstractAction renameColumnAction;
+    private AbstractAction toggleHeaderAction;
+    private AbstractAction addHeaderAction;
 
-	private AbstractAction moveTopAction;
-	private AbstractAction moveUpAction;
-	private AbstractAction moveDownAction;
-	private AbstractAction moveBottomAction;
+    private AbstractAction moveTopAction;
+    private AbstractAction moveUpAction;
+    private AbstractAction moveDownAction;
+    private AbstractAction moveBottomAction;
 
-	private AbstractAction moveHomeAction;
-	private AbstractAction moveLeftAction;
-	private AbstractAction moveRightAction;
-	private AbstractAction moveEndAction;
+    private AbstractAction moveHomeAction;
+    private AbstractAction moveLeftAction;
+    private AbstractAction moveRightAction;
+    private AbstractAction moveEndAction;
 
-	private AbstractAction separatorChangedAction;
+    private AbstractAction separatorChangedAction;
 
-	private AbstractAction cutAction;
-	private AbstractAction copyAction;
-	private AbstractAction pasteAction;
+    private AbstractAction cutAction;
+    private AbstractAction copyAction;
+    private AbstractAction pasteAction;
 
-	private final Lookup lookup;
-	private final InstanceContent instanceContent;
+    private final Lookup lookup;
+    private final InstanceContent instanceContent;
 
-	@SuppressWarnings("LeakingThisInConstructor")
-	public CSVVisualElement(Lookup objLookup) {
-		obj = objLookup.lookup(CSVDataObject.class);
-		assert obj != null;
-		instanceContent = new InstanceContent();
-		lookup = new ProxyLookup(objLookup, new AbstractLookup(instanceContent));
+    @SuppressWarnings("LeakingThisInConstructor")
+    public CSVVisualElement(Lookup objLookup) {
+        obj = objLookup.lookup(CSVDataObject.class);
+        assert obj != null;
+        instanceContent = new InstanceContent();
+        lookup = new ProxyLookup(objLookup, new AbstractLookup(instanceContent));
 
-		tableModel = new CSVTableModel();
+        tableModel = new CSVTableModel();
 
-		initActions();
-		initComponents();
-		init();
-		createToolBar();
+        initActions();
+        initComponents();
+        init();
+        createToolBar();
 
-		obj.setVisualEditor(this);
+        obj.setVisualEditor(this);
 
-		updateTable();
-	}
+        updateTable();
+    }
 
-	@Override
-	public String getName() {
-		return "CSVVisualElement";
-	}
+    @Override
+    public String getName() {
+        return "CSVVisualElement";
+    }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -331,11 +330,11 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tablePopUpMenuPopupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {//GEN-FIRST:event_tablePopUpMenuPopupMenuWillBecomeVisible
-		boolean enabled = table.getSelectedRowCount() > 0;
-		copyAction.setEnabled(enabled);
-		cutAction.setEnabled(enabled);
+        boolean enabled = table.getSelectedRowCount() > 0;
+        copyAction.setEnabled(enabled);
+        cutAction.setEnabled(enabled);
 
-		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+        pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
     }//GEN-LAST:event_tablePopUpMenuPopupMenuWillBecomeVisible
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -364,610 +363,611 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private JToggleButton toggleHeaderButton;
     private JButton addHeaderButton;
     private JButton addRowButton;
-	private JButton deleteRowButton;
-	private JButton addColumnButton;
-	private JButton deleteColumnButton;
-	private JButton renameColumnButton;
-	private JButton moveTop;
-	private JButton moveUp;
-	private JButton moveDown;
-	private JButton moveBottom;
-	private JButton moveHome;
-	private JButton moveLeft;
-	private JButton moveRight;
-	private JButton moveEnd;
-	private JButton clearFilters;
-	private JButton setColumnsWidth;
-	private JComboBox separators;
+    private JButton deleteRowButton;
+    private JButton addColumnButton;
+    private JButton deleteColumnButton;
+    private JButton renameColumnButton;
+    private JButton moveTop;
+    private JButton moveUp;
+    private JButton moveDown;
+    private JButton moveBottom;
+    private JButton moveHome;
+    private JButton moveLeft;
+    private JButton moveRight;
+    private JButton moveEnd;
+    private JButton clearFilters;
+    private JButton setColumnsWidth;
+    private JComboBox separators;
 
-	@Override
-	public JComponent getVisualRepresentation() {
-		return this;
-	}
+    @Override
+    public JComponent getVisualRepresentation() {
+        return this;
+    }
 
-	@Override
-	public JComponent getToolbarRepresentation() {
-		return toolbar;
-	}
+    @Override
+    public JComponent getToolbarRepresentation() {
+        return toolbar;
+    }
 
-	@Override
-	public Action[] getActions() {
-		if (callback != null)
-			return callback.createDefaultActions();
-		return new Action[0];
-	}
+    @Override
+    public Action[] getActions() {
+        if (callback != null)
+            return callback.createDefaultActions();
+        return new Action[0];
+    }
 
-	@Override
-	public Lookup getLookup() {
-		return lookup;
-	}
+    @Override
+    public Lookup getLookup() {
+        return lookup;
+    }
 
-	@Override
-	public void componentOpened() {
-		if (callback != null)
-			callback.updateTitle(obj.getPrimaryFile().getNameExt());
-	}
+    @Override
+    public void componentOpened() {
+        if (callback != null)
+            callback.updateTitle(obj.getPrimaryFile().getNameExt());
+    }
 
-	@Override
-	public void componentClosed() {
-	}
+    @Override
+    public void componentClosed() {
+    }
 
-	@Override
-	public void componentShowing() {
-		updateTable();
-	}
+    @Override
+    public void componentShowing() {
+        updateTable();
+    }
 
-	@Override
-	public void componentHidden() {
-	}
+    @Override
+    public void componentHidden() {
+    }
 
-	@Override
-	public void componentActivated() {
-		activated = true;
-		if (callback != null)
-			callback.updateTitle(obj.getPrimaryFile().getNameExt());
-		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+    @Override
+    public void componentActivated() {
+        activated = true;
+        if (callback != null)
+            callback.updateTitle(obj.getPrimaryFile().getNameExt());
+        pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
-		tableModel.fireTableDataChanged();
-	}
+        tableModel.fireTableDataChanged();
+    }
 
-	@Override
-	public void componentDeactivated() {
-		activated = false;
-	}
+    @Override
+    public void componentDeactivated() {
+        activated = false;
+    }
 
-	public boolean isActivated() {
-		return activated;
-	}
+    public boolean isActivated() {
+        return activated;
+    }
 
-	@Override
-	public UndoRedo getUndoRedo() {
-		return obj.getUndoRedoManager();
-	}
+    @Override
+    public UndoRedo getUndoRedo() {
+        return obj.getUndoRedoManager();
+    }
 
-	@Override
-	public void setMultiViewCallback(MultiViewElementCallback callback) {
-		this.callback = callback;
-	}
+    @Override
+    public void setMultiViewCallback(MultiViewElementCallback callback) {
+        this.callback = callback;
+    }
 
-	@Override
-	public CloseOperationState canCloseElement() {
-		return CloseOperationState.STATE_OK;
-	}
+    @Override
+    public CloseOperationState canCloseElement() {
+        return CloseOperationState.STATE_OK;
+    }
 
-	@Messages({
-		"BUTTON_CLEAR_FILTERS=Clear all filters",
-		"BUTTON_COL_WIDTH=Set column widths"
-	})
-	private void createToolBar() {
-		toolbar.setFloatable(false);
+    @Messages({
+        "BUTTON_CLEAR_FILTERS=Clear all filters",
+        "BUTTON_COL_WIDTH=Set column widths"
+    })
+    private void createToolBar() {
+        toolbar.setFloatable(false);
 
-		// Header actions
+        // Header actions
         toggleHeaderButton = new JToggleButton(toggleHeaderAction);
         toggleHeaderButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.toggleHeaderButton.text"));
         toggleHeaderButton.setSelected(true);
 
         toolbar.add(toggleHeaderButton);
 
-		addHeaderButton = new JButton(addHeaderAction);
-		addHeaderButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.text"));
-		addHeaderButton.setEnabled(false);
-		toolbar.add(addHeaderButton);
+        addHeaderButton = new JButton(addHeaderAction);
+        addHeaderButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.text"));
+        addHeaderButton.setEnabled(false);
+        toolbar.add(addHeaderButton);
 
         toolbar.addSeparator();
 
         // Add and delete actions
-		addRowButton = new JButton(addRowAction);
-		addRowButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addRowButton.text") + " (Insert)");
-		toolbar.add(addRowButton);
+        addRowButton = new JButton(addRowAction);
+        addRowButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addRowButton.text") + " (Insert)");
+        toolbar.add(addRowButton);
 
-		deleteRowButton = new JButton(deleteRowAction);
-		deleteRowButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.deleteRowButton.text") + " (Delete)");
-		toolbar.add(deleteRowButton);
+        deleteRowButton = new JButton(deleteRowAction);
+        deleteRowButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.deleteRowButton.text") + " (Delete)");
+        toolbar.add(deleteRowButton);
 
-		addColumnButton = new JButton(addColumnAction);
-		addColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addColumnButton.text") + " (Ctrl+Insert)");
-		toolbar.add(addColumnButton);
+        addColumnButton = new JButton(addColumnAction);
+        addColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addColumnButton.text") + " (Ctrl+Insert)");
+        toolbar.add(addColumnButton);
 
-		deleteColumnButton = new JButton(deleteColumnAction);
-		deleteColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.deleteColumnButton.text") + " (Crtl+Delete)");
-		toolbar.add(deleteColumnButton);
+        deleteColumnButton = new JButton(deleteColumnAction);
+        deleteColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.deleteColumnButton.text") + " (Crtl+Delete)");
+        toolbar.add(deleteColumnButton);
 
-		renameColumnButton = new JButton(renameColumnAction);
-		renameColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.renameColumnButton.text") + " (Crtl+R)");
-		toolbar.add(renameColumnButton);
+        renameColumnButton = new JButton(renameColumnAction);
+        renameColumnButton.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.renameColumnButton.text") + " (Crtl+R)");
+        toolbar.add(renameColumnButton);
 
-		toolbar.addSeparator();
+        toolbar.addSeparator();
 
-		//Move row actions
-		moveTop = new JButton(moveTopAction);
-		moveTop.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveTopPopUp.text") + " (Ctrl+Shift+Up)");
-		toolbar.add(moveTop);
+        //Move row actions
+        moveTop = new JButton(moveTopAction);
+        moveTop.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveTopPopUp.text") + " (Ctrl+Shift+Up)");
+        toolbar.add(moveTop);
 
-		moveUp = new JButton(moveUpAction);
-		moveUp.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveUpPopUp.text") + " (Ctrl+Up)");
-		toolbar.add(moveUp);
+        moveUp = new JButton(moveUpAction);
+        moveUp.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveUpPopUp.text") + " (Ctrl+Up)");
+        toolbar.add(moveUp);
 
-		moveDown = new JButton(moveDownAction);
-		moveDown.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveDownPopUp.text") + " (Ctrl+Down)");
-		toolbar.add(moveDown);
+        moveDown = new JButton(moveDownAction);
+        moveDown.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveDownPopUp.text") + " (Ctrl+Down)");
+        toolbar.add(moveDown);
 
-		moveBottom = new JButton(moveBottomAction);
-		moveBottom.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveBottomPopUp.text") + " (Ctrl+Shift+Down)");
-		toolbar.add(moveBottom);
+        moveBottom = new JButton(moveBottomAction);
+        moveBottom.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveBottomPopUp.text") + " (Ctrl+Shift+Down)");
+        toolbar.add(moveBottom);
 
-		toolbar.addSeparator();
+        toolbar.addSeparator();
 
-		//Move column actions
-		moveHome = new JButton(moveHomeAction);
-		moveHome.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveHomePopUp.text") + " (Ctrl+Shift+Left)");
-		toolbar.add(moveHome);
+        //Move column actions
+        moveHome = new JButton(moveHomeAction);
+        moveHome.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveHomePopUp.text") + " (Ctrl+Shift+Left)");
+        toolbar.add(moveHome);
 
-		moveLeft = new JButton(moveLeftAction);
-		moveLeft.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveLeftPopUp.text") + " (Ctrl+Left)");
-		toolbar.add(moveLeft);
+        moveLeft = new JButton(moveLeftAction);
+        moveLeft.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveLeftPopUp.text") + " (Ctrl+Left)");
+        toolbar.add(moveLeft);
 
-		moveRight = new JButton(moveRightAction);
-		moveRight.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveRightPopUp.text") + " (Ctrl+Right)");
-		toolbar.add(moveRight);
+        moveRight = new JButton(moveRightAction);
+        moveRight.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveRightPopUp.text") + " (Ctrl+Right)");
+        toolbar.add(moveRight);
 
-		moveEnd = new JButton(moveEndAction);
-		moveEnd.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveEndPopUp.text") + " (Ctrl+Shift+Left)");
-		toolbar.add(moveEnd);
+        moveEnd = new JButton(moveEndAction);
+        moveEnd.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveEndPopUp.text") + " (Ctrl+Shift+Left)");
+        toolbar.add(moveEnd);
 
-		toolbar.addSeparator();
+        toolbar.addSeparator();
 
-		clearFilters = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/filter-clear.png", false));
-		clearFilters.setToolTipText(Bundle.BUTTON_CLEAR_FILTERS());
-		clearFilters.addActionListener(e -> tableFilter.clear());
-		toolbar.add(clearFilters);
+        clearFilters = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/filter-clear.png", false));
+        clearFilters.setToolTipText(Bundle.BUTTON_CLEAR_FILTERS());
+        clearFilters.addActionListener(e -> tableFilter.clear());
+        toolbar.add(clearFilters);
 
-		setColumnsWidth = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/resize.png", false));
-		setColumnsWidth.setToolTipText(Bundle.BUTTON_COL_WIDTH());
-		setColumnsWidth.addActionListener((e) -> table.packAll());
-		toolbar.add(setColumnsWidth);
+        setColumnsWidth = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/resize.png", false));
+        setColumnsWidth.setToolTipText(Bundle.BUTTON_COL_WIDTH());
+        setColumnsWidth.addActionListener((e) -> table.packAll());
+        toolbar.add(setColumnsWidth);
 
-		toolbar.addSeparator();
+        toolbar.addSeparator();
 
-		//Separator
-		toolbar.add(new JLabel(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separatorLabel.text")));
+        //Separator
+        toolbar.add(new JLabel(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separatorLabel.text")));
 
-		int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
-		if (customSeparatorCount > 0) {
-			List<Character> chars = OptionsUtils.readCustomSeparators(customSeparatorCount);
-			List<String> s = new ArrayList<>();
-			s.add(0, ",");
-			s.add(1, ";");
-			s.add(2, "Tab");
-			chars.stream().forEach(c -> s.add(c.toString()));
-			separators = new JComboBox(new DefaultComboBoxModel(s.toArray()));
-		} else
-			separators = new JComboBox(new String[]{",", ";", "Tab"});
-		toolbar.add(separators);
-		separators.setPreferredSize(new Dimension(70, separators.getPreferredSize().height));
-		separators.setMaximumSize(new Dimension(70, separators.getPreferredSize().height));
-		separators.setMinimumSize(new Dimension(70, separators.getPreferredSize().height));
-		separators.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separators.tooltip"));
-		separators.addActionListener(separatorChangedAction);
-		separators.setSelectedItem(OptionsUtils.readDefaultSeparator());
-	}
+        int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
+        if (customSeparatorCount > 0) {
+            List<Character> chars = OptionsUtils.readCustomSeparators(customSeparatorCount);
+            List<String> s = new ArrayList<>();
+            s.add(0, ",");
+            s.add(1, ";");
+            s.add(2, "Tab");
+            chars.stream().forEach(c -> s.add(c.toString()));
+            separators = new JComboBox(new DefaultComboBoxModel(s.toArray(new String[0])));
+        } else
+            separators = new JComboBox(new String[]{",", ";", "Tab"});
+        toolbar.add(separators);
+        separators.setPreferredSize(new Dimension(70, separators.getPreferredSize().height));
+        separators.setMaximumSize(new Dimension(70, separators.getPreferredSize().height));
+        separators.setMinimumSize(new Dimension(70, separators.getPreferredSize().height));
+        separators.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.separators.tooltip"));
+        separators.addActionListener(separatorChangedAction);
+        final String defaultSeparator = ((Character) OptionsUtils.readDefaultSeparator()).toString();
+        separators.setSelectedItem(defaultSeparator);
+    }
 
-	public void updateTable() {
-		obj.readFile(tableModel);
+    public void updateTable() {
+        obj.readFile(tableModel);
 
 //		updateColumnsWidths();
-		table.packAll();
-		setActiveActions();
-	}
+        table.packAll();
+        setActiveActions();
+    }
 
-	private void setActiveActions() {
-		addRowAction.setEnabled(!tableFilter.hasActiveFilters());
-		addColumnAction.setEnabled(true);
-		deleteColumnAction.setEnabled(true);
-		addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
-		renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
-		separators.setEnabled(true);
-		final boolean hasSelectedRow = table.getSelectedRowCount() >= 1;
-		deleteRowAction.setEnabled(hasSelectedRow);
-		cutAction.setEnabled(hasSelectedRow);
-		copyAction.setEnabled(hasSelectedRow);
-		pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
+    private void setActiveActions() {
+        addRowAction.setEnabled(!tableFilter.hasActiveFilters());
+        addColumnAction.setEnabled(true);
+        deleteColumnAction.setEnabled(true);
+        addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
+        renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
+        separators.setEnabled(true);
+        final boolean hasSelectedRow = table.getSelectedRowCount() >= 1;
+        deleteRowAction.setEnabled(hasSelectedRow);
+        cutAction.setEnabled(hasSelectedRow);
+        copyAction.setEnabled(hasSelectedRow);
+        pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
-		int[] rows = table.getSelectedRows();
-		if (!tableFilter.hasActiveFilters() && moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
-			switch (rows.length) {
-				case 0:
-					moveTopAction.setEnabled(false);
-					moveUpAction.setEnabled(false);
-					moveDownAction.setEnabled(false);
-					moveBottomAction.setEnabled(false);
-					break;
-				case 1:
-					moveTopAction.setEnabled(rows[0] != 0);
-					moveUpAction.setEnabled(rows[0] != 0);
-					moveDownAction.setEnabled(rows[0] != table.getRowCount() - 1);
-					moveBottomAction.setEnabled(rows[0] != table.getRowCount() - 1);
-					break;
-				default:
-					moveTopAction.setEnabled(true);
-					moveBottomAction.setEnabled(true);
-					int prev = rows[0];
-					for (int i = 1; i < rows.length; i++) {
-						if (prev != rows[i] - 1) {
-							moveUpAction.setEnabled(false);
-							moveDownAction.setEnabled(false);
-							return;
-						} else {
-							prev = rows[i];
-						}
-					}	//Continious top rows
-					final boolean topRows = rows[0] != 0;
-					moveTopAction.setEnabled(topRows);
-					moveUpAction.setEnabled(topRows);
-					//Continious rows at bottom
-					final boolean bottomRows = rows[rows.length - 1] != table.getRowCount() - 1;
-					moveDownAction.setEnabled(bottomRows);
-					moveBottomAction.setEnabled(bottomRows);
-					break;
-			}
-		}
+        int[] rows = table.getSelectedRows();
+        if (!tableFilter.hasActiveFilters() && moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
+            switch (rows.length) {
+                case 0:
+                    moveTopAction.setEnabled(false);
+                    moveUpAction.setEnabled(false);
+                    moveDownAction.setEnabled(false);
+                    moveBottomAction.setEnabled(false);
+                    break;
+                case 1:
+                    moveTopAction.setEnabled(rows[0] != 0);
+                    moveUpAction.setEnabled(rows[0] != 0);
+                    moveDownAction.setEnabled(rows[0] != table.getRowCount() - 1);
+                    moveBottomAction.setEnabled(rows[0] != table.getRowCount() - 1);
+                    break;
+                default:
+                    moveTopAction.setEnabled(true);
+                    moveBottomAction.setEnabled(true);
+                    int prev = rows[0];
+                    for (int i = 1; i < rows.length; i++) {
+                        if (prev != rows[i] - 1) {
+                            moveUpAction.setEnabled(false);
+                            moveDownAction.setEnabled(false);
+                            return;
+                        } else {
+                            prev = rows[i];
+                        }
+                    }	//Continious top rows
+                    final boolean topRows = rows[0] != 0;
+                    moveTopAction.setEnabled(topRows);
+                    moveUpAction.setEnabled(topRows);
+                    //Continious rows at bottom
+                    final boolean bottomRows = rows[rows.length - 1] != table.getRowCount() - 1;
+                    moveDownAction.setEnabled(bottomRows);
+                    moveBottomAction.setEnabled(bottomRows);
+                    break;
+            }
+        }
 
-		int[] columns = table.getSelectedColumns();
-		if (moveHome != null && moveLeft != null && moveRight != null && moveEnd != null) {
-			switch (columns.length) {
-				case 0:
-					moveHomeAction.setEnabled(false);
-					moveLeftAction.setEnabled(false);
-					moveRightAction.setEnabled(false);
-					moveEndAction.setEnabled(false);
-					break;
-				case 1:
-					moveHomeAction.setEnabled(columns[0] != 0);
-					moveLeftAction.setEnabled(columns[0] != 0);
-					moveRightAction.setEnabled(columns[0] != table.getColumnCount() - 1);
-					moveEndAction.setEnabled(columns[0] != table.getColumnCount() - 1);
-					break;
-				default:
-					moveHomeAction.setEnabled(true);
-					moveEndAction.setEnabled(true);
-					int prev = columns[0];
-					for (int i = 1; i < columns.length; i++) {
-						if (prev != columns[i] - 1) {
-							moveLeftAction.setEnabled(false);
-							moveRightAction.setEnabled(false);
-							return;
-						} else {
-							prev = columns[i];
-						}
-					}
-					//Continious home columns
-					final boolean homeColumns = columns[0] != 0;
-					moveHomeAction.setEnabled(homeColumns);
-					moveLeftAction.setEnabled(homeColumns);
-					//Continious colums at the end
-					final boolean endColumns = columns[columns.length - 1] != table.getColumnCount() - 1;
-					moveRightAction.setEnabled(endColumns);
-					moveEndAction.setEnabled(endColumns);
-					break;
-			}
-		}
-	}
+        int[] columns = table.getSelectedColumns();
+        if (moveHome != null && moveLeft != null && moveRight != null && moveEnd != null) {
+            switch (columns.length) {
+                case 0:
+                    moveHomeAction.setEnabled(false);
+                    moveLeftAction.setEnabled(false);
+                    moveRightAction.setEnabled(false);
+                    moveEndAction.setEnabled(false);
+                    break;
+                case 1:
+                    moveHomeAction.setEnabled(columns[0] != 0);
+                    moveLeftAction.setEnabled(columns[0] != 0);
+                    moveRightAction.setEnabled(columns[0] != table.getColumnCount() - 1);
+                    moveEndAction.setEnabled(columns[0] != table.getColumnCount() - 1);
+                    break;
+                default:
+                    moveHomeAction.setEnabled(true);
+                    moveEndAction.setEnabled(true);
+                    int prev = columns[0];
+                    for (int i = 1; i < columns.length; i++) {
+                        if (prev != columns[i] - 1) {
+                            moveLeftAction.setEnabled(false);
+                            moveRightAction.setEnabled(false);
+                            return;
+                        } else {
+                            prev = columns[i];
+                        }
+                    }
+                    //Continious home columns
+                    final boolean homeColumns = columns[0] != 0;
+                    moveHomeAction.setEnabled(homeColumns);
+                    moveLeftAction.setEnabled(homeColumns);
+                    //Continious colums at the end
+                    final boolean endColumns = columns[columns.length - 1] != table.getColumnCount() - 1;
+                    moveRightAction.setEnabled(endColumns);
+                    moveEndAction.setEnabled(endColumns);
+                    break;
+            }
+        }
+    }
 
-	private void initActions() {
+    private void initActions() {
         toggleHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/header-row.png"))) {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final List<TableColumn> columns = table.getColumns(true);
-				if (toggleHeaderButton.isSelected()) {
-					if (tableModel.getRowCount() > 0) {
-						for (int i = 0; i < columns.size(); i++) {
-							final String header = tableModel.getValueAt(0, i);
-							columns.get(i).setHeaderValue(header);
-							tableModel.getHeaders().set(i, header);
-						}
-						tableModel.removeRow(0);
-					}
-				} else {
-					List<String> rowData = setDefaultHeaders();
-					tableModel.insertRow(0, rowData);
-				}
-				table.packAll();
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final List<TableColumn> columns = table.getColumns(true);
+                if (toggleHeaderButton.isSelected()) {
+                    if (tableModel.getRowCount() > 0) {
+                        for (int i = 0; i < columns.size(); i++) {
+                            final String header = tableModel.getValueAt(0, i);
+                            columns.get(i).setHeaderValue(header);
+                            tableModel.getHeaders().set(i, header);
+                        }
+                        tableModel.removeRow(0);
+                    }
+                } else {
+                    List<String> rowData = setDefaultHeaders();
+                    tableModel.insertRow(0, rowData);
+                }
+                table.packAll();
 
-				renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
-				addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
-			}
-		};
-		addHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-header-row.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final int columnCount = table.getColumnCount(true);
-				final String input = JOptionPane.showInputDialog(WindowManager.getDefault().getMainWindow(),
-						NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.dialog.msg", columnCount),
-						NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.text"),
-						JOptionPane.PLAIN_MESSAGE);
-				if (input != null) {
-					final List<String> columnNames = new ArrayList<>(Arrays.asList(input.split(",")));
-					// Reduce names count to number of columns
-					while (columnNames.size() > columnCount) {
-						columnNames.remove(columnNames.size() - 1);
-					}
-					// Add missing columns
-					for (int i = columnNames.size(); i < columnCount; i++) {
-						columnNames.add(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.colName", i + 1));
-					}
+                renameColumnAction.setEnabled(toggleHeaderButton.isSelected());
+                addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
+            }
+        };
+        addHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-header-row.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final int columnCount = table.getColumnCount(true);
+                final String input = JOptionPane.showInputDialog(WindowManager.getDefault().getMainWindow(),
+                        NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.dialog.msg", columnCount),
+                        NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addHeaderButton.text"),
+                        JOptionPane.PLAIN_MESSAGE);
+                if (input != null) {
+                    final List<String> columnNames = new ArrayList<>(Arrays.asList(input.split(",")));
+                    // Reduce names count to number of columns
+                    while (columnNames.size() > columnCount) {
+                        columnNames.remove(columnNames.size() - 1);
+                    }
+                    // Add missing columns
+                    for (int i = columnNames.size(); i < columnCount; i++) {
+                        columnNames.add(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.colName", i + 1));
+                    }
 
-					tableModel.insertRow(0, columnNames.stream().map(s -> s.trim()).collect(Collectors.toList()));
-					toggleHeaderButton.setSelected(true);
-					toggleHeaderAction.actionPerformed(null);
-				}
-			}
-		};
+                    tableModel.insertRow(0, columnNames.stream().map(s -> s.trim()).collect(Collectors.toList()));
+                    toggleHeaderButton.setSelected(true);
+                    toggleHeaderAction.actionPerformed(null);
+                }
+            }
+        };
 
-		addRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-row.gif"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int selectedRow = table.getSelectedRow();
-				if (selectedRow == -1) {
-					tableModel.addRow();
-					selectRow(table.getRowCount() - 1);
-				} else {
-					tableModel.insertRow(selectedRow + 1);
-					selectRow(selectedRow + 1);
-				}
-			}
-		};
-		deleteRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-row.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] rows = table.getSelectedRows();
-				if (rows.length > 0) {
-                     int[] modelRows = new int[rows.length];                    
-                     for(int i = 0; i < rows.length; i++)
-                         modelRows[i] = table.convertRowIndexToModel(rows[i]);
-					tableModel.removeRows(modelRows);
-					int row = rows[0] - 1;
-					if (row < 0) {
-						if (table.getRowCount() > 0)
-							selectRow(0);
-					} else {
-						selectRow(row);
-					}
-				}
-			}
-		};
-		addColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-column.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				final boolean hasHeaderRow = toggleHeaderButton.isSelected();
-				final Pair<Integer, String> indexNewName = AddColumnDialog.show(tableModel.getHeaders(), hasHeaderRow);
-				if (indexNewName != null) {
-					int index = indexNewName.first();
-					String columnName = indexNewName.second();
-					if (index > tableModel.getColumnCount()) {
-						tableModel.addColumn(columnName);
-						selectColumn(table.getColumnCount() - 1);
-					} else {
-						tableModel.addColumn(columnName, index);
-						selectColumn(index);
-					}
+        addRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-row.gif"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow == -1) {
+                    tableModel.addRow();
+                    selectRow(table.getRowCount() - 1);
+                } else {
+                    tableModel.insertRow(selectedRow + 1);
+                    selectRow(selectedRow + 1);
+                }
+            }
+        };
+        deleteRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-row.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] rows = table.getSelectedRows();
+                if (rows.length > 0) {
+                    int[] modelRows = new int[rows.length];
+                    for (int i = 0; i < rows.length; i++)
+                        modelRows[i] = table.convertRowIndexToModel(rows[i]);
+                    tableModel.removeRows(modelRows);
+                    int row = rows[0] - 1;
+                    if (row < 0) {
+                        if (table.getRowCount() > 0)
+                            selectRow(0);
+                    } else {
+                        selectRow(row);
+                    }
+                }
+            }
+        };
+        addColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-column.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                final boolean hasHeaderRow = toggleHeaderButton.isSelected();
+                final Pair<Integer, String> indexNewName = AddColumnDialog.show(tableModel.getHeaders(), hasHeaderRow);
+                if (indexNewName != null) {
+                    int index = indexNewName.first();
+                    String columnName = indexNewName.second();
+                    if (index > tableModel.getColumnCount()) {
+                        tableModel.addColumn(columnName);
+                        selectColumn(table.getColumnCount() - 1);
+                    } else {
+                        tableModel.addColumn(columnName, index);
+                        selectColumn(index);
+                    }
 
-					if (!hasHeaderRow)
-						setDefaultHeaders();
-					table.packAll();
-				}
-			}
-		};
-		deleteColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-column.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Integer columnIndex = RemoveColumnDialog.show(tableModel.getHeaders());
-				if (columnIndex != null) {
-					tableModel.removeColumn(columnIndex);
+                    if (!hasHeaderRow)
+                        setDefaultHeaders();
+                    table.packAll();
+                }
+            }
+        };
+        deleteColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-column.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Integer columnIndex = RemoveColumnDialog.show(tableModel.getHeaders());
+                if (columnIndex != null) {
+                    tableModel.removeColumn(columnIndex);
 //					updateColumnsWidths();
-					table.packAll();
-				}
-			}
-		};
-		renameColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/rename-column.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Pair<Integer, String> indexNewName = RenameColumnDialog.show(tableModel.getHeaders());
-				if (indexNewName != null) {
-					final Integer index = indexNewName.first();
-					final String newName = indexNewName.second();
-					final int viewIndex = table.convertColumnIndexToView(index);
+                    table.packAll();
+                }
+            }
+        };
+        renameColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/rename-column.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Pair<Integer, String> indexNewName = RenameColumnDialog.show(tableModel.getHeaders());
+                if (indexNewName != null) {
+                    final Integer index = indexNewName.first();
+                    final String newName = indexNewName.second();
+                    final int viewIndex = table.convertColumnIndexToView(index);
 
-					tableModel.renameColumn(index, newName);
+                    tableModel.renameColumn(index, newName);
 
-					TableColumn column = table.getColumn(viewIndex);
-					column.setHeaderValue(newName);
-					updateColumnWidth(viewIndex);
+                    TableColumn column = table.getColumn(viewIndex);
+                    column.setHeaderValue(newName);
+                    updateColumnWidth(viewIndex);
 
-					tableModel.fireTableDataChanged();
-					selectColumn(viewIndex);
-					table.requestFocusInWindow();
-					table.packAll();
-				}
-			}
-		};
+                    tableModel.fireTableDataChanged();
+                    selectColumn(viewIndex);
+                    table.requestFocusInWindow();
+                    table.packAll();
+                }
+            }
+        };
 
-		moveTopAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-top.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int rows[] = table.getSelectedRows();
-				for (int i = 0; i < rows.length; i++) {
-					int row = rows[i];
-					int to = i;
-					tableModel.moveRow(row, to);
-				}
+        moveTopAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-top.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rows[] = table.getSelectedRows();
+                for (int i = 0; i < rows.length; i++) {
+                    int row = rows[i];
+                    int to = i;
+                    tableModel.moveRow(row, to);
+                }
 
-				tableModel.fireTableRowsUpdated(0, table.getRowCount() - 1);
-				selectRowInterval(0, rows.length - 1);
-			}
-		};
-		moveUpAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-up.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int rows[] = table.getSelectedRows();
-				if (rows.length > 0) {
-					int row = rows[0] - 1;
-					int to = rows[rows.length - 1] + 1;
-					if (row >= 0) {
-						tableModel.moveRow(row, to);
-						tableModel.fireTableRowsUpdated(rows[0] - 1, rows[0] + rows.length - 1);
-						selectRowInterval(rows[0] - 1, rows[0] - 1 + rows.length - 1);
-					}
-				}
-			}
-		};
-		moveDownAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-down.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int rows[] = table.getSelectedRows();
-				if (rows.length > 0) {
-					int row = rows[rows.length - 1] + 1;
-					int to = table.getSelectedRow();
-					if (row <= table.getRowCount() - 1) {
-						tableModel.moveRow(row, to);
-						tableModel.fireTableRowsUpdated(rows[0], rows[0] + 1 + rows.length - 1);
-						selectRowInterval(rows[0] + 1, rows[0] + 1 + rows.length - 1);
-					}
-				}
-			}
-		};
-		moveBottomAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-bottom.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int rows[] = table.getSelectedRows();
-				for (int i = 0; i < rows.length; i++) {
-					int row = rows[i] - i;
-					tableModel.moveRow(row, table.getRowCount());
-				}
+                tableModel.fireTableRowsUpdated(0, table.getRowCount() - 1);
+                selectRowInterval(0, rows.length - 1);
+            }
+        };
+        moveUpAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-up.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rows[] = table.getSelectedRows();
+                if (rows.length > 0) {
+                    int row = rows[0] - 1;
+                    int to = rows[rows.length - 1] + 1;
+                    if (row >= 0) {
+                        tableModel.moveRow(row, to);
+                        tableModel.fireTableRowsUpdated(rows[0] - 1, rows[0] + rows.length - 1);
+                        selectRowInterval(rows[0] - 1, rows[0] - 1 + rows.length - 1);
+                    }
+                }
+            }
+        };
+        moveDownAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-down.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rows[] = table.getSelectedRows();
+                if (rows.length > 0) {
+                    int row = rows[rows.length - 1] + 1;
+                    int to = table.getSelectedRow();
+                    if (row <= table.getRowCount() - 1) {
+                        tableModel.moveRow(row, to);
+                        tableModel.fireTableRowsUpdated(rows[0], rows[0] + 1 + rows.length - 1);
+                        selectRowInterval(rows[0] + 1, rows[0] + 1 + rows.length - 1);
+                    }
+                }
+            }
+        };
+        moveBottomAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-bottom.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int rows[] = table.getSelectedRows();
+                for (int i = 0; i < rows.length; i++) {
+                    int row = rows[i] - i;
+                    tableModel.moveRow(row, table.getRowCount());
+                }
 
-				tableModel.fireTableRowsUpdated(0, table.getRowCount() - 1);
-				selectRowInterval(table.getRowCount() - rows.length, table.getRowCount() - 1);
-			}
-		};
+                tableModel.fireTableRowsUpdated(0, table.getRowCount() - 1);
+                selectRowInterval(table.getRowCount() - rows.length, table.getRowCount() - 1);
+            }
+        };
 
-		moveHomeAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-home.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] columns = table.getSelectedColumns();
-				for (int i = 0; i < columns.length; i++) {
-					int column = columns[i];
-					int to = i;
+        moveHomeAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-home.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] columns = table.getSelectedColumns();
+                for (int i = 0; i < columns.length; i++) {
+                    int column = columns[i];
+                    int to = i;
 
-					TableColumnModel columnModel = table.getColumnModel();
+                    TableColumnModel columnModel = table.getColumnModel();
 
-					HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
-					tableModel.moveColumn(column, to);
-					setColumnsWidths(columnModel, columnWidthHashMap);
-					if (!toggleHeaderButton.isSelected())
-						setDefaultHeaders();
-				}
-				tableModel.fireTableDataChanged();
-				selectColumnInterval(0, columns.length - 1);
-			}
-		};
-		moveLeftAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-left.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] columns = table.getSelectedColumns();
-				if (table.getSelectedColumn() != 0 && table.getSelectedColumn() != -1) {
-					int column = table.getSelectedColumn() - 1;
-					int to = columns[columns.length - 1];
-					if (column >= 0) {
-						TableColumnModel columnModel = table.getColumnModel();
+                    HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                    tableModel.moveColumn(column, to);
+                    setColumnsWidths(columnModel, columnWidthHashMap);
+                    if (!toggleHeaderButton.isSelected())
+                        setDefaultHeaders();
+                }
+                tableModel.fireTableDataChanged();
+                selectColumnInterval(0, columns.length - 1);
+            }
+        };
+        moveLeftAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-left.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] columns = table.getSelectedColumns();
+                if (table.getSelectedColumn() != 0 && table.getSelectedColumn() != -1) {
+                    int column = table.getSelectedColumn() - 1;
+                    int to = columns[columns.length - 1];
+                    if (column >= 0) {
+                        TableColumnModel columnModel = table.getColumnModel();
 
-						HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
-						tableModel.moveColumn(column, to);
-						setColumnsWidths(columnModel, columnWidthHashMap);
-						if (!toggleHeaderButton.isSelected())
-							setDefaultHeaders();
+                        HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                        tableModel.moveColumn(column, to);
+                        setColumnsWidths(columnModel, columnWidthHashMap);
+                        if (!toggleHeaderButton.isSelected())
+                            setDefaultHeaders();
 
-						tableModel.fireTableDataChanged();
-						selectColumnInterval(columns[0] - 1, columns[columns.length - 1] - 1);
-					}
-				}
-			}
-		};
-		moveRightAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-right.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] columns = table.getSelectedColumns();
-				if (table.getSelectedColumn() != -1) {
-					int column = columns[columns.length - 1] + 1;
-					int to = table.getSelectedColumn();
-					if (column <= table.getColumnCount() - 1) {
-						TableColumnModel columnModel = table.getColumnModel();
+                        tableModel.fireTableDataChanged();
+                        selectColumnInterval(columns[0] - 1, columns[columns.length - 1] - 1);
+                    }
+                }
+            }
+        };
+        moveRightAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-right.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] columns = table.getSelectedColumns();
+                if (table.getSelectedColumn() != -1) {
+                    int column = columns[columns.length - 1] + 1;
+                    int to = table.getSelectedColumn();
+                    if (column <= table.getColumnCount() - 1) {
+                        TableColumnModel columnModel = table.getColumnModel();
 
-						HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
-						tableModel.moveColumn(column, to);
-						setColumnsWidths(columnModel, columnWidthHashMap);
-						if (!toggleHeaderButton.isSelected())
-							setDefaultHeaders();
+                        HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                        tableModel.moveColumn(column, to);
+                        setColumnsWidths(columnModel, columnWidthHashMap);
+                        if (!toggleHeaderButton.isSelected())
+                            setDefaultHeaders();
 
-						tableModel.fireTableDataChanged();
-						selectColumnInterval(columns[0] + 1, columns[columns.length - 1] + 1);
-					}
-				}
-			}
-		};
-		moveEndAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-end.png"))) {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int[] columns = table.getSelectedColumns();
-				for (int i = 0; i < columns.length; i++) {
-					int column = columns[i] - i;
+                        tableModel.fireTableDataChanged();
+                        selectColumnInterval(columns[0] + 1, columns[columns.length - 1] + 1);
+                    }
+                }
+            }
+        };
+        moveEndAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-end.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int[] columns = table.getSelectedColumns();
+                for (int i = 0; i < columns.length; i++) {
+                    int column = columns[i] - i;
 
-					TableColumnModel columnModel = table.getColumnModel();
+                    TableColumnModel columnModel = table.getColumnModel();
 
-					HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
-					tableModel.moveColumn(column, table.getColumnCount() - 1);
-					setColumnsWidths(columnModel, columnWidthHashMap);
-					if (!toggleHeaderButton.isSelected())
-						setDefaultHeaders();
-				}
-				tableModel.fireTableDataChanged();
-				selectColumnInterval(table.getColumnCount() - columns.length, table.getColumnCount() - 1);
-			}
-		};
+                    HashMap<String, Integer> columnWidthHashMap = getColumnsWidths(columnModel);
+                    tableModel.moveColumn(column, table.getColumnCount() - 1);
+                    setColumnsWidths(columnModel, columnWidthHashMap);
+                    if (!toggleHeaderButton.isSelected())
+                        setDefaultHeaders();
+                }
+                tableModel.fireTableDataChanged();
+                selectColumnInterval(table.getColumnCount() - columns.length, table.getColumnCount() - 1);
+            }
+        };
 
-		separatorChangedAction = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				updateTable();
-			}
-		};
-	}
+        separatorChangedAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateTable();
+            }
+        };
+    }
 
-	@NbBundle.Messages({
-		"ACTION_CUT=Cut",
-		"ACTION_COPY=Copy",
-		"ACTION_PASTE=Paste"
-	})
-	private void init() {
+    @NbBundle.Messages({
+        "ACTION_CUT=Cut",
+        "ACTION_COPY=Copy",
+        "ACTION_PASTE=Paste"
+    })
+    private void init() {
         //Table
         final RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
         tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
@@ -1021,9 +1021,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         table.setDefaultRenderer(String.class, new OddEvenCellRenderer());
 
         tableScrollPane.getViewport().setBackground(new Color(table.getBackground().getRGB()));
-        
+
         table.getTableHeader().setPreferredSize(new Dimension(table.getTableHeader().getPreferredSize().width, table.getRowHeight()));
-        
+
         final JTableHeader tableHeader = table.getTableHeader();
         tableHeader.setReorderingAllowed(false);
 
@@ -1168,140 +1168,140 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         pasteAction.setEnabled(false);
     }
 
-	private void selectRow(int row) {
-		Rectangle rect = table.getCellRect(row, 0, true);
-		table.scrollRectToVisible(rect);
-		table.clearSelection();
-		table.addRowSelectionInterval(row, row);
-		table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
-		table.requestFocusInWindow();
-	}
+    private void selectRow(int row) {
+        Rectangle rect = table.getCellRect(row, 0, true);
+        table.scrollRectToVisible(rect);
+        table.clearSelection();
+        table.addRowSelectionInterval(row, row);
+        table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
+        table.requestFocusInWindow();
+    }
 
-	private void selectRowInterval(int row1, int row2) {
-		Rectangle rect = table.getCellRect(row1, 0, true);
-		table.scrollRectToVisible(rect);
-		table.clearSelection();
-		table.addRowSelectionInterval(row1, row2);
-		table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
-		table.requestFocusInWindow();
-	}
+    private void selectRowInterval(int row1, int row2) {
+        Rectangle rect = table.getCellRect(row1, 0, true);
+        table.scrollRectToVisible(rect);
+        table.clearSelection();
+        table.addRowSelectionInterval(row1, row2);
+        table.addColumnSelectionInterval(0, table.getColumnCount() - 1);
+        table.requestFocusInWindow();
+    }
 
-	private void selectColumn(int column) {
-		table.clearSelection();
-		table.addColumnSelectionInterval(column, column);
-		table.addRowSelectionInterval(0, table.getRowCount() - 1);
-		table.requestFocusInWindow();
-	}
+    private void selectColumn(int column) {
+        table.clearSelection();
+        table.addColumnSelectionInterval(column, column);
+        table.addRowSelectionInterval(0, table.getRowCount() - 1);
+        table.requestFocusInWindow();
+    }
 
-	private void selectColumnInterval(int column1, int column2) {
-		Rectangle rect = table.getCellRect(0, column1, true);
-		table.scrollRectToVisible(rect);
-		table.clearSelection();
-		table.addColumnSelectionInterval(column1, column2);
-		table.addRowSelectionInterval(0, table.getRowCount() - 1);
-		table.requestFocusInWindow();
-	}
+    private void selectColumnInterval(int column1, int column2) {
+        Rectangle rect = table.getCellRect(0, column1, true);
+        table.scrollRectToVisible(rect);
+        table.clearSelection();
+        table.addColumnSelectionInterval(column1, column2);
+        table.addRowSelectionInterval(0, table.getRowCount() - 1);
+        table.requestFocusInWindow();
+    }
 
-	private void updateColumnsWidths() {
-		table.getTableHeader().getFont();
-		for (int i = 0; i < tableModel.getColumnCount(); i++) {
-			updateColumnWidth(i);
-		}
-	}
+    private void updateColumnsWidths() {
+        table.getTableHeader().getFont();
+        for (int i = 0; i < tableModel.getColumnCount(); i++) {
+            updateColumnWidth(i);
+        }
+    }
 
-	private HashMap<String, Integer> getColumnsWidths(TableColumnModel columnModel) {
-		HashMap<String, Integer> columnWidthHashMap = new HashMap<String, Integer>();
-		for (int j = 0; j < columnModel.getColumnCount(); j++) {
-			TableColumn tableColumn = columnModel.getColumn(j);
-			columnWidthHashMap.put((String) tableColumn.getHeaderValue(), tableColumn.getPreferredWidth());
-		}
-		return columnWidthHashMap;
-	}
+    private HashMap<String, Integer> getColumnsWidths(TableColumnModel columnModel) {
+        HashMap<String, Integer> columnWidthHashMap = new HashMap<String, Integer>();
+        for (int j = 0; j < columnModel.getColumnCount(); j++) {
+            TableColumn tableColumn = columnModel.getColumn(j);
+            columnWidthHashMap.put((String) tableColumn.getHeaderValue(), tableColumn.getPreferredWidth());
+        }
+        return columnWidthHashMap;
+    }
 
-	private void setColumnsWidths(TableColumnModel columnModel, HashMap<String, Integer> columnWidthHashMap) {
-		for (int j = 0; j < columnModel.getColumnCount(); j++) {
-			final TableColumn tableColumn = columnModel.getColumn(j);
-			final String columnName = tableModel.getColumnName(j);
-			tableColumn.setHeaderValue(columnName);
-			tableColumn.setPreferredWidth(columnWidthHashMap.get(columnName));
-		}
-	}
+    private void setColumnsWidths(TableColumnModel columnModel, HashMap<String, Integer> columnWidthHashMap) {
+        for (int j = 0; j < columnModel.getColumnCount(); j++) {
+            final TableColumn tableColumn = columnModel.getColumn(j);
+            final String columnName = tableModel.getColumnName(j);
+            tableColumn.setHeaderValue(columnName);
+            tableColumn.setPreferredWidth(columnWidthHashMap.get(columnName));
+        }
+    }
 
-	private void updateColumnWidth(int colIndex) {
-		FontMetrics fontMetrics = table.getTableHeader().getFontMetrics(table.getTableHeader().getFont());
-		int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(colIndex));
-		for (int j = 0; j < tableModel.getRowCount(); j++) {
-			int w = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getValueAt(j, colIndex));
-			if (w > width)
-				width = w;
-		}
-		table.getColumnModel().getColumn(colIndex).setPreferredWidth(width + 25);
-	}
+    private void updateColumnWidth(int colIndex) {
+        FontMetrics fontMetrics = table.getTableHeader().getFontMetrics(table.getTableHeader().getFont());
+        int width = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getColumnName(colIndex));
+        for (int j = 0; j < tableModel.getRowCount(); j++) {
+            int w = SwingUtilities.computeStringWidth(fontMetrics, tableModel.getValueAt(j, colIndex));
+            if (w > width)
+                width = w;
+        }
+        table.getColumnModel().getColumn(colIndex).setPreferredWidth(width + 25);
+    }
 
-	public Character getSeparator() {
-		if (separators.getSelectedIndex() == 2)
-			return '\t';
-		final String selectedItem = (String) separators.getSelectedItem();
-		return selectedItem.charAt(0);
-	}
+    public Character getSeparator() {
+        if (separators.getSelectedIndex() == 2)
+            return '\t';
+        final String selectedItem = (String) separators.getSelectedItem();
+        return selectedItem.charAt(0);
+    }
 
-	public boolean hasHeaderRow() {
-		return toggleHeaderButton.isSelected();
-	}
+    public boolean hasHeaderRow() {
+        return toggleHeaderButton.isSelected();
+    }
 
-	private List<String> setDefaultHeaders() {
-		final List<TableColumn> columns = table.getColumns(true);
-		final List<String> oldColumnNames = new ArrayList<>(columns.size());
-		for (int i = 0; i < columns.size(); i++) {
-			final TableColumn column = columns.get(i);
-			oldColumnNames.add((String) column.getHeaderValue());
-			final String header = NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.defaultColName", i + 1);
-			column.setHeaderValue(header);
-			tableModel.getHeaders().set(i, header);
-		}
-		return oldColumnNames;
-	}
+    private List<String> setDefaultHeaders() {
+        final List<TableColumn> columns = table.getColumns(true);
+        final List<String> oldColumnNames = new ArrayList<>(columns.size());
+        for (int i = 0; i < columns.size(); i++) {
+            final TableColumn column = columns.get(i);
+            oldColumnNames.add((String) column.getHeaderValue());
+            final String header = NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.defaultColName", i + 1);
+            column.setHeaderValue(header);
+            tableModel.getHeaders().set(i, header);
+        }
+        return oldColumnNames;
+    }
 
-	public void updateSeparators() {
-		String selectedItem = (String) separators.getSelectedItem();
-		boolean newModelContainsSelected;
-		int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
-		DefaultComboBoxModel model;
-		if (customSeparatorCount > 0) {
-			List<Character> chars = OptionsUtils.readCustomSeparators(customSeparatorCount);
-			List<String> s = new ArrayList<>();
-			s.add(0, ",");
-			s.add(1, ";");
-			s.add(2, "Tab");
-			chars.stream().forEach(c -> s.add(c.toString()));
-			model = new DefaultComboBoxModel(s.toArray());
-			newModelContainsSelected = s.contains(selectedItem);
-		} else {
-			model = new DefaultComboBoxModel(new String[]{",", ";", "Tab"});
-			newModelContainsSelected = selectedItem.equals(",")
-					|| selectedItem.equals(";")
-					|| selectedItem.equals("Tab");
-		}
-		separators.setModel(model);
-		separators.setSelectedItem(selectedItem);
-		if (!newModelContainsSelected) {
-			separatorChangedAction.actionPerformed(null);
-		}
-	}
-    
-	private class CCPAction extends AbstractAction {
+    public void updateSeparators() {
+        String selectedItem = (String) separators.getSelectedItem();
+        boolean newModelContainsSelected;
+        int customSeparatorCount = OptionsUtils.readCustomSeparatorCount();
+        DefaultComboBoxModel model;
+        if (customSeparatorCount > 0) {
+            List<Character> chars = OptionsUtils.readCustomSeparators(customSeparatorCount);
+            List<String> s = new ArrayList<>();
+            s.add(0, ",");
+            s.add(1, ";");
+            s.add(2, "Tab");
+            chars.stream().forEach(c -> s.add(c.toString()));
+            model = new DefaultComboBoxModel(s.toArray(new String[0]));
+            newModelContainsSelected = s.contains(selectedItem);
+        } else {
+            model = new DefaultComboBoxModel(new String[]{",", ";", "Tab"});
+            newModelContainsSelected = selectedItem.equals(",")
+                    || selectedItem.equals(";")
+                    || selectedItem.equals("Tab");
+        }
+        separators.setModel(model);
+        separators.setSelectedItem(selectedItem);
+        if (!newModelContainsSelected) {
+            separatorChangedAction.actionPerformed(null);
+        }
+    }
 
-		private final TransferActionListener ccpAction;
+    private class CCPAction extends AbstractAction {
 
-		public CCPAction(String name, TransferActionListener ccpAction) {
-			super(name);
-			this.ccpAction = ccpAction;
-		}
+        private final TransferActionListener ccpAction;
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			ActionEvent evt = new ActionEvent(table, e.getID(), (String) getValue(Action.ACTION_COMMAND_KEY), e.getWhen(), e.getModifiers());
-			ccpAction.actionPerformed(evt);
-		}
-	}
+        public CCPAction(String name, TransferActionListener ccpAction) {
+            super(name);
+            this.ccpAction = ccpAction;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            ActionEvent evt = new ActionEvent(table, e.getID(), (String) getValue(Action.ACTION_COMMAND_KEY), e.getWhen(), e.getModifiers());
+            ccpAction.actionPerformed(evt);
+        }
+    }
 }
