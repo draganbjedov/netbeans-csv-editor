@@ -29,7 +29,7 @@
     <scm>
         <connection>scm:git:git://bitbucket.org/draganbjedov/netbeans-csv-editor.git</connection>
         <developerConnection>scm:git:ssh://bitbucket.org:draganbjedov/netbeans-csv-editor.git</developerConnection>
-        <url>https://bitbucket.org/draganbjedov/netbeans-csv-editor/src/maven/</url>
+        <url>https://bitbucket.org/draganbjedov/netbeans-csv-editor</url>
     </scm>
 
     <distributionManagement>
