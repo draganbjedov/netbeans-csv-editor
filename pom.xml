@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>org.bitbucket.draganbjedov</groupId>
     <artifactId>netbeans-csv-editor</artifactId>
-    <version>3.4.1</version>
+    <version>3.4.2</version>
     <packaging>nbm</packaging>
-    
+
     <name>NetBeans CSV Editor</name>
     <description>NetBeans Plugin for editing CSV files</description>
     <url>https://bitbucket.org/draganbjedov/netbeans-csv-editor</url>
-    
+
     <licenses>
         <license>
             <name>GNU General Public License, version 3</name>
             <url>https://www.gnu.org/licenses/gpl-3.0.txt</url>
         </license>
     </licenses>
-    
+
     <developers>
         <developer>
             <name>Dragan Bjedov</name>
@@ -25,13 +25,13 @@
             <url>https://bitbucket.org/draganbjedov</url>
         </developer>
     </developers>
-    
+
     <scm>
         <connection>scm:git:git://bitbucket.org/draganbjedov/netbeans-csv-editor.git</connection>
         <developerConnection>scm:git:ssh://bitbucket.org:draganbjedov/netbeans-csv-editor.git</developerConnection>
         <url>https://bitbucket.org/draganbjedov/netbeans-csv-editor/src/maven/</url>
     </scm>
-    
+
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -42,12 +42,12 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-    
-    
+
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -88,9 +88,9 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <profiles>
-        <profile> 
+        <profile>
             <id>release</id>
             <build>
                 <plugins>
@@ -142,7 +142,7 @@
             </build>
         </profile>
     </profiles>
-    
+
     <repositories>
         <repository>
             <id>Project-Repo</id>
