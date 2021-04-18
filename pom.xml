@@ -4,7 +4,7 @@
 
     <groupId>org.bitbucket.draganbjedov</groupId>
     <artifactId>netbeans-csv-editor</artifactId>
-    <version>3.4.2</version>
+    <version>3.4.3</version>
     <packaging>nbm</packaging>
 
     <name>NetBeans CSV Editor</name>
