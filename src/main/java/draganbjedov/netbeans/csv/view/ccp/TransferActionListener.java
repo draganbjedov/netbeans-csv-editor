@@ -14,11 +14,11 @@ import javax.swing.JComponent;
  * class is listening and when the user fires one of these commands, it calls
  * the appropriate action on the currently focused component.
  */
-public class TransferActionListener implements ActionListener,
-                                               PropertyChangeListener {
+public class TransferActionListener implements ActionListener, PropertyChangeListener {
 
     private JComponent focusOwner = null;
 
+    @SuppressWarnings("LeakingThisInConstructor")
     public TransferActionListener() {
         super();
         KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -28,8 +28,8 @@ public class TransferActionListener implements ActionListener,
     @Override
     public void propertyChange(PropertyChangeEvent e) {
         Object o = e.getNewValue();
-        if (o instanceof JComponent) {
-            focusOwner = (JComponent) o;
+        if (o instanceof JComponent jComponent) {
+            focusOwner = jComponent;
         } else {
             focusOwner = null;
         }

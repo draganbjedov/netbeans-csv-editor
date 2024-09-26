@@ -141,7 +141,7 @@
       <Properties>
         <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
           <Border info="org.netbeans.modules.form.compat2.border.TitledBorderInfo">
-            <TitledBorder title="Quoting (Escape charachters)">
+            <TitledBorder title="Quoting (Escape characters)">
               <Border PropertyName="innerBorder" info="org.netbeans.modules.form.compat2.border.LineBorderInfo">
                 <LineBorder roundedCorners="true">
                   <Color PropertyName="color" blue="99" green="99" red="99" type="rgb"/>

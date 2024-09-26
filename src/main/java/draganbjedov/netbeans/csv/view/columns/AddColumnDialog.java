@@ -1,7 +1,6 @@
 package draganbjedov.netbeans.csv.view.columns;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
@@ -21,40 +20,37 @@ import org.openide.util.Pair;
  * @author Dragan Bjedov
  */
 @NbBundle.Messages({
-	"DIALOG_TITLE=Add new column"
+    "DIALOG_TITLE=Add new column"
 })
 public class AddColumnDialog extends javax.swing.JPanel implements DocumentListener {
 
-	private static AddColumnDialog dialog;
+    private static AddColumnDialog dialog;
 
-	private final DialogDescriptor dialogDescriptor;
-	private final NotificationLineSupport notificationLineSupport;
+    private final DialogDescriptor dialogDescriptor;
+    private final NotificationLineSupport notificationLineSupport;
 
-	private Pair<Integer, String> result;
+    private Pair<Integer, String> result;
 
-	@SuppressWarnings("LeakingThisInConstructor")
-	private AddColumnDialog() {
-		initComponents();
+    @SuppressWarnings("LeakingThisInConstructor")
+    private AddColumnDialog() {
+        initComponents();
 
-		dialogDescriptor = new DialogDescriptor(this, Bundle.DIALOG_TITLE(), true, new ActionListener() {
+        dialogDescriptor = new DialogDescriptor(this, Bundle.DIALOG_TITLE(), true,
+                (ActionEvent e) -> {
+                    if (e.getSource() == DialogDescriptor.OK_OPTION) {
+                        result = Pair.of(
+                                columnsComboBox.getSelectedIndex() + (afterRadioButton.isSelected() ? 1 : 0),
+                                columnNameTextField.getText().trim()
+                        );
+                    } else
+                        result = null;
+                });
+        notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == DialogDescriptor.OK_OPTION) {
-					result = Pair.of(
-							columnsComboBox.getSelectedIndex() + (afterRadioButton.isSelected() ? 1 : 0),
-							columnNameTextField.getText().trim()
-					);
-				} else
-					result = null;
-			}
-		});
-		notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
+        columnNameTextField.getDocument().addDocumentListener(this);
+    }
 
-		columnNameTextField.getDocument().addDocumentListener(this);
-	}
-
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -153,75 +149,75 @@ public class AddColumnDialog extends javax.swing.JPanel implements DocumentListe
     private javax.swing.JSeparator separator;
     // End of variables declaration//GEN-END:variables
 
-	private Collection<String> columnNames;
+    private Collection<String> columnNames;
 
-	@NbBundle.Messages({
-		"# {0} - Selected column name",
-		"INFO_MSG=<html>Selected column is \"{0}\".",
-		"# {0} - Selected column name",
-		"INFO_MSG_AFTER=<html>New column will be inserted <u>after</u> column \"{0}\""
-	})
-	private void init(List<String> columnNames, boolean tableHasHeaderRow) {
-		this.columnNames = columnNames;
+    @NbBundle.Messages({
+        "# {0} - Selected column name",
+        "INFO_MSG=<html>Selected column is \"{0}\".",
+        "# {0} - Selected column name",
+        "INFO_MSG_AFTER=<html>New column will be inserted <u>after</u> column \"{0}\""
+    })
+    private void init(List<String> columnNames, boolean tableHasHeaderRow) {
+        this.columnNames = columnNames;
 
-		columnsComboBox.setModel(new DefaultComboBoxModel(columnNames.toArray()));
+        columnsComboBox.setModel(new DefaultComboBoxModel(columnNames.toArray()));
 
-		columnsComboBoxActionPerformed(null);
+        columnsComboBoxActionPerformed(null);
 
-		labelColName.setVisible(tableHasHeaderRow);
-		columnNameTextField.setVisible(tableHasHeaderRow);
-		separator.setVisible(tableHasHeaderRow);
+        labelColName.setVisible(tableHasHeaderRow);
+        columnNameTextField.setVisible(tableHasHeaderRow);
+        separator.setVisible(tableHasHeaderRow);
 
-		columnNameTextField.setText(tableHasHeaderRow ? "" : "default");
+        columnNameTextField.setText(tableHasHeaderRow ? "" : "default");
 
-		textChanged();
-	}
+        textChanged();
+    }
 
-	/**
-	 * Shows dialog to enter new column name and position
-	 *
-	 * @param columnNames column names
-	 * @param tableHasHeaderRow flag indicating does table has header row or not
-	 * @return Pair column - name of column after which new one should be added
-	 */
-	public static Pair<Integer, String> show(List<String> columnNames, boolean tableHasHeaderRow) {
-		if (dialog == null)
-			dialog = new AddColumnDialog();
-		dialog.init(columnNames, tableHasHeaderRow);
-		return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
-	}
+    /**
+     * Shows dialog to enter new column name and position
+     *
+     * @param columnNames column names
+     * @param tableHasHeaderRow flag indicating does table has header row or not
+     * @return Pair column - name of column after which new one should be added
+     */
+    public static Pair<Integer, String> show(List<String> columnNames, boolean tableHasHeaderRow) {
+        if (dialog == null)
+            dialog = new AddColumnDialog();
+        dialog.init(columnNames, tableHasHeaderRow);
+        return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
+    }
 
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@NbBundle.Messages({
-		"ERR_COL_NAME_EMPTY=Column name can not be empty",
-		"ERR_COL_NAME_EXISTS=Column with specified name already exists"
-	})
-	private void textChanged() {
-		final String columnName = columnNameTextField.getText().trim();
-		if (columnName.length() == 0) {
-			dialogDescriptor.setValid(false);
-			notificationLineSupport.setErrorMessage(Bundle.ERR_COL_NAME_EMPTY());
-		} else if (columnNames != null && columnNames.contains(columnName)) {
-			dialogDescriptor.setValid(true);
-			notificationLineSupport.setWarningMessage(Bundle.ERR_COL_NAME_EXISTS());
-		} else {
-			dialogDescriptor.setValid(true);
-			notificationLineSupport.clearMessages();
-		}
-	}
+    @NbBundle.Messages({
+        "ERR_COL_NAME_EMPTY=Column name can not be empty",
+        "ERR_COL_NAME_EXISTS=Column with specified name already exists"
+    })
+    private void textChanged() {
+        final String columnName = columnNameTextField.getText().trim();
+        if (columnName.length() == 0) {
+            dialogDescriptor.setValid(false);
+            notificationLineSupport.setErrorMessage(Bundle.ERR_COL_NAME_EMPTY());
+        } else if (columnNames != null && columnNames.contains(columnName)) {
+            dialogDescriptor.setValid(true);
+            notificationLineSupport.setWarningMessage(Bundle.ERR_COL_NAME_EXISTS());
+        } else {
+            dialogDescriptor.setValid(true);
+            notificationLineSupport.clearMessages();
+        }
+    }
 
 }

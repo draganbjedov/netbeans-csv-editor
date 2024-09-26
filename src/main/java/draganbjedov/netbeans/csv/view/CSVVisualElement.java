@@ -15,8 +15,6 @@ import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.FlavorEvent;
-import java.awt.datatransfer.FlavorListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -49,7 +47,6 @@ import javax.swing.TransferHandler;
 import javax.swing.UIManager;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.JTableHeader;
@@ -559,7 +556,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             s.add(1, ";");
             s.add(2, "Tab");
             chars.stream().forEach(c -> s.add(c.toString()));
-            separators = new JComboBox(new DefaultComboBoxModel(s.toArray(new String[0])));
+            separators = new JComboBox(new DefaultComboBoxModel(s.toArray(String[]::new)));
         } else
             separators = new JComboBox(new String[]{",", ";", "Tab"});
         toolbar.add(separators);
@@ -596,19 +593,19 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         int[] rows = table.getSelectedRows();
         if (!tableFilter.hasActiveFilters() && moveTop != null && moveUp != null && moveDown != null && moveBottom != null) {
             switch (rows.length) {
-                case 0:
+                case 0 -> {
                     moveTopAction.setEnabled(false);
                     moveUpAction.setEnabled(false);
                     moveDownAction.setEnabled(false);
                     moveBottomAction.setEnabled(false);
-                    break;
-                case 1:
+                }
+                case 1 -> {
                     moveTopAction.setEnabled(rows[0] != 0);
                     moveUpAction.setEnabled(rows[0] != 0);
                     moveDownAction.setEnabled(rows[0] != table.getRowCount() - 1);
                     moveBottomAction.setEnabled(rows[0] != table.getRowCount() - 1);
-                    break;
-                default:
+                }
+                default -> {
                     moveTopAction.setEnabled(true);
                     moveBottomAction.setEnabled(true);
                     int prev = rows[0];
@@ -628,26 +625,26 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                     final boolean bottomRows = rows[rows.length - 1] != table.getRowCount() - 1;
                     moveDownAction.setEnabled(bottomRows);
                     moveBottomAction.setEnabled(bottomRows);
-                    break;
+                }
             }
         }
 
         int[] columns = table.getSelectedColumns();
         if (moveHome != null && moveLeft != null && moveRight != null && moveEnd != null) {
             switch (columns.length) {
-                case 0:
+                case 0 -> {
                     moveHomeAction.setEnabled(false);
                     moveLeftAction.setEnabled(false);
                     moveRightAction.setEnabled(false);
                     moveEndAction.setEnabled(false);
-                    break;
-                case 1:
+                }
+                case 1 -> {
                     moveHomeAction.setEnabled(columns[0] != 0);
                     moveLeftAction.setEnabled(columns[0] != 0);
                     moveRightAction.setEnabled(columns[0] != table.getColumnCount() - 1);
                     moveEndAction.setEnabled(columns[0] != table.getColumnCount() - 1);
-                    break;
-                default:
+                }
+                default -> {
                     moveHomeAction.setEnabled(true);
                     moveEndAction.setEnabled(true);
                     int prev = columns[0];
@@ -668,7 +665,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                     final boolean endColumns = columns[columns.length - 1] != table.getColumnCount() - 1;
                     moveRightAction.setEnabled(endColumns);
                     moveEndAction.setEnabled(endColumns);
-                    break;
+                }
             }
         }
     }
@@ -973,11 +970,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         tableScrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowNumberTable.getTableHeader());
         tableScrollPane.setRowHeaderView(rowNumberTable);
 
-        final ListSelectionListener listSelectionListener = new ListSelectionListener() {
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                setActiveActions();
-            }
+        final ListSelectionListener listSelectionListener = e -> {
+            setActiveActions();
         };
         table.getSelectionModel().addListSelectionListener(listSelectionListener);
         table.getColumnModel().getSelectionModel().addListSelectionListener(listSelectionListener);
@@ -1154,13 +1148,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 //		actionMap.put("paste-from-clipboard", pasteAction);
 //
 //		instanceContent.add(actionMap);
-        CLIPBOARD.addFlavorListener(new FlavorListener() {
-
-            @Override
-            public void flavorsChanged(FlavorEvent e) {
-                final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
-                pasteAction.setEnabled(dataFlavorAvailable);
-            }
+        CLIPBOARD.addFlavorListener(e -> {
+            final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
+            pasteAction.setEnabled(dataFlavorAvailable);
         });
 
         cutAction.setEnabled(false);
@@ -1210,7 +1200,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     private HashMap<String, Integer> getColumnsWidths(TableColumnModel columnModel) {
-        HashMap<String, Integer> columnWidthHashMap = new HashMap<String, Integer>();
+        HashMap<String, Integer> columnWidthHashMap = new HashMap<>();
         for (int j = 0; j < columnModel.getColumnCount(); j++) {
             TableColumn tableColumn = columnModel.getColumn(j);
             columnWidthHashMap.put((String) tableColumn.getHeaderValue(), tableColumn.getPreferredWidth());
@@ -1274,7 +1264,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             s.add(1, ";");
             s.add(2, "Tab");
             chars.stream().forEach(c -> s.add(c.toString()));
-            model = new DefaultComboBoxModel(s.toArray(new String[0]));
+            model = new DefaultComboBoxModel(s.toArray(String[]::new));
             newModelContainsSelected = s.contains(selectedItem);
         } else {
             model = new DefaultComboBoxModel(new String[]{",", ";", "Tab"});

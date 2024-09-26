@@ -38,7 +38,7 @@ public class CSVTableFilter extends JTableFilter {
         sorter.setSortsOnUpdates(true);
         getTable().setRowSorter(sorter);
     }
-    
+
     public boolean hasActiveFilters() {
         for (int i = 0; i < getTable().getColumnCount(); i++) {
             if (isFiltered(i))

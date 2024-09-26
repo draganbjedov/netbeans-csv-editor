@@ -1,7 +1,6 @@
 package draganbjedov.netbeans.csv.view.columns;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.DocumentEvent;
@@ -13,7 +12,7 @@ import org.openide.util.NbBundle;
 import org.openide.util.Pair;
 
 /*
- * AddColumnDialog.java
+ * RenameColumnDialog.java
  *
  * Created on Jul 11, 2014, 11:44:56 AM
  *
@@ -21,35 +20,32 @@ import org.openide.util.Pair;
  */
 public class RenameColumnDialog extends javax.swing.JPanel implements DocumentListener {
 
-	private static RenameColumnDialog dialog;
+    private static RenameColumnDialog dialog;
 
-	private final DialogDescriptor dialogDescriptor;
-	private final NotificationLineSupport notificationLineSupport;
+    private final DialogDescriptor dialogDescriptor;
+    private final NotificationLineSupport notificationLineSupport;
 
-	private Pair<Integer, String> result;
+    private Pair<Integer, String> result;
 
-	@SuppressWarnings("LeakingThisInConstructor")
-	private RenameColumnDialog() {
-		initComponents();
+    @SuppressWarnings("LeakingThisInConstructor")
+    private RenameColumnDialog() {
+        initComponents();
 
-		dialogDescriptor = new DialogDescriptor(this, Bundle.DIALOG_TITLE(), true, new ActionListener() {
+        dialogDescriptor = new DialogDescriptor(this, Bundle.DIALOG_TITLE(), true,
+                (ActionEvent e) -> {
+                    if (e.getSource() == DialogDescriptor.OK_OPTION) {
+                        final String selectedColumnName = (String) columnsComboBox.getSelectedItem();
+                        final String newColumnName = columnNameTextField.getText().trim();
+                        result = selectedColumnName.equals(newColumnName) ? null : Pair.of(columnsComboBox.getSelectedIndex(), newColumnName);
+                    } else
+                        result = null;
+                });
+        notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == DialogDescriptor.OK_OPTION) {
-					final String selectedColumnName = (String) columnsComboBox.getSelectedItem();
-					final String newColumnName = columnNameTextField.getText().trim();
-					result = selectedColumnName.equals(newColumnName) ? null : Pair.of(columnsComboBox.getSelectedIndex(), newColumnName);
-				} else
-					result = null;
-			}
-		});
-		notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
+        columnNameTextField.getDocument().addDocumentListener(this);
+    }
 
-		columnNameTextField.getDocument().addDocumentListener(this);
-	}
-
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -109,64 +105,64 @@ public class RenameColumnDialog extends javax.swing.JPanel implements DocumentLi
     private javax.swing.JLabel labelColName;
     // End of variables declaration//GEN-END:variables
 
-	private Collection<String> columnNames;
+    private Collection<String> columnNames;
 
-	private void init(Collection<String> columnNames) {
-		this.columnNames = columnNames;
+    private void init(Collection<String> columnNames) {
+        this.columnNames = columnNames;
 
-		this.columnsComboBox.setModel(new DefaultComboBoxModel(columnNames.toArray(new String[0])));
+        this.columnsComboBox.setModel(new DefaultComboBoxModel(columnNames.toArray(String[]::new)));
 
-		this.columnNameTextField.setText(null);
+        this.columnNameTextField.setText(null);
 
-		textChanged();
-	}
+        textChanged();
+    }
 
-	/**
-	 * Show dialog for renaming column
-	 *
-	 * @param customColumnNames column names
-	 * @return new column name or <code>null</code> for same name or cancel
-	 */
-	public static Pair<Integer, String> show(Collection<String> customColumnNames) {
-		if (dialog == null)
-			dialog = new RenameColumnDialog();
-		dialog.init(customColumnNames);
-		return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
-	}
+    /**
+     * Show dialog for renaming column
+     *
+     * @param customColumnNames column names
+     * @return new column name or <code>null</code> for same name or cancel
+     */
+    public static Pair<Integer, String> show(Collection<String> customColumnNames) {
+        if (dialog == null)
+            dialog = new RenameColumnDialog();
+        dialog.init(customColumnNames);
+        return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
+    }
 
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@NbBundle.Messages({
-		"ERR_COL_NAME_EQUALS=Column name not changed"
-	})
-	private void textChanged() {
-		final String columnName = columnNameTextField.getText().trim();
-		if (columnName.length() == 0) {
-			dialogDescriptor.setValid(false);
-			notificationLineSupport.setErrorMessage(Bundle.ERR_COL_NAME_EMPTY());
-		} else if (columnNames != null && columnName.equals((String) columnsComboBox.getSelectedItem())) {
-			dialogDescriptor.setValid(false);
-			notificationLineSupport.setWarningMessage(Bundle.ERR_COL_NAME_EQUALS());
-		} else if (columnNames != null && columnNames.contains(columnName)) {
-			dialogDescriptor.setValid(true);
-			notificationLineSupport.setWarningMessage(Bundle.ERR_COL_NAME_EXISTS());
-		} else {
-			dialogDescriptor.setValid(true);
-			notificationLineSupport.clearMessages();
-		}
-	}
+    @NbBundle.Messages({
+        "ERR_COL_NAME_EQUALS=Column name not changed"
+    })
+    private void textChanged() {
+        final String columnName = columnNameTextField.getText().trim();
+        if (columnName.length() == 0) {
+            dialogDescriptor.setValid(false);
+            notificationLineSupport.setErrorMessage(Bundle.ERR_COL_NAME_EMPTY());
+        } else if (columnNames != null && columnName.equals((String) columnsComboBox.getSelectedItem())) {
+            dialogDescriptor.setValid(false);
+            notificationLineSupport.setWarningMessage(Bundle.ERR_COL_NAME_EQUALS());
+        } else if (columnNames != null && columnNames.contains(columnName)) {
+            dialogDescriptor.setValid(true);
+            notificationLineSupport.setWarningMessage(Bundle.ERR_COL_NAME_EXISTS());
+        } else {
+            dialogDescriptor.setValid(true);
+            notificationLineSupport.clearMessages();
+        }
+    }
 
 }

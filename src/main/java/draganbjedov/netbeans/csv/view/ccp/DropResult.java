@@ -1,6 +1,3 @@
-/*
- * Copyrights EuroICC. All rights reserved.
- */
 package draganbjedov.netbeans.csv.view.ccp;
 
 /*
@@ -11,6 +8,7 @@ package draganbjedov.netbeans.csv.view.ccp;
  * @author Dragan Bjedov
  */
 public enum DropResult {
-
-	INVALID, MOVED_UP, MOVED_DOWN
+    INVALID,
+    MOVED_UP,
+    MOVED_DOWN
 }

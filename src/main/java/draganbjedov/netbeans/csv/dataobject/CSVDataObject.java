@@ -4,13 +4,11 @@ import draganbjedov.netbeans.csv.options.util.OptionsUtils;
 import draganbjedov.netbeans.csv.view.CSVTableModel;
 import draganbjedov.netbeans.csv.view.CSVVisualElement;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditListener;
@@ -96,8 +94,6 @@ import org.openide.windows.TopComponent;
 })
 public class CSVDataObject extends MultiDataObject {
 
-    private static final Logger LOG = Logger.getLogger(CSVDataObject.class.getName());
-
     @MultiViewElement.Registration(
             displayName = "#LBL_CSV_EDITOR",
             iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
@@ -177,13 +173,9 @@ public class CSVDataObject extends MultiDataObject {
         };
         registerEditor("text/csv", true);
 
-        this.addPropertyChangeListener(new PropertyChangeListener() {
-
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals(DataObject.PROP_MODIFIED) && ((Boolean) evt.getNewValue())) {
-                    initDocument();
-                }
+        this.addPropertyChangeListener((PropertyChangeEvent evt) -> {
+            if (evt.getPropertyName().equals(DataObject.PROP_MODIFIED) && ((Boolean) evt.getNewValue())) {
+                initDocument();
             }
         });
     }
@@ -386,8 +378,7 @@ public class CSVDataObject extends MultiDataObject {
                 if (dl.equals(documentListener)) {
                     found = true;
                     break;
-                } else if (dl instanceof PriorityListenerList) {
-                    PriorityListenerList pll = (PriorityListenerList) dl;
+                } else if (dl instanceof PriorityListenerList pll) {
                     EventListener[][] listenersArray = pll.getListenersArray();
                     for (EventListener[] row : listenersArray) {
                         for (EventListener el : row) {

@@ -110,8 +110,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
         Component c = getParent();
 
         // Keep scrolling of the row table in sync with the main table.
-        if (c instanceof JViewport) {
-            JViewport viewport = (JViewport) c;
+        if (c instanceof JViewport viewport) {
             viewport.addChangeListener(this);
         }
     }
@@ -259,8 +258,7 @@ public class RowNumberTable extends JTable implements ChangeListener, PropertyCh
                     TableCellRenderer defaultRenderer = header.getDefaultRenderer();
                     if (defaultRenderer != null) {
                         Component component = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                        if (component instanceof JComponent) {
-                            JComponent jComponent = (JComponent) component;
+                        if (component instanceof JComponent jComponent) {
                             jComponent.setOpaque(opaque);
                             jComponent.setFont(isSelected ? font.deriveFont(Font.BOLD) : font);
                         }

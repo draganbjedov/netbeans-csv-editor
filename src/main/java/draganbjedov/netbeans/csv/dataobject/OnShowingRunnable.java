@@ -1,7 +1,5 @@
 package draganbjedov.netbeans.csv.dataobject;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.util.HashSet;
 import org.openide.filesystems.FileObject;
@@ -25,39 +23,35 @@ import org.openide.windows.WindowManager;
 @OnShowing
 public class OnShowingRunnable implements Runnable {
 
-	@Override
-	public void run() {
-		WindowManager.getDefault().getRegistry().addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (evt.getPropertyName().equals(TopComponent.Registry.PROP_OPENED)) {
-					HashSet<TopComponent> newHashSet = (HashSet<TopComponent>) evt.getNewValue();
-					HashSet<TopComponent> oldHashSet = (HashSet<TopComponent>) evt.getOldValue();
-					for (TopComponent topComponent : newHashSet) {
-						if (!oldHashSet.contains(topComponent)) {
-							DataObject dataObject = topComponent.getLookup().lookup(DataObject.class);
-							if (dataObject != null) {
-								FileObject currentFile = dataObject.getPrimaryFile();
-								if (currentFile != null && currentFile.getMIMEType().equals("text/csv")) {
-									if (dataObject instanceof CSVDataObject) {
-										CSVDataObject csvDataObject = (CSVDataObject) dataObject;
-										csvDataObject.initDocument();
-									} else {
-										try {
-											dataObject.setValid(false);
-										} catch (PropertyVetoException ex) {
-											Exceptions.printStackTrace(ex);
-										}
+    @Override
+    public void run() {
+        WindowManager.getDefault().getRegistry().addPropertyChangeListener((var evt) -> {
+            if (evt.getPropertyName().equals(TopComponent.Registry.PROP_OPENED)) {
+                HashSet<TopComponent> newHashSet = (HashSet<TopComponent>) evt.getNewValue();
+                HashSet<TopComponent> oldHashSet = (HashSet<TopComponent>) evt.getOldValue();
+                for (TopComponent topComponent : newHashSet) {
+                    if (!oldHashSet.contains(topComponent)) {
+                        DataObject dataObject = topComponent.getLookup().lookup(DataObject.class);
+                        if (dataObject != null) {
+                            FileObject currentFile = dataObject.getPrimaryFile();
+                            if (currentFile != null && currentFile.getMIMEType().equals("text/csv")) {
+                                if (dataObject instanceof CSVDataObject csvDataObject) {
+                                    csvDataObject.initDocument();
+                                } else {
+                                    try {
+                                        dataObject.setValid(false);
+                                    } catch (PropertyVetoException ex) {
+                                        Exceptions.printStackTrace(ex);
+                                    }
 
-										topComponent.close();
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		});
-	}
+                                    topComponent.close();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
 
 }

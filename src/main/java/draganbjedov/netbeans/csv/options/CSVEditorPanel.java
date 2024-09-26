@@ -9,23 +9,21 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.NbBundle;
 
 public final class CSVEditorPanel extends javax.swing.JPanel {
 
-	private final CSVEditorOptionsPanelController controller;
-	private DefaultListModel separatorsListModel;
-	private DefaultListModel escapeCharsListModel;
+    private final CSVEditorOptionsPanelController controller;
+    private DefaultListModel separatorsListModel;
+    private DefaultListModel escapeCharsListModel;
 
-	CSVEditorPanel(CSVEditorOptionsPanelController controller) {
-		this.controller = controller;
-		initComponents();
-		init();
-	}
+    CSVEditorPanel(CSVEditorOptionsPanelController controller) {
+        this.controller = controller;
+        initComponents();
+        init();
+    }
 
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -187,133 +185,133 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addSButtonActionPerformed
-		Character c = customSeparator.getText().charAt(0);
-		if (!separatorsListModel.contains(c)) {
-			separatorsListModel.addElement(c);
-			controller.changed();
-		} else {
-			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.addSeparator"),
-					NotifyDescriptor.ERROR_MESSAGE);
-			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
-		}
+        Character c = customSeparator.getText().charAt(0);
+        if (!separatorsListModel.contains(c)) {
+            separatorsListModel.addElement(c);
+            controller.changed();
+        } else {
+            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+                    NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.addSeparator"),
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+        }
     }//GEN-LAST:event_addSButtonActionPerformed
 
     private void removeSButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeSButtonActionPerformed
-		int index = defaultSeparator.getSelectedIndex();
-		if (index > 2) {
-			separatorsListModel.remove(index);
-			controller.changed();
-		} else {
-			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.removeSeparator"),
-					NotifyDescriptor.ERROR_MESSAGE);
-			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
-		}
+        int index = defaultSeparator.getSelectedIndex();
+        if (index > 2) {
+            separatorsListModel.remove(index);
+            controller.changed();
+        } else {
+            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+                    NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.removeSeparator"),
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+        }
     }//GEN-LAST:event_removeSButtonActionPerformed
 
     private void addEButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addEButtonActionPerformed
-		Character c = customEscapeChar.getText().charAt(0);
-		if (!escapeCharsListModel.contains(c)) {
-			escapeCharsListModel.addElement(c);
-			controller.changed();
-		} else {
-			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.addEscapeChar"),
-					NotifyDescriptor.ERROR_MESSAGE);
-			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
-		}
+        Character c = customEscapeChar.getText().charAt(0);
+        if (!escapeCharsListModel.contains(c)) {
+            escapeCharsListModel.addElement(c);
+            controller.changed();
+        } else {
+            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+                    NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.addEscapeChar"),
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+        }
     }//GEN-LAST:event_addEButtonActionPerformed
 
     private void removeEButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeEButtonActionPerformed
-		int index = defaultEscapeChar.getSelectedIndex();
-		if (index > 0) {
-			escapeCharsListModel.remove(index);
-			controller.changed();
-		} else {
-			NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
-					NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.removeEscapeChar"),
-					NotifyDescriptor.ERROR_MESSAGE);
-			DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
-		}
+        int index = defaultEscapeChar.getSelectedIndex();
+        if (index > 0) {
+            escapeCharsListModel.remove(index);
+            controller.changed();
+        } else {
+            NotifyDescriptor notifyDescriptor = new NotifyDescriptor.Message(
+                    NbBundle.getMessage(CSVEditorPanel.class, "CSVEditorPanel.error.removeEscapeChar"),
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notifyLater(notifyDescriptor);
+        }
     }//GEN-LAST:event_removeEButtonActionPerformed
 
-	void load() {
-		// Example:        
-		// someCheckBox.setSelected(Preferences.userNodeForPackage(CSVEditorPanel.class).getBoolean("someFlag", false));
-		// or for org.openide.util with API spec. version >= 7.4:
-		// someCheckBox.setSelected(NbPreferences.forModule(CSVEditorPanel.class).getBoolean("someFlag", false));
-		// or:
-		// someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
-		separatorsListModel.removeAllElements();
-		separatorsListModel.addElement(',');
-		separatorsListModel.addElement(';');
-		separatorsListModel.addElement('\t');
-		int count = OptionsUtils.readCustomSeparatorCount();
-		if (count > 0) {
-			List<Character> chars = OptionsUtils.readCustomSeparators(count);
-			chars.stream().forEach((c) -> separatorsListModel.addElement(c));
-		}
-		defaultSeparator.setSelectedValue(OptionsUtils.readDefaultSeparator(), true);
+    void load() {
+        // Example:        
+        // someCheckBox.setSelected(Preferences.userNodeForPackage(CSVEditorPanel.class).getBoolean("someFlag", false));
+        // or for org.openide.util with API spec. version >= 7.4:
+        // someCheckBox.setSelected(NbPreferences.forModule(CSVEditorPanel.class).getBoolean("someFlag", false));
+        // or:
+        // someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
+        separatorsListModel.removeAllElements();
+        separatorsListModel.addElement(',');
+        separatorsListModel.addElement(';');
+        separatorsListModel.addElement('\t');
+        int count = OptionsUtils.readCustomSeparatorCount();
+        if (count > 0) {
+            List<Character> chars = OptionsUtils.readCustomSeparators(count);
+            chars.stream().forEach((c) -> separatorsListModel.addElement(c));
+        }
+        defaultSeparator.setSelectedValue(OptionsUtils.readDefaultSeparator(), true);
 
-		escapeCharsListModel.removeAllElements();
-		escapeCharsListModel.addElement('"');
-		count = OptionsUtils.readCustomEscapeCharCount();
-		if (count > 0) {
-			List<Character> chars = OptionsUtils.readCustomEscapeChars(count);
-			chars.stream().forEach((c) -> escapeCharsListModel.addElement(c));
-		}
-		defaultEscapeChar.setSelectedValue(OptionsUtils.readDefaultEscapeChar(), true);
+        escapeCharsListModel.removeAllElements();
+        escapeCharsListModel.addElement('"');
+        count = OptionsUtils.readCustomEscapeCharCount();
+        if (count > 0) {
+            List<Character> chars = OptionsUtils.readCustomEscapeChars(count);
+            chars.stream().forEach((c) -> escapeCharsListModel.addElement(c));
+        }
+        defaultEscapeChar.setSelectedValue(OptionsUtils.readDefaultEscapeChar(), true);
 
-		//Clean up text fields
-		customSeparator.setText(null);
-		customEscapeChar.setText(null);
+        //Clean up text fields
+        customSeparator.setText(null);
+        customEscapeChar.setText(null);
 
-		defaultSeparator.setCellRenderer(new DefaultListCellRenderer() {
-			@Override
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-				final JLabel listItem = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				if (index == 2)
-					listItem.setText("Tab");
-				return listItem;
-			}
+        defaultSeparator.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                final JLabel listItem = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (index == 2)
+                    listItem.setText("Tab");
+                return listItem;
+            }
 
-		});
-	}
+        });
+    }
 
-	void store() {
-		// Example:
-		// Preferences.userNodeForPackage(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-		// or for org.openide.util with API spec. version >= 7.4:
-		// NbPreferences.forModule(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-		// or:
-		// SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
-		int count = separatorsListModel.size() - 3;
-		OptionsUtils.saveCustomSeparatorCount(count);
-		if (count > 0) {
-			Character[] chars = new Character[count];
-			for (int i = 0; i < chars.length; i++) {
-				chars[i] = (Character) separatorsListModel.get(i + 3);
-			}
-			OptionsUtils.saveCustomSeparators(chars);
-		}
-		OptionsUtils.saveDefaultSeparator((Character) defaultSeparator.getSelectedValue());
+    void store() {
+        // Example:
+        // Preferences.userNodeForPackage(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
+        // or for org.openide.util with API spec. version >= 7.4:
+        // NbPreferences.forModule(CSVEditorPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
+        // or:
+        // SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
+        int count = separatorsListModel.size() - 3;
+        OptionsUtils.saveCustomSeparatorCount(count);
+        if (count > 0) {
+            Character[] chars = new Character[count];
+            for (int i = 0; i < chars.length; i++) {
+                chars[i] = (Character) separatorsListModel.get(i + 3);
+            }
+            OptionsUtils.saveCustomSeparators(chars);
+        }
+        OptionsUtils.saveDefaultSeparator((Character) defaultSeparator.getSelectedValue());
 
-		count = escapeCharsListModel.size() - 1;
-		OptionsUtils.saveCustomEscapeCharCount(count);
-		if (count > 0) {
-			Character[] chars = new Character[count];
-			for (int i = 0; i < chars.length; i++) {
-				chars[i] = (Character) escapeCharsListModel.get(i + 1);
-			}
-			OptionsUtils.saveCustomEscapeChars(chars);
-		}
-		OptionsUtils.saveDefaultEscapeChar((Character) defaultEscapeChar.getSelectedValue());
-	}
+        count = escapeCharsListModel.size() - 1;
+        OptionsUtils.saveCustomEscapeCharCount(count);
+        if (count > 0) {
+            Character[] chars = new Character[count];
+            for (int i = 0; i < chars.length; i++) {
+                chars[i] = (Character) escapeCharsListModel.get(i + 1);
+            }
+            OptionsUtils.saveCustomEscapeChars(chars);
+        }
+        OptionsUtils.saveDefaultEscapeChar((Character) defaultEscapeChar.getSelectedValue());
+    }
 
-	boolean valid() {
-		return defaultSeparator.getSelectedIndex() != -1 && defaultEscapeChar.getSelectedIndex() != -1;
-	}
+    boolean valid() {
+        return defaultSeparator.getSelectedIndex() != -1 && defaultEscapeChar.getSelectedIndex() != -1;
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addEButton;
     private javax.swing.JButton addSButton;
@@ -333,72 +331,66 @@ public final class CSVEditorPanel extends javax.swing.JPanel {
     private javax.swing.JPanel separatorsPanel;
     // End of variables declaration//GEN-END:variables
 
-	private void init() {
-		separatorsListModel = new DefaultListModel();
-		separatorsListModel.addElement(',');
-		separatorsListModel.addElement(';');
-		defaultSeparator.setModel(separatorsListModel);
-		customSeparator.setDocument(new LimitedPlainDocument(1));
-		customSeparator.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				isAddEnabled();
-			}
+    private void init() {
+        separatorsListModel = new DefaultListModel();
+        separatorsListModel.addElement(',');
+        separatorsListModel.addElement(';');
+        defaultSeparator.setModel(separatorsListModel);
+        customSeparator.setDocument(new LimitedPlainDocument(1));
+        customSeparator.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                isAddEnabled();
+            }
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				isAddEnabled();
-			}
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                isAddEnabled();
+            }
 
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				isAddEnabled();
-			}
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                isAddEnabled();
+            }
 
-			private void isAddEnabled() {
-				addSButton.setEnabled(!customSeparator.getText().trim().isEmpty());
-			}
-		});
-		defaultSeparator.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				removeSButton.setEnabled(defaultSeparator.getSelectedIndex() != -1);
-				controller.changed();
-			}
-		});
-		addSButton.setEnabled(false);
+            private void isAddEnabled() {
+                addSButton.setEnabled(!customSeparator.getText().trim().isEmpty());
+            }
+        });
+        defaultSeparator.getSelectionModel().addListSelectionListener(e -> {
+            removeSButton.setEnabled(defaultSeparator.getSelectedIndex() != -1);
+            controller.changed();
+        });
+        addSButton.setEnabled(false);
 
-		escapeCharsListModel = new DefaultListModel();
-		escapeCharsListModel.addElement('"');
-		defaultEscapeChar.setModel(escapeCharsListModel);
-		customEscapeChar.setDocument(new LimitedPlainDocument(1));
-		customEscapeChar.getDocument().addDocumentListener(new DocumentListener() {
-			@Override
-			public void insertUpdate(DocumentEvent e) {
-				isAddEnabled();
-			}
+        escapeCharsListModel = new DefaultListModel();
+        escapeCharsListModel.addElement('"');
+        defaultEscapeChar.setModel(escapeCharsListModel);
+        customEscapeChar.setDocument(new LimitedPlainDocument(1));
+        customEscapeChar.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                isAddEnabled();
+            }
 
-			@Override
-			public void removeUpdate(DocumentEvent e) {
-				isAddEnabled();
-			}
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                isAddEnabled();
+            }
 
-			@Override
-			public void changedUpdate(DocumentEvent e) {
-				isAddEnabled();
-			}
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                isAddEnabled();
+            }
 
-			private void isAddEnabled() {
-				addEButton.setEnabled(!customEscapeChar.getText().trim().isEmpty());
-			}
-		});
-		defaultEscapeChar.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-				removeEButton.setEnabled(defaultEscapeChar.getSelectedIndex() != -1);
-				controller.changed();
-			}
-		});
-		addEButton.setEnabled(false);
-	}
+            private void isAddEnabled() {
+                addEButton.setEnabled(!customEscapeChar.getText().trim().isEmpty());
+            }
+        });
+        defaultEscapeChar.getSelectionModel().addListSelectionListener(e -> {
+            removeEButton.setEnabled(defaultEscapeChar.getSelectedIndex() != -1);
+            controller.changed();
+        });
+        addEButton.setEnabled(false);
+    }
 }

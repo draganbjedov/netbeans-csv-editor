@@ -1,7 +1,6 @@
 package draganbjedov.netbeans.csv.view.columns;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Collection;
 import javax.swing.DefaultComboBoxModel;
 import org.openide.DialogDescriptor;
@@ -10,7 +9,7 @@ import org.openide.NotificationLineSupport;
 import org.openide.util.NbBundle;
 
 /*
- * AddColumnDialog.java
+ * RemoveColumnDialog.java
  *
  * Created on Jul 11, 2014, 11:44:56 AM
  *
@@ -18,32 +17,29 @@ import org.openide.util.NbBundle;
  */
 public class RemoveColumnDialog extends javax.swing.JPanel {
 
-	private static RemoveColumnDialog dialog;
+    private static RemoveColumnDialog dialog;
 
-	private final DialogDescriptor dialogDescriptor;
-	private final NotificationLineSupport notificationLineSupport;
+    private final DialogDescriptor dialogDescriptor;
+    private final NotificationLineSupport notificationLineSupport;
 
-	private Integer result;
+    private Integer result;
 
-	@SuppressWarnings("LeakingThisInConstructor")
-	@NbBundle.Messages("REMOVE_DIALOG_TITLE=Select column to remove")
-	private RemoveColumnDialog() {
-		initComponents();
+    @SuppressWarnings("LeakingThisInConstructor")
+    @NbBundle.Messages("REMOVE_DIALOG_TITLE=Select column to remove")
+    private RemoveColumnDialog() {
+        initComponents();
 
-		dialogDescriptor = new DialogDescriptor(this, Bundle.REMOVE_DIALOG_TITLE(), true, new ActionListener() {
+        dialogDescriptor = new DialogDescriptor(this, Bundle.REMOVE_DIALOG_TITLE(), true,
+                (ActionEvent e) -> {
+                    if (e.getSource() == DialogDescriptor.OK_OPTION) {
+                        result = columnsComboBox.getSelectedIndex();
+                    } else
+                        result = null;
+                });
+        notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
+    }
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == DialogDescriptor.OK_OPTION) {
-					result = columnsComboBox.getSelectedIndex();
-				} else
-					result = null;
-			}
-		});
-		notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
-	}
-
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -82,22 +78,22 @@ public class RemoveColumnDialog extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 
-	private void init(Collection<String> columnNames) {
-		String[] columns = columnNames.toArray(new String[0]);
-		this.columnsComboBox.setModel(new DefaultComboBoxModel(columns));
-	}
+    private void init(Collection<String> columnNames) {
+        String[] columns = columnNames.toArray(String[]::new);
+        this.columnsComboBox.setModel(new DefaultComboBoxModel(columns));
+    }
 
-	/**
-	 * Show dialog for choosing column to delete
-	 *
-	 * @param customColumnNames column names
-	 * @return new column name or <code>null</code> for same name or cancel
-	 */
-	public static Integer show(Collection<String> customColumnNames) {
-		if (dialog == null)
-			dialog = new RemoveColumnDialog();
-		dialog.init(customColumnNames);
-		return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
-	}
+    /**
+     * Show dialog for choosing column to delete
+     *
+     * @param customColumnNames column names
+     * @return new column name or <code>null</code> for same name or cancel
+     */
+    public static Integer show(Collection<String> customColumnNames) {
+        if (dialog == null)
+            dialog = new RemoveColumnDialog();
+        dialog.init(customColumnNames);
+        return DialogDisplayer.getDefault().notify(dialog.dialogDescriptor) == DialogDescriptor.OK_OPTION ? dialog.result : null;
+    }
 
 }
