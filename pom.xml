@@ -9,7 +9,7 @@
 
     <name>NetBeans CSV Editor</name>
     <description>NetBeans Plugin for editing CSV files</description>
-    <url>https://bitbucket.org/draganbjedov/netbeans-csv-editor</url>
+    <url>https://github.com/draganbjedov/netbeans-csv-editor</url>
 
     <licenses>
         <license>
@@ -22,14 +22,14 @@
         <developer>
             <name>Dragan Bjedov</name>
             <email>draganbjedov@gmail.com</email>
-            <url>https://bitbucket.org/draganbjedov</url>
+            <url>https://github.com/draganbjedov</url>
         </developer>
     </developers>
 
     <scm>
-        <connection>scm:git:git://bitbucket.org/draganbjedov/netbeans-csv-editor.git</connection>
-        <developerConnection>scm:git:ssh://bitbucket.org:draganbjedov/netbeans-csv-editor.git</developerConnection>
-        <url>https://bitbucket.org/draganbjedov/netbeans-csv-editor</url>
+        <connection>scm:git:git://github.com/draganbjedov/netbeans-csv-editor.git</connection>
+        <developerConnection>scm:git:ssh://github.com:draganbjedov/netbeans-csv-editor.git</developerConnection>
+        <url>https://github.com/draganbjedov/netbeans-csv-editor</url>
     </scm>
 
     <distributionManagement>
