@@ -170,6 +170,7 @@
             <url>file:///${project.basedir}/lib</url>
         </repository>
     </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -214,7 +215,7 @@
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-awt</artifactId>
-            <version>RELEASE111</version>
+            <version>RELEASE240</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
