@@ -72,7 +72,7 @@
     <Component class="javax.swing.JLabel" name="labelColName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/euroicc/rbtool/project/nodes/editors/table/columns/Bundle.properties" key="AddColumnDialog.labelColName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="draganbjedov/netbeans/csv/view/columns/Bundle.properties" key="AddColumnDialog.labelColName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -85,7 +85,7 @@
         </Property>
         <Property name="selected" type="boolean" value="true"/>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/euroicc/rbtool/project/nodes/editors/table/columns/Bundle.properties" key="AddColumnDialog.beforeRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="draganbjedov/netbeans/csv/view/columns/Bundle.properties" key="AddColumnDialog.beforeRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -95,7 +95,7 @@
           <ComponentRef name="buttonGroup"/>
         </Property>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/euroicc/rbtool/project/nodes/editors/table/columns/Bundle.properties" key="AddColumnDialog.afterRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="draganbjedov/netbeans/csv/view/columns/Bundle.properties" key="AddColumnDialog.afterRadioButton.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -109,7 +109,7 @@
     <Component class="javax.swing.JLabel" name="chooseLabel">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/euroicc/rbtool/project/nodes/editors/table/columns/Bundle.properties" key="AddColumnDialog.chooseLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="draganbjedov/netbeans/csv/view/columns/Bundle.properties" key="AddColumnDialog.chooseLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
@@ -131,7 +131,7 @@
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/euroicc/rbtool/project/nodes/editors/table/columns/Bundle.properties" key="AddColumnDialog.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="draganbjedov/netbeans/csv/view/columns/Bundle.properties" key="AddColumnDialog.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
