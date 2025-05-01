@@ -18,6 +18,9 @@ import org.openide.util.Pair;
  *
  * @author Dragan Bjedov
  */
+@NbBundle.Messages({
+    "RENAME_COLUMN_DIALOG_TITLE=Select column to rename"
+})
 public class RenameColumnDialog extends javax.swing.JPanel implements DocumentListener {
 
     private static RenameColumnDialog dialog;
@@ -31,7 +34,7 @@ public class RenameColumnDialog extends javax.swing.JPanel implements DocumentLi
     private RenameColumnDialog() {
         initComponents();
 
-        dialogDescriptor = new DialogDescriptor(this, Bundle.DIALOG_TITLE(), true,
+        dialogDescriptor = new DialogDescriptor(this, Bundle.RENAME_COLUMN_DIALOG_TITLE(), true,
                 (ActionEvent e) -> {
                     if (e.getSource() == DialogDescriptor.OK_OPTION) {
                         final String selectedColumnName = (String) columnsComboBox.getSelectedItem();

@@ -5,7 +5,6 @@ import java.util.Collection;
 import javax.swing.DefaultComboBoxModel;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.NotificationLineSupport;
 import org.openide.util.NbBundle;
 
 /*
@@ -15,28 +14,28 @@ import org.openide.util.NbBundle;
  *
  * @author Dragan Bjedov
  */
+@NbBundle.Messages({
+    "REMOVE_COLUMN_DIALOG_TITLE=Select column to remove"
+})
 public class RemoveColumnDialog extends javax.swing.JPanel {
 
     private static RemoveColumnDialog dialog;
 
     private final DialogDescriptor dialogDescriptor;
-    private final NotificationLineSupport notificationLineSupport;
 
     private Integer result;
 
     @SuppressWarnings("LeakingThisInConstructor")
-    @NbBundle.Messages("REMOVE_DIALOG_TITLE=Select column to remove")
     private RemoveColumnDialog() {
         initComponents();
 
-        dialogDescriptor = new DialogDescriptor(this, Bundle.REMOVE_DIALOG_TITLE(), true,
+        dialogDescriptor = new DialogDescriptor(this, Bundle.REMOVE_COLUMN_DIALOG_TITLE(), true,
                 (ActionEvent e) -> {
                     if (e.getSource() == DialogDescriptor.OK_OPTION) {
                         result = columnsComboBox.getSelectedIndex();
                     } else
                         result = null;
                 });
-        notificationLineSupport = dialogDescriptor.createNotificationLineSupport();
     }
 
     @SuppressWarnings("unchecked")

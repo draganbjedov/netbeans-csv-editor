@@ -20,7 +20,7 @@ import org.openide.util.Pair;
  * @author Dragan Bjedov
  */
 @NbBundle.Messages({
-    "DIALOG_TITLE=Add new column"
+    "ADD_COLUMN_DIALOG_TITLE=Add new column"
 })
 public class AddColumnDialog extends javax.swing.JPanel implements DocumentListener {
 
@@ -35,7 +35,7 @@ public class AddColumnDialog extends javax.swing.JPanel implements DocumentListe
     private AddColumnDialog() {
         initComponents();
 
-        dialogDescriptor = new DialogDescriptor(this, Bundle.DIALOG_TITLE(), true,
+        dialogDescriptor = new DialogDescriptor(this, Bundle.ADD_COLUMN_DIALOG_TITLE(), true,
                 (ActionEvent e) -> {
                     if (e.getSource() == DialogDescriptor.OK_OPTION) {
                         result = Pair.of(
