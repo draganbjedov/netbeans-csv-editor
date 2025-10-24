@@ -1,10 +1,10 @@
 # NetBeans CSV Editor
 Plugin for [Apache NetBeans](https://netbeans.apache.org/front/main/index.html) which enabled editing CSV files in graphical editor (table).
 
-![GPL-3.0](https://img.shields.io/github/license/draganbjedov/netbeans-csv-editor.svg)
+![GPL-3.0](https://img.shields.io/github/license/draganbjedov/netbeans-csv-editor.svg) ![Downloads](https://img.shields.io/endpoint?url=https://openbeans.org/plugin-counter/api/114)
 
 ## Features
-![CSV editor](https://github.com/draganbjedov/netbeans-csv-editor/blob/master/images/flat-laf-light.png?raw=true)
+![CSV editor](https://github.com/draganbjedov/netbeans-csv-editor/blob/main/images/flat-laf-light.png?raw=true)
 
 - Add/Remove rows/columns
 - Copy rows
