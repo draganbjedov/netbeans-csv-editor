@@ -1,7 +1,9 @@
 # NetBeans CSV Editor
 Plugin for [Apache NetBeans](https://netbeans.apache.org/front/main/index.html) which enabled editing CSV files in graphical editor (table).
 
-![GPL-3.0](https://img.shields.io/github/license/draganbjedov/netbeans-csv-editor.svg) ![Downloads](https://img.shields.io/endpoint?url=https://openbeans.org/plugin-counter/api/114)
+![GPL-3.0](https://img.shields.io/github/license/draganbjedov/netbeans-csv-editor.svg)
+![Downloads](https://img.shields.io/endpoint?url=https://openbeans.org/plugin-counter/api/114)
+![Downloads](https://img.shields.io/endpoint?url=https://openbeans.org/plugin-counter/api/1)
 
 ## Features
 ![CSV editor](https://github.com/draganbjedov/netbeans-csv-editor/blob/main/images/flat-laf-light.png?raw=true)
@@ -26,6 +28,7 @@ Plugin for [Apache NetBeans](https://netbeans.apache.org/front/main/index.html) 
 - Sort rows
 - Multi-edit of cells
 
-## Installation
-Open Tools/Plugins and search for NetBeans CSV Editor.
-If not found you download latest [release](https://github.com/draganbjedov/netbeans-csv-editor/releases) and install via Download tab.
+## Installation options
+1. Open Tools/Plugins and search for NetBeans CSV Editor.
+2. Download from [plugin portal](https://plugins.netbeans.apache.org/catalogue/?id=114) and install via Download tab
+3. Download latest [release](https://github.com/draganbjedov/netbeans-csv-editor/releases) and install via Download tab
