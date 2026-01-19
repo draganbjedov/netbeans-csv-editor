@@ -254,7 +254,6 @@
             <Property name="dropMode" type="javax.swing.DropMode" editor="org.netbeans.modules.form.editors.EnumEditor">
               <Value id="ON_OR_INSERT_ROWS"/>
             </Property>
-            <Property name="rowHeight" type="int" value="25"/>
             <Property name="rowSorter" type="javax.swing.RowSorter" editor="org.netbeans.modules.form.ComponentChooserEditor">
               <ComponentRef name="null"/>
             </Property>

@@ -572,7 +572,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     public void updateTable() {
         obj.readFile(tableModel);
 
-//		updateColumnsWidths();
+//        updateColumnsWidths();
         table.packAll();
         setActiveActions();
     }
@@ -781,7 +781,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 Integer columnIndex = RemoveColumnDialog.show(tableModel.getHeaders());
                 if (columnIndex != null) {
                     tableModel.removeColumn(columnIndex);
-//					updateColumnsWidths();
+//                    updateColumnsWidths();
                     table.packAll();
                 }
             }
@@ -982,15 +982,15 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         table.setColumnSelectionAllowed(true);
         table.setCellSelectionEnabled(true);
 
-        /* Popravljalje visine redova zbog editovanja. Windows i Metal LAF nemaju margine u tekst poljima, a ostali imaju */
+        // Set row height for editing. Windows and Metal LAF have margins in text fields, and others not
         LookAndFeel lookAndFeel = UIManager.getLookAndFeel();
         boolean lafNotExpand = lookAndFeel.getID().toLowerCase().contains("windows")
                 || lookAndFeel.getID().toLowerCase().contains("metal");
 
         /*
-		 * Da se ne bi ponistavala boja koju postavi renderer posto ne koristimo Highlighter iz SwingX-a
-		 * Videti JXTable.prepareRenderer() i
-		 * JXTable.resetDefaultTableCellRendererColors()
+         * To not reset color set by renderer because Highlighter from SwingX is not used
+         * See JXTable.prepareRenderer() i
+         * JXTable.resetDefaultTableCellRendererColors()
          */
         table.putClientProperty(USE_DTCR_COLORMEMORY_HACK, false);
 
@@ -1142,12 +1142,12 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/paste.gif", false));
 
         /* Integrate CCP with NetBeans default menubar items and toolbar buttons */
-//		ActionMap actionMap = getActionMap();
-//		actionMap.put("cut-to-clipboard", cutAction);
-//		actionMap.put("copy-to-clipboard", copyAction);
-//		actionMap.put("paste-from-clipboard", pasteAction);
+//        ActionMap actionMap = getActionMap();
+//        actionMap.put("cut-to-clipboard", cutAction);
+//        actionMap.put("copy-to-clipboard", copyAction);
+//        actionMap.put("paste-from-clipboard", pasteAction);
 //
-//		instanceContent.add(actionMap);
+//        instanceContent.add(actionMap);
         CLIPBOARD.addFlavorListener(e -> {
             final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
             pasteAction.setEnabled(dataFlavorAvailable);
