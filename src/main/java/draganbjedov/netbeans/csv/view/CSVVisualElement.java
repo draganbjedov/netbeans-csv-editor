@@ -54,7 +54,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
-import static org.jdesktop.swingx.JXTable.USE_DTCR_COLORMEMORY_HACK;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -71,6 +70,7 @@ import org.openide.util.lookup.ProxyLookup;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 import org.oxbow.swingbits.table.filter.TableRowFilterSupport;
+import static org.jdesktop.swingx.JXTable.USE_DTCR_COLORMEMORY_HACK;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_CSV_VISUAL",
@@ -170,7 +170,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         moveRightPopUp = new javax.swing.JMenuItem();
         moveEndPopUp = new javax.swing.JMenuItem();
         tableScrollPane = new javax.swing.JScrollPane();
-        table = new org.jdesktop.swingx.JXTable() {
+        table = new org.jdesktop.swingx.JXTable(){
 
             @Override
             public Component prepareEditor(TableCellEditor editor, int row, int column) {
@@ -210,9 +210,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
             public boolean editCellAt(int row, int column, EventObject e){
                 if(e instanceof KeyEvent){
-                    int i = ((KeyEvent) e).getModifiersEx();
+                    int i = ((KeyEvent) e).getModifiers();
+                    String s = KeyEvent.getModifiersExText(((KeyEvent) e).getModifiers());
                     //any time Control is used, disable cell editing
-                    if(i == InputEvent.CTRL_DOWN_MASK){
+                    if(i == InputEvent.CTRL_MASK){
                         return false;
                     }
                 }
@@ -231,17 +232,17 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         });
 
         copyPopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_C, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        copyPopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/copy.gif"))); // NOI18N
+        copyPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/actions/copy.svg", false));
         org.openide.awt.Mnemonics.setLocalizedText(copyPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.copyPopUp.text")); // NOI18N
         tablePopUpMenu.add(copyPopUp);
 
         cutPopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        cutPopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/cut.gif"))); // NOI18N
+        cutPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/actions/cut.svg", false));
         org.openide.awt.Mnemonics.setLocalizedText(cutPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.cutPopUp.text")); // NOI18N
         tablePopUpMenu.add(cutPopUp);
 
         pastePopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.CTRL_DOWN_MASK));
-        pastePopUp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/paste.gif"))); // NOI18N
+        pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/actions/paste.svg", false));
         org.openide.awt.Mnemonics.setLocalizedText(pastePopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.pastePopUp.text")); // NOI18N
         tablePopUpMenu.add(pastePopUp);
         tablePopUpMenu.add(separator1);
@@ -257,7 +258,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         tablePopUpMenu.add(deleteRowPopUp);
 
         addColumnPopUp.setAction(addColumnAction);
-				addColumnPopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_INSERT, java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        addColumnPopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_INSERT, java.awt.event.InputEvent.CTRL_DOWN_MASK));
         org.openide.awt.Mnemonics.setLocalizedText(addColumnPopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.addColumnButton.text")); // NOI18N
         tablePopUpMenu.add(addColumnPopUp);
 
@@ -312,11 +313,10 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         table.setAutoCreateRowSorter(false);
         table.setModel(tableModel);
-        table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
+        table.setAutoResizeMode(0);
         table.setColumnControlVisible(true);
         table.setDragEnabled(true);
         table.setDropMode(javax.swing.DropMode.ON_OR_INSERT_ROWS);
-        table.setRowHeight(25);
         table.setRowSorter(null);
         table.setSearchable(null);
         table.setSortable(false);
