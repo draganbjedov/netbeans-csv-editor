@@ -63,6 +63,7 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.Pair;
+import org.openide.util.actions.SystemAction;
 import org.openide.util.lookup.AbstractLookup;
 import org.openide.util.lookup.InstanceContent;
 import org.openide.util.lookup.ProxyLookup;
@@ -84,7 +85,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private static final Clipboard CLIPBOARD = Toolkit.getDefaultToolkit().getSystemClipboard();
     private static final Color GRID_COLOR = new Color(128, 128, 128, 85);
 
-    private final CSVDataObject obj;
+    private final CSVDataObject dataObject;
     private final JToolBar toolbar = new ToolbarWithOverflow();
 
     private transient MultiViewElementCallback callback;
@@ -123,20 +124,21 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private final InstanceContent instanceContent;
 
     @SuppressWarnings("LeakingThisInConstructor")
-    public CSVVisualElement(Lookup objLookup) {
-        obj = objLookup.lookup(CSVDataObject.class);
-        assert obj != null;
+    public CSVVisualElement(Lookup objectLookup) {
+        dataObject = objectLookup.lookup(CSVDataObject.class);
+        assert dataObject != null;
         instanceContent = new InstanceContent();
-        lookup = new ProxyLookup(objLookup, new AbstractLookup(instanceContent));
+        lookup = new ProxyLookup(objectLookup, new AbstractLookup(instanceContent));
 
         tableModel = new CSVTableModel();
 
         initActions();
         initComponents();
         init();
+        initCCP();
         createToolBar();
 
-        obj.setVisualEditor(this);
+        dataObject.setVisualEditor(this);
 
         updateTable();
     }
@@ -399,7 +401,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     @Override
     public void componentOpened() {
         if (callback != null)
-            callback.updateTitle(obj.getPrimaryFile().getNameExt());
+            callback.updateTitle(dataObject.getPrimaryFile().getNameExt());
     }
 
     @Override
@@ -419,10 +421,11 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     public void componentActivated() {
         activated = true;
         if (callback != null)
-            callback.updateTitle(obj.getPrimaryFile().getNameExt());
+            callback.updateTitle(dataObject.getPrimaryFile().getNameExt());
         pasteAction.setEnabled(CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR));
 
         tableModel.fireTableDataChanged();
+        table.requestFocusInWindow();
     }
 
     @Override
@@ -436,7 +439,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
     @Override
     public UndoRedo getUndoRedo() {
-        return obj.getUndoRedoManager();
+        return dataObject.getUndoRedoManager();
     }
 
     @Override
@@ -568,7 +571,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     public void updateTable() {
-        obj.readFile(tableModel);
+        dataObject.readFile(tableModel);
 
 //        updateColumnsWidths();
         table.packAll();
@@ -957,11 +960,6 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         };
     }
 
-    @NbBundle.Messages({
-        "ACTION_CUT=Cut",
-        "ACTION_COPY=Copy",
-        "ACTION_PASTE=Paste"
-    })
     private void init() {
         //Table
         final RowNumberTable rowNumberTable = new RowNumberTable(table, false, "#");
@@ -1019,7 +1017,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         final JTableHeader tableHeader = table.getTableHeader();
         tableHeader.setReorderingAllowed(false);
 
-        tableModel.addTableModelListener((TableModelEvent e) -> obj.updateFile(tableModel));
+        tableModel.addTableModelListener((TableModelEvent e) -> dataObject.updateFile(tableModel));
         table.setModel(tableModel);
         tableScrollPane.setViewportView(table);
 
@@ -1109,43 +1107,52 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         table.setComponentPopupMenu(tablePopUpMenu);
         tableScrollPane.setComponentPopupMenu(tablePopUpMenu);
+    }
 
-        //Cut, Copy, Paste
+    @NbBundle.Messages({
+        "ACTION_CUT=Cut",
+        "ACTION_COPY=Copy",
+        "ACTION_PASTE=Paste"
+    })
+    private void initCCP() {
         table.setTransferHandler(new TableTransferHandler());
 
-        ActionMap map = table.getActionMap();
+        ActionMap tableActionMap = table.getActionMap();
 
-        map.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
-        map.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
-        map.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
+        tableActionMap.put(TransferHandler.getCutAction().getValue(Action.NAME), TransferHandler.getCutAction());
+        tableActionMap.put(TransferHandler.getCopyAction().getValue(Action.NAME), TransferHandler.getCopyAction());
+        tableActionMap.put(TransferHandler.getPasteAction().getValue(Action.NAME), TransferHandler.getPasteAction());
 
         TransferActionListener ccpAction = new TransferActionListener();
+
+        // Grab the global system action hooks for the Edit Menu
+        var globalCut = SystemAction.get(org.openide.actions.CutAction.class);
+        var globalCopy = SystemAction.get(org.openide.actions.CopyAction.class);
+        var globalPaste = SystemAction.get(org.openide.actions.PasteAction.class);
 
         cutAction = new CCPAction(Bundle.ACTION_CUT(), ccpAction);
         cutAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCutAction().getValue(Action.NAME));
         cutAction.putValue(Action.ACCELERATOR_KEY, cutPopUp.getAccelerator());
         cutPopUp.setAction(cutAction);
-        cutPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/cut.svg", false));
+        cutPopUp.setIcon(globalCut.getIcon());
 
         copyAction = new CCPAction(Bundle.ACTION_COPY(), ccpAction);
         copyAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCopyAction().getValue(Action.NAME));
         copyAction.putValue(Action.ACCELERATOR_KEY, copyPopUp.getAccelerator());
         copyPopUp.setAction(copyAction);
-        copyPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/copy.svg", false));
+        copyPopUp.setIcon(globalCopy.getIcon());
 
         pasteAction = new CCPAction(Bundle.ACTION_PASTE(), ccpAction);
         pasteAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getPasteAction().getValue(Action.NAME));
         pasteAction.putValue(Action.ACCELERATOR_KEY, pastePopUp.getAccelerator());
         pastePopUp.setAction(pasteAction);
-        pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/paste.svg", false));
+        pastePopUp.setIcon(globalPaste.getIcon());
 
-        /* Integrate CCP with NetBeans default menubar items and toolbar buttons */
-//        ActionMap actionMap = getActionMap();
-//        actionMap.put("cut-to-clipboard", cutAction);
-//        actionMap.put("copy-to-clipboard", copyAction);
-//        actionMap.put("paste-from-clipboard", pasteAction);
-//
-//        instanceContent.add(actionMap);
+        // Integrate CCP with NetBeans default menubar items and toolbar buttons
+        this.getActionMap().put(globalCut.getActionMapKey(), cutAction);
+        this.getActionMap().put(globalCopy.getActionMapKey(), copyAction);
+        this.getActionMap().put(globalPaste.getActionMapKey(), pasteAction);
+
         CLIPBOARD.addFlavorListener(e -> {
             final boolean dataFlavorAvailable = CLIPBOARD.isDataFlavorAvailable(TableRowTransferable.CSV_ROWS_DATA_FLAVOR);
             pasteAction.setEnabled(dataFlavorAvailable);
