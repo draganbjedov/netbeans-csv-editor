@@ -37,7 +37,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.netbeans.version>RELEASE290</project.netbeans.version>
+        <project.netbeans.version>RELEASE310</project.netbeans.version>
     </properties>
 
     <build>
