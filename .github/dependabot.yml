@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # 1. Standard Maven Dependency Tracking
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  # 2. GitHub Actions Security Updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
