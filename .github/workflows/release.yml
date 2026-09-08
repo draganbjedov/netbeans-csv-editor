@@ -1,0 +1,85 @@
+name: Release and Publish Plugin
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allows the runner to attach assets and update release notes
+
+    steps:
+      # 1. Checkout your code
+      - name: Checkout Code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      # 2. Setup Java 21 environment + internal Maven repository settings configuration
+      - name: Set up Java 21
+        uses: actions/setup-java@v6
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          server-id: central
+          server-username: MAVEN_CENTRAL_USERNAME
+          server-password: MAVEN_CENTRAL_PASSWORD
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      # 3. Synchronize the pom.xml version dynamically using your GitHub tag name
+      - name: Dynamically Set pom version from Tag
+        run: |
+          echo "Syncing pom.xml version to tag: ${{ github.ref_name }}"
+          mvn versions:set -DnewVersion=${{ github.ref_name }} -DgenerateBackupPoms=false
+
+      # 4. Sign and deploy build packages to Maven Central
+      - name: Build and Publish to Maven Central
+        run: |
+          mvn clean deploy -Prelease -Dgpg.skip=false -Darguments="--no-tty --use-agent"
+
+      # 5. Generate changelog based on commits between version tags
+      - name: Generate Direct Commit Changelog
+        id: git_changelog
+        run: |
+          echo "Extracting commit history..."
+          echo "============================"
+
+          # 1. Identify current and previous tags
+          CURRENT_TAG="${{ github.event.release.tag_name }}"
+          PREV_TAG=$(git describe --tags --abbrev=0 "$CURRENT_TAG"^ 2>/dev/null || echo "")
+
+          echo "Current Tag:  $CURRENT_TAG"
+          echo "Previous Tag: $PREV_TAG"
+          echo "======================================="
+
+          # 2. Initialize the official GitHub Output multi-line block headers
+          echo "generated_body<<EOF" >> $GITHUB_OUTPUT
+          echo "## Changelog" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+
+          # 3. Define infrastructure exclusion variables
+          EXCLUDE_LIST=":(exclude,glob)*.xml :(exclude,glob).git* :(exclude).github :(exclude)images :(exclude,glob)*.md"
+
+          # 4. Stream the log to the console and append to GitHub Output simultaneously
+          echo "Extracted Change Log Commits:"
+          if [ -z "$PREV_TAG" ]; then
+            git log --pretty=format:"* %s" -- . $EXCLUDE_LIST | tee -a $GITHUB_OUTPUT
+          else
+            git log ${PREV_TAG}..${CURRENT_TAG} --pretty=format:"* %s" -- . $EXCLUDE_LIST | tee -a $GITHUB_OUTPUT
+          fi
+
+          # 5. Finalize the secure multi-line output block layout
+          echo "" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo ""
+          echo "======================================="
+
+      # 6. Upload compiled NBM binary file to release and write changelogs
+      - name: Update GitHub Release Assets and Notes
+        uses: softprops/action-gh-release@v3
+        with:
+          files: target/*.nbm
+          body: ${{ steps.git_changelog.outputs.generated_body }}
+          append_body: true
