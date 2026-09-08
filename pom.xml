@@ -54,7 +54,7 @@
                 <version>3.15.0</version>
                 <configuration>
                     <proc>full</proc>
-                    <release>17</release>
+                    <release>21</release>
                 </configuration>
             </plugin>
             <plugin>
