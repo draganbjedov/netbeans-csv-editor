@@ -46,7 +46,7 @@ import org.openide.windows.TopComponent;
         extension = {"csv", "CSV"})
 @DataObject.Registration(
         mimeType = "text/csv",
-        iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
+        iconBase = "draganbjedov/netbeans/csv/icons/csv.svg",
         displayName = "#LBL_CSV_LOADER",
         position = 300)
 @ActionReferences({
@@ -96,7 +96,7 @@ public class CSVDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
             displayName = "#LBL_CSV_EDITOR",
-            iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
+            iconBase = "draganbjedov/netbeans/csv/icons/csv.svg",
             mimeType = "text/csv",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
             preferredID = "CSV",

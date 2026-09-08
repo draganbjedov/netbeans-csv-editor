@@ -28,7 +28,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -74,7 +73,7 @@ import static org.jdesktop.swingx.JXTable.USE_DTCR_COLORMEMORY_HACK;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_CSV_VISUAL",
-        iconBase = "draganbjedov/netbeans/csv/icons/csv.png",
+        iconBase = "draganbjedov/netbeans/csv/icons/csv.svg",
         mimeType = "text/csv",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "CSVVisual",
@@ -109,7 +108,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private AbstractAction moveDownAction;
     private AbstractAction moveBottomAction;
 
-    private AbstractAction moveHomeAction;
+    private AbstractAction moveStartAction;
     private AbstractAction moveLeftAction;
     private AbstractAction moveRightAction;
     private AbstractAction moveEndAction;
@@ -195,7 +194,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 moveDownAction.setEnabled(false);
                 moveBottomAction.setEnabled(false);
 
-                moveHomeAction.setEnabled(false);
+                moveStartAction.setEnabled(false);
                 moveLeftAction.setEnabled(false);
                 moveRightAction.setEnabled(false);
                 moveEndAction.setEnabled(false);
@@ -289,8 +288,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         tablePopUpMenu.add(moveBottomPopUp);
         tablePopUpMenu.add(separator2);
 
-        moveHomePopUp.setAction(moveHomeAction);
-        moveHomePopUp.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_LEFT, java.awt.event.InputEvent.SHIFT_DOWN_MASK | java.awt.event.InputEvent.CTRL_DOWN_MASK));
+        moveHomePopUp.setAction(moveStartAction);
         org.openide.awt.Mnemonics.setLocalizedText(moveHomePopUp, org.openide.util.NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveHomePopUp.text")); // NOI18N
         tablePopUpMenu.add(moveHomePopUp);
 
@@ -368,7 +366,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     private JButton moveUp;
     private JButton moveDown;
     private JButton moveBottom;
-    private JButton moveHome;
+    private JButton moveStart;
     private JButton moveLeft;
     private JButton moveRight;
     private JButton moveEnd;
@@ -515,9 +513,9 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         toolbar.addSeparator();
 
         //Move column actions
-        moveHome = new JButton(moveHomeAction);
-        moveHome.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveHomePopUp.text") + " (Ctrl+Shift+Left)");
-        toolbar.add(moveHome);
+        moveStart = new JButton(moveStartAction);
+        moveStart.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveHomePopUp.text") + " (Ctrl+Shift+Left)");
+        toolbar.add(moveStart);
 
         moveLeft = new JButton(moveLeftAction);
         moveLeft.setToolTipText(NbBundle.getMessage(CSVVisualElement.class, "CSVVisualElement.moveLeftPopUp.text") + " (Ctrl+Left)");
@@ -533,12 +531,12 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
 
         toolbar.addSeparator();
 
-        clearFilters = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/filter-clear.png", false));
+        clearFilters = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/filter-clear.svg", false));
         clearFilters.setToolTipText(Bundle.BUTTON_CLEAR_FILTERS());
         clearFilters.addActionListener(e -> tableFilter.clear());
         toolbar.add(clearFilters);
 
-        setColumnsWidth = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/resize.png", false));
+        setColumnsWidth = new JButton(ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/resize.svg", false));
         setColumnsWidth.setToolTipText(Bundle.BUTTON_COL_WIDTH());
         setColumnsWidth.addActionListener((e) -> table.packAll());
         toolbar.add(setColumnsWidth);
@@ -630,22 +628,22 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         }
 
         int[] columns = table.getSelectedColumns();
-        if (moveHome != null && moveLeft != null && moveRight != null && moveEnd != null) {
+        if (moveStart != null && moveLeft != null && moveRight != null && moveEnd != null) {
             switch (columns.length) {
                 case 0 -> {
-                    moveHomeAction.setEnabled(false);
+                    moveStartAction.setEnabled(false);
                     moveLeftAction.setEnabled(false);
                     moveRightAction.setEnabled(false);
                     moveEndAction.setEnabled(false);
                 }
                 case 1 -> {
-                    moveHomeAction.setEnabled(columns[0] != 0);
+                    moveStartAction.setEnabled(columns[0] != 0);
                     moveLeftAction.setEnabled(columns[0] != 0);
                     moveRightAction.setEnabled(columns[0] != table.getColumnCount() - 1);
                     moveEndAction.setEnabled(columns[0] != table.getColumnCount() - 1);
                 }
                 default -> {
-                    moveHomeAction.setEnabled(true);
+                    moveStartAction.setEnabled(true);
                     moveEndAction.setEnabled(true);
                     int prev = columns[0];
                     for (int i = 1; i < columns.length; i++) {
@@ -659,7 +657,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                     }
                     //Continious home columns
                     final boolean homeColumns = columns[0] != 0;
-                    moveHomeAction.setEnabled(homeColumns);
+                    moveStartAction.setEnabled(homeColumns);
                     moveLeftAction.setEnabled(homeColumns);
                     //Continious colums at the end
                     final boolean endColumns = columns[columns.length - 1] != table.getColumnCount() - 1;
@@ -671,7 +669,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
     }
 
     private void initActions() {
-        toggleHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/header-row.png"))) {
+        toggleHeaderAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/header-row.svg", false)) {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -695,7 +693,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 addHeaderButton.setEnabled(!toggleHeaderButton.isSelected());
             }
         };
-        addHeaderAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-header-row.png"))) {
+        addHeaderAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/add-header-row.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final int columnCount = table.getColumnCount(true);
@@ -721,7 +719,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         };
 
-        addRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-row.gif"))) {
+        addRowAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/add-row.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow();
@@ -734,7 +732,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        deleteRowAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-row.png"))) {
+        deleteRowAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/remove-row.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int[] rows = table.getSelectedRows();
@@ -753,7 +751,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        addColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/add-column.png"))) {
+        addColumnAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/add-column.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 final boolean hasHeaderRow = toggleHeaderButton.isSelected();
@@ -775,7 +773,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        deleteColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/remove-column.png"))) {
+        deleteColumnAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/remove-column.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Integer columnIndex = RemoveColumnDialog.show(tableModel.getHeaders());
@@ -786,7 +784,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        renameColumnAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/rename-column.png"))) {
+        renameColumnAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/rename-column.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Pair<Integer, String> indexNewName = RenameColumnDialog.show(tableModel.getHeaders());
@@ -809,7 +807,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         };
 
-        moveTopAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-top.png"))) {
+        moveTopAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-row-top.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int rows[] = table.getSelectedRows();
@@ -823,7 +821,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 selectRowInterval(0, rows.length - 1);
             }
         };
-        moveUpAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-up.png"))) {
+        moveUpAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-row-top.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int rows[] = table.getSelectedRows();
@@ -838,7 +836,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        moveDownAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-down.png"))) {
+        moveDownAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-row-down.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int rows[] = table.getSelectedRows();
@@ -853,7 +851,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        moveBottomAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-bottom.png"))) {
+        moveBottomAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-row-bottom.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int rows[] = table.getSelectedRows();
@@ -867,7 +865,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
             }
         };
 
-        moveHomeAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-home.png"))) {
+        moveStartAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-column-start.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int[] columns = table.getSelectedColumns();
@@ -887,7 +885,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 selectColumnInterval(0, columns.length - 1);
             }
         };
-        moveLeftAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-left.png"))) {
+        moveLeftAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-column-left.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int[] columns = table.getSelectedColumns();
@@ -909,7 +907,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        moveRightAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-right.png"))) {
+        moveRightAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-column-right.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int[] columns = table.getSelectedColumns();
@@ -931,7 +929,7 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
                 }
             }
         };
-        moveEndAction = new AbstractAction("", new ImageIcon(getClass().getResource("/draganbjedov/netbeans/csv/icons/go-end.png"))) {
+        moveEndAction = new AbstractAction("", ImageUtilities.loadImageIcon("draganbjedov/netbeans/csv/icons/move-column-end.svg", false)) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int[] columns = table.getSelectedColumns();
@@ -1082,8 +1080,8 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         table.getActionMap().put("MOVE_BOTTOM", moveBottomAction);
 
         //Move columns shortcuts
-        table.getInputMap().put(moveHomePopUp.getAccelerator(), "MOVE_HOME");
-        table.getActionMap().put("MOVE_HOME", moveHomeAction);
+        table.getInputMap().put(moveHomePopUp.getAccelerator(), "MOVE_START");
+        table.getActionMap().put("MOVE_START", moveStartAction);
 
         table.getInputMap().put(moveLeftPopUp.getAccelerator(), "MOVE_LEFT");
         table.getActionMap().put("MOVE_LEFT", moveLeftAction);
@@ -1127,19 +1125,19 @@ public final class CSVVisualElement extends JPanel implements MultiViewElement {
         cutAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCutAction().getValue(Action.NAME));
         cutAction.putValue(Action.ACCELERATOR_KEY, cutPopUp.getAccelerator());
         cutPopUp.setAction(cutAction);
-        cutPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/cut.gif", false));
+        cutPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/cut.svg", false));
 
         copyAction = new CCPAction(Bundle.ACTION_COPY(), ccpAction);
         copyAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getCopyAction().getValue(Action.NAME));
         copyAction.putValue(Action.ACCELERATOR_KEY, copyPopUp.getAccelerator());
         copyPopUp.setAction(copyAction);
-        copyPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/copy.gif", false));
+        copyPopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/copy.svg", false));
 
         pasteAction = new CCPAction(Bundle.ACTION_PASTE(), ccpAction);
         pasteAction.putValue(Action.ACTION_COMMAND_KEY, (String) TransferHandler.getPasteAction().getValue(Action.NAME));
         pasteAction.putValue(Action.ACCELERATOR_KEY, pastePopUp.getAccelerator());
         pastePopUp.setAction(pasteAction);
-        pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/paste.gif", false));
+        pastePopUp.setIcon(ImageUtilities.loadImageIcon("org/openide/resources/actions/paste.svg", false));
 
         /* Integrate CCP with NetBeans default menubar items and toolbar buttons */
 //        ActionMap actionMap = getActionMap();
