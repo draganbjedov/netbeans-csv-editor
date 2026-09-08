@@ -7,7 +7,7 @@
 
     <groupId>io.github.draganbjedov</groupId>
     <artifactId>netbeans-csv-editor</artifactId>
-    <version>4.2.0</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>nbm</packaging>
 
     <name>NetBeans CSV Editor</name>
@@ -67,6 +67,12 @@
                 <configuration>
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Build-Date>${git.build.time}</Build-Date>
+                            <Build-Git-Commit>${git.commit.id.abbrev}</Build-Git-Commit>
+                            <Build-Git-Branch>${git.branch}</Build-Git-Branch>
+                            <Project-Url>${project.scm.url}</Project-Url>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -84,6 +90,27 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>3.1.4</version>
+            </plugin>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <version>9.2.0</version>
+                <executions>
+                    <execution>
+                        <id>get-the-git-infos</id>
+                        <goals>
+                            <goal>revision</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <verbose>false</verbose>
+                    <dateFormat>yyyy-MM-dd HH:mm</dateFormat>
+                    <dateFormatTimeZone>UTC</dateFormatTimeZone>
+                    <abbrevLength>7</abbrevLength>
+                </configuration>
             </plugin>
         </plugins>
     </build>
