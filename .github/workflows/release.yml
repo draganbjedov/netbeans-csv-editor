@@ -41,6 +41,8 @@ jobs:
           # so that Maven can read them when processing settings.xml
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          # Branch for git-commit-id-maven-plugin
+          GITHUB_REF: refs/heads/main
         run: |
           mvn clean deploy -Prelease -Dgpg.skip=false -Darguments="--no-tty --use-agent"
 
