@@ -44,7 +44,7 @@ jobs:
           # Branch for git-commit-id-maven-plugin
           GITHUB_REF: refs/heads/main
         run: |
-          mvn clean deploy -Prelease -Dgpg.skip=false -Darguments="--no-tty --use-agent"
+          mvn clean deploy -Prelease -Dgpg.skip=false -Darguments="--no-tty --use-agent" -Dmaven.central.wait.state=uploaded
 
       # 5. Generate changelog based on commits between version tags
       - name: Generate Direct Commit Changelog

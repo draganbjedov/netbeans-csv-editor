@@ -38,6 +38,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.netbeans.version>RELEASE310</project.netbeans.version>
+        <maven.central.wait.state>published</maven.central.wait.state>
     </properties>
 
     <build>
@@ -125,7 +126,7 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <autoPublish>true</autoPublish>
-                            <waitUntil>published</waitUntil>
+                            <waitUntil>${maven.central.wait.state}</waitUntil>
                         </configuration>
                     </plugin>
                     <plugin>
