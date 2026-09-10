@@ -41,11 +41,13 @@ jobs:
           # so that Maven can read them when processing settings.xml
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          # Branch for git-commit-id-maven-plugin
-          GITHUB_REF: refs/heads/main
-        run: |
-          mvn clean deploy -Prelease -Dgpg.skip=false -Darguments="--no-tty --use-agent" -Dmaven.central.wait.state=uploaded
-
+        run: >
+          mvn clean deploy -Prelease
+          -Dgpg.skip=false
+          -Dgit.branch=main
+          -Dmaven.central.wait.state=uploaded
+          -Darguments="--no-tty --use-agent"
+          
       # 5. Generate changelog based on commits between version tags
       - name: Generate Direct Commit Changelog
         id: git_changelog
